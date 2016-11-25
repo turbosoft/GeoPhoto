@@ -1,0 +1,84 @@
+@CHARSET "UTF-8";
+
+*
+{
+	font-size: 13px;
+}
+
+input[type="text"], input[type="password"]
+{
+	line-height: 20px;
+}
+
+table
+{
+	border-collapse: collapse;
+}
+
+table tr
+{
+	height: 30px;
+}
+
+select
+{
+	height: 22px;
+}
+
+textarea
+{
+	resize: none;
+}
+
+.ui-dialog >.ui-widget-header {
+ 	background:#6d808f;
+ 	color:#ffffff;
+}
+ .ui-dialog-title{
+	color:#ffffff;
+}
+.col_black {background-color: #444444;}
+.col_gray1 {background-color: #e3e3e3;}
+.col_gray2 {background-color: #7a8fa2;}
+.col_gray3 {background-color: #6d808f;}
+.col_blue {background-color: #066ab0;}
+
+/* image_viewer.jsp, image_write.jsp */
+#object_table tr{font-size:12px; height:18px; color:rgb(21, 74, 119); border-bottom:1px solid #ffffff;}
+#object_table tr td:FIRST-CHILD {border-right:1px solid #ffffff; padding:2px 5px;}
+#object_table tr td:nth-child(2){border-right:1px solid #ffffff; padding:2px 5px;}
+#object_table tr td:nth-child(3) {padding-left:5px;}
+
+/* image_write.jsp */
+.save_btn {background-color: #066ab0;color: #fff;cursor: pointer;float: right;margin: 17px 5px;height: 30px;border: 1px solid #000000;}
+.close_btn {background-color: #444444;color: #fff;cursor: pointer;float: right;margin: 17px 15px;height: 30px;border: 1px solid #000000;}
+
+.anno_head_tr {height: 20px; text-align: center; color: #fff;}
+#upload_table div {float:left; margin-top: 5px;}
+#upload_table #showKind {float:right; margin: 5px 6px 0 0;}
+#upload_table input[type="text"] {width: 96%; margin-left: 10px;}
+#upload_table textarea {width: 95%; margin-left: 10px;}
+#upload_table .tr_line {height: 1px;}
+
+.pickerTable tr {height: 14px;}
+.lineTr{height: 10px;}
+
+.accordionButton {	
+	width: 100%;
+	float: left;
+	_float: none;  /* Float works in all browsers but IE6 */
+	color: #FFFFFF;
+/* 	background: rgb(15, 118, 207); */
+/* 	background: #444444; */
+	border-bottom: 2px solid #FFFFFF;
+	cursor: pointer;
+	height: 20px;
+	}
+	
+.accordionContent {	
+	width: 100%;
+	float: left;
+	_float: none; /* Float works in all browsers but IE6 */
+	background: #e3e3e3;
+/* 	background: #e5e5e5; */
+	}
