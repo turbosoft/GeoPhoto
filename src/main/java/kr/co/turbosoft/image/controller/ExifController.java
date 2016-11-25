@@ -25,7 +25,6 @@ public class ExifController {
 		}
 		
 		String file_dir = request.getSession().getServletContext().getRealPath("/")+file_name;
-		
 		System.out.println("file_dir = "+file_dir);
 		
 		ExifRW exifRW = new ExifRW();
