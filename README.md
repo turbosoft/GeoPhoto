@@ -10,3 +10,4 @@ GeoPhoto
   - 웹 기반 궤적 콘텐츠 관리 요소 기술 개발
   - GeoPhoto/Trajectory 저장/검색 기반 기술 개발
   - 오픈플랫폼 기반 Geotagged Photo 및 궤적 처리 응용 기반 기술 개발
+  aaaa

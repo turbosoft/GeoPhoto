@@ -1048,6 +1048,7 @@ function saveImageWrite(type) {
 	var encode_xml_text = encodeURIComponent(xml_text); // *****
 
 	var encode_file_name = encodeURIComponent(upload_url + file_url);
+	
 	if(type==1 || type==2) {
 		//xml 저장
 		$.ajax({
