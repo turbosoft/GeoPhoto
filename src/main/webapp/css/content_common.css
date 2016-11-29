@@ -68,8 +68,6 @@ textarea
 	float: left;
 	_float: none;  /* Float works in all browsers but IE6 */
 	color: #FFFFFF;
-/* 	background: rgb(15, 118, 207); */
-/* 	background: #444444; */
 	border-bottom: 2px solid #FFFFFF;
 	cursor: pointer;
 	height: 20px;
@@ -80,5 +78,4 @@ textarea
 	float: left;
 	_float: none; /* Float works in all browsers but IE6 */
 	background: #e3e3e3;
-/* 	background: #e5e5e5; */
 	}
