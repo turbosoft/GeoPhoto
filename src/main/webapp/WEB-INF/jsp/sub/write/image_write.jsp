@@ -930,7 +930,6 @@ function saveExif() {
 	$.ajax({
 		type: 'POST',
 		url: base_url + '/geoExif.do',
-// 		url: "<c:url value='/geoExif.do'/>",
 		data: 'file_name='+encode_file_name+'&type=save&data='+data_text,
 		success: function(data) { var response = data.trim(); jAlert('정상적으로 저장 되었습니다.', '정보'); }
 	});
@@ -1045,7 +1044,7 @@ function saveImageWrite(type) {
 		}
 	}
 	var xml_text = makeXMLStr(obj_data_arr);
-	var encode_xml_text = encodeURIComponent(xml_text); // *****
+	var encode_xml_text = encodeURIComponent(xml_text); // xml text encoding
 
 	var encode_file_name = encodeURIComponent(upload_url + file_url);
 	
@@ -1066,8 +1065,6 @@ function saveImageWrite(type) {
 // 						else data_text += "\<NONE\>\<LineSeparator\>";
 // 						if($('#lat_text').val()!='Not Found.') data_text += $('#lat_text').val() + "\<LineSeparator\>";
 // 						else data_text += "\<NONE\>";
-						
-						
 						
 						var tmp_xml_text = xml_text.replace(/\//g,'&sbsp');
 						tmp_xml_text = tmp_xml_text.replace(/\?/g,'&mbsp');

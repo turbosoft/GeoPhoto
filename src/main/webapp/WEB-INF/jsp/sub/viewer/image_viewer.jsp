@@ -949,13 +949,6 @@ css3color = function(color, opacity) {
 	<!-- <button class='image_write_button' onclick='imageWrite();' style='position:absolute; left:820px; top:570px; width:180px; height:50px; display:block;'>저작</button> -->
 	<img src="<c:url value='/images/geoImg/viewer/write_btn.jpg'/>" onclick='imageWrite();' style='position:absolute; left:880px; top:565px; width:140px; height:35px; display:none; cursor: pointer;' id="makeImageBtn">
 
-<!-- 게시물 설정 버튼 -->
-<!-- <div style='position:absolute; left:150px; top:530px; width:80px; height:500px; display:block;'>
-	<button class='image_setting_button' onclick='imageSetting();'>Settings</button>
-</div> -->
-
-
-
 </body>
 
 </html>
