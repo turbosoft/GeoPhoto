@@ -595,7 +595,6 @@ function loadExif() {
 	$.ajax({
 		type: 'POST',
 		url: base_url + '/geoExif.do',
-// 		url: "<c:url value='/geoExif.do'/>",
 		data: 'file_name='+encode_file_name+'&type=load',
 		success: function(data) {
 			var response = data.trim();
@@ -775,9 +774,6 @@ css3color = function(color, opacity) {
 <body onload='imageViewerInit();'>
 <!---------------------------------------------------- 메인 영역 시작 ------------------------------------------------>
 
-<!-- 이미지 영역 -->
-<!-- <div id='image_main_area' style='position:absolute; left:10px; top:15px; width:800px; height:500px; display:block; border:1px solid #999999;'>
-</div> -->
 <div id='image_main_area' style='position:absolute; left:10px; top:15px; width:780px; height:580px; display:block; border:1px solid #999999;'>
 </div>
 <!-- 추가 객체 영역 -->
@@ -946,9 +942,7 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- 저작 버튼 -->
-	<!-- <button class='image_write_button' onclick='imageWrite();' style='position:absolute; left:820px; top:570px; width:180px; height:50px; display:block;'>저작</button> -->
 	<img src="<c:url value='/images/geoImg/viewer/write_btn.jpg'/>" onclick='imageWrite();' style='position:absolute; left:880px; top:565px; width:140px; height:35px; display:none; cursor: pointer;' id="makeImageBtn">
-
 </body>
 
 </html>
