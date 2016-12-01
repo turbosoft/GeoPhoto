@@ -79,7 +79,10 @@ function setAngle(direction_str, focal_str) {
 }
 //화각 구하기
 getFOV = function(focal_length) {
+	//var diagonalLength = Math.sqrt(Math.pow(36, 2) + Math.pow(24, 2));
+	//var diagonalLength = Math.sqrt(Math.pow(3.626, 2) + Math.pow(2.709, 2));
 	var fov = (2 * Math.atan(3.626 / (2 * focal_length))) * 180 / Math.PI;
+	
 	return fov;
 };
 //촬영 거리 구하기
@@ -260,6 +263,7 @@ google.maps.LatLng.prototype.lngRadians = function() {
 Number.prototype.toDeg = function() {
 	return this * 180 / Math.PI;
 };
+
 
 </script>
 </head>
