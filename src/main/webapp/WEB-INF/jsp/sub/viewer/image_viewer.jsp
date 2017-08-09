@@ -255,9 +255,9 @@ function createCaption() {
 	if(bg_check==true) bg_color = '';
 	var html_text;
 	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+auto_caption_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+auto_caption_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+auto_caption_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
+	if(font_size=='H3') html_text = '<font id="f'+auto_caption_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H2') html_text = '<font id="f'+auto_caption_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H1') html_text = '<font id="f'+auto_caption_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
 	else html_text = '<font id="f'+auto_caption_str+'" style="color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
 	//bold, italic, underline, hyperlink 설정
 	if(bold_check==true) html_text = '<b id="b'+auto_caption_str+'">'+html_text+'</b>';
@@ -286,9 +286,9 @@ function createBubble() {
 	if(bg_check==true) bg_color = '';
 	var html_text;
 	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
+	if(font_size=='H3') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H2') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H1') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
 	else html_text = '<font id="f'+auto_bubble_str+'" style="color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
 	//bold, italic, underline, hyperlink 설정
 	if(bold_check==true) html_text = '<b id="b'+auto_bubble_str+'">'+html_text+'</b>';
@@ -532,7 +532,7 @@ function loadXML() {
 		contentType: "application/x-www-form-urlencoded; charset=utf-8", 
 		cache: false,
 		success:function(xml) {
-			jAlert('객체 정보를 로드 합니다.', '정보');
+// 			jAlert('객체 정보를 로드 합니다.', '정보');
 			$(xml).find('obj').each(function(index) {
 				var id = $(this).find('id').text();
 				if(id == "c" || id == "b") {
@@ -677,6 +677,9 @@ readMapData = function() {
 	var lon_text = $('#lon_text').val();
 	var lat_text = $('#lat_text').val();
 	var focal_str = $('#focal_text').val();
+	if(focal_str != null && focal_str != ""){
+		focal_str = focal_str.replace(/'/, '');
+	}
 	
 	var buf_arr = new Array();
 	buf_arr.push(lat_text);
@@ -914,7 +917,7 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- EXIF 삽입 다이얼로그 객체 -->
-<div id='exif_dialog' style='position:absolute; left:800px; top:310px; width:300px; height:248px; border:1px solid #999999; display:block;'>
+<div id='exif_dialog' style='position:absolute; left:800px; top:310px; width:300px; height:248px; border:1px solid #999999; display:block; font-size:13px;'>
 	<div class='accordionButton col_black'>&nbsp;EXIF Normal Info</div>
 	<div class='accordionContent' style='height:207px; overflow-y:scroll;'>
 		<table id='normal_exif_table'>
