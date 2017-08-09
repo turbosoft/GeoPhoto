@@ -300,9 +300,9 @@ function createCaption() {
 	if(bg_check==true) bg_color = '';
 	var html_text;
 	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+auto_caption_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+auto_caption_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+auto_caption_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
+	if(font_size=='H3') html_text = '<font id="f'+auto_caption_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H2') html_text = '<font id="f'+auto_caption_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H1') html_text = '<font id="f'+auto_caption_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
 	else html_text = '<font id="f'+auto_caption_str+'" style="color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
 	//bold, italic, underline, hyperlink 설정
 	if(bold_check==true) html_text = '<b id="b'+auto_caption_str+'">'+html_text+'</b>';
@@ -347,10 +347,11 @@ function replaceCaption(id) {
 	
 	var html_text;
 	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+id+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+id+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+id+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
+	if(font_size=='H3') html_text = '<font id="f'+id+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H2') html_text = '<font id="f'+id+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H1') html_text = '<font id="f'+id+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
 	else html_text = '<font id="f'+id+'" style="color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
+	
 	//bold, italic, underline, hyperlink 설정
 	if(bold_check==true) html_text = '<b id="b'+id+'">'+html_text+'</b>';
 	if(italic_check==true) html_text = '<i id="i'+id+'">'+html_text+'</i>';
@@ -461,9 +462,9 @@ function createBubble() {
 	if(bg_check==true) bg_color = '';
 	var html_text;
 	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
+	if(font_size=='H3') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H2') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H1') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
 	else html_text = '<font id="f'+auto_bubble_str+'" style="color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
 	//bold, italic, underline, hyperlink 설정
 	if(bold_check==true) html_text = '<b id="b'+auto_bubble_str+'">'+html_text+'</b>';
@@ -507,9 +508,9 @@ function replaceBubble(id) {
 	
 	var html_text;
 	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+id+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+id+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+id+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
+	if(font_size=='H3') html_text = '<font id="f'+id+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H2') html_text = '<font id="f'+id+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
+	else if(font_size=='H1') html_text = '<font id="f'+id+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
 	else html_text = '<font id="f'+id+'" style="color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
 	//bold, italic, underline, hyperlink 설정
 	if(bold_check==true) html_text = '<b id="b'+id+'">'+html_text+'</b>';
@@ -926,6 +927,12 @@ function saveExif() {
 	else data_text += "\<NONE\>\<LineSeparator\>";
 	if($('#lat_text').val()!='Not Found.') data_text += $('#lat_text').val() + "\<LineSeparator\>";
 	else data_text += "\<NONE\>";
+
+// 	else data_text += "\<NONE\>\<LineSeparator\>";
+// 	if($('#alt_text').val()!='Not Found.') data_text += $('#alt_text').val() + "\<LineSeparator\>";
+// 	else data_text += "\<NONE\>\<LineSeparator\>";
+// 	if($('#focal_text').val()!='Not Found.') data_text += $('#focal_text').val() + "\<LineSeparator\>";
+// 	else data_text += "\<NONE\>";
 	
 	$.ajax({
 		type: 'POST',
@@ -1106,8 +1113,8 @@ function saveImageWrite(type) {
 						if(tmpEditYes == null || tmpEditYes == ''){ tmpEditYes = '&nbsp'; }
 						if(tmpEditNo == null || tmpEditNo == ''){ tmpEditNo = '&nbsp'; }
 						
-						if(longitude == null || longitude == ''){ longitude = '&nbsp'; }
-						if(latitude == null || latitude == ''){ latitude = '&nbsp'; }
+						if(longitude == null || longitude == '' || longitude == 'Not Found.'){ longitude = '&nbsp'; }
+						if(latitude == null || latitude == '' || latitude == 'Not Found.'){ latitude = '&nbsp'; }
 						
 						var Url			= baseRoot() + "cms/updateImage/";
 						var param		= loginToken + "/" + loginId + "/" + idx + "/" + tmpTitle + "/" + tmpContent + "/" + tmpTabName + "/" + tmpShareType + "/" + tmpAddShareUser + "/" + tmpRemoveShareUser + "/" + tmp_xml_text + "/" + longitude + "/" +latitude +"/" + tmpEditYes + "/" + tmpEditNo;
@@ -1415,7 +1422,6 @@ function loadXML() {
 		dataType: "xml",
 		cache: false,
 		success: function(xml) {
-			jAlert('객체 정보를 로드 합니다.', '정보');
 			$(xml).find('obj').each(function(index) {
 				var id = $(this).find('id').text();
 				//jAlert('객체 정보를 로드 합니다.', '정보');
@@ -1491,6 +1497,9 @@ readMapData = function() {
 	var lon_text = $('#lon_text').val();
 	var lat_text = $('#lat_text').val();
 	var focal_str = $('#focal_text').val();
+	if(focal_str != null && focal_str != ""){
+		focal_str = focal_str.replace(/'/, '');
+	}
 	
 	var buf_arr = new Array();
 	buf_arr.push(lat_text);
@@ -1602,7 +1611,7 @@ function sendMail() {
 </div>
 
 <!-- 탭 , 공유 우저 영역 -->
-<div id="showInfoDiv" style="position:absolute; left:805px; top:13px; color:white;display: none;">
+<div id="showInfoDiv" style="position:absolute; left:805px; top:13px; color:white; display: none; font-size:13px;">
 	<div> TabName : <label id="showKindLabel"></label></div>
 	<div style="margin-top: 5px;"> 공유 설정 : <label id="shareKindLabel"></label></div>
 </div>
@@ -1746,7 +1755,7 @@ function sendMail() {
 </div>
 
 <!-- EXIF 삽입 다이얼로그 객체 -->
-<div id='exif_dialog' style='position:absolute; left:800px; top:345px; width:330px; height:204px; border:1px solid #999999; display:block;'>
+<div id='exif_dialog' style='position:absolute; left:800px; top:345px; width:330px; height:204px; border:1px solid #999999; display:block; font-size:13px;'>
 	<div class='accordionButton col_black'>&nbsp;EXIF</div>
 	<div class='accordionContent' style='height:164px; overflow-y:scroll;'>
 		<table id='normal_exif_table'>
@@ -1768,18 +1777,18 @@ function sendMail() {
 	<div class='accordionButton col_black'>&nbsp;EXIF-GPS</div>
 	<div class='accordionContent' style='height:162px; overflow-y:scroll;'>
 		<table id='gps_exif_table' style="margin-top:7px;">
-			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label style='font-size:12px;'>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
+			<tr><td width='15'></td><td><label style='font-size:12px;'>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
 			<tr><td width='15'></td><td><label style='font-size:12px;'>GPS Direction</label></td><td><input id='gps_direction_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label style='font-size:12px;'>Longitude</label></td><td><input id='lon_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label style='font-size:12px;'>Latitude</label></td><td><input id='lat_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label style='font-size:12px;'>Longitude</label></td><td><input id='lon_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
+			<tr><td width='15'></td><td><label style='font-size:12px;'>Latitude</label></td><td><input id='lat_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
 		</table>
 	</div>
 	
 	<!-- <button class="ui-state-default ui-corner-all" style="position:absolute; left:248px; top:205px; width:80px; height:25px; font-size:11px;" onclick="saveExif();">저장</button> -->
 </div>
 
-<div id='data_dialog' style='position:absolute; left:150px; top:670px; width:500px; height:165px; border:1px solid #999999; display:none;'>
+<div id='data_dialog' style='position:absolute; left:150px; top:670px; width:500px; height:165px; border:1px solid #999999; display:none; font-size:13px;'>
 	<div style='display:table; width:100%; height:100%;'>
 		<div align="center" style='display:table-cell; vertical-align:middle;'>
 			<table id="upload_table" border='0'>
