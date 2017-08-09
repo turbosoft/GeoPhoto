@@ -5,7 +5,7 @@
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&key=AIzaSyAZ4i-9lnjP3m46b2oqg4BlVxDmDfhExvU"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAth-_FyQxRomNh2JkI_MvAWXRJuLOEXNI"></script>
 <script type='text/javascript'>
 
 /* --------------------- 내부 함수 --------------------*/
