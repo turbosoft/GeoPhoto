@@ -95,17 +95,21 @@ function httpRequest(textUrl){
 				base_url = 'http://'+ location.host + '/GeoCMS';
 				upload_url = '/upload/GeoPhoto/';
 				
-				if(loginId != null && loginId != '' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN' || (user_id == null || user_id == '' || user_id == 'null'))){
-					$('#makeImageBtn').css('display', 'block');
+				if(loginId != null && loginId != '' && loginId != 'null' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN')){
+// 					$('#makeImageBtn').css('display', 'block');
+					$('body').append('<img src="<c:url value="/images/geoImg/viewer/write_btn.jpg"/>" onclick="imageWrite();" style="position:absolute; left:880px; top:565px; width:140px; height:35px; display:block; cursor: pointer;" id="makeImageBtn">');
 				}else{
-					if(editUserCheck() == 1 ||  projectUserId == loginId){
-						$('#makeImageBtn').css('display', 'block');
+					if(editUserCheck() == 1 ||  (loginId != null && loginId != '' && loginId != 'null' && projectUserId == loginId)){
+						alert('qwe');
+						$('body').append('<img src="<c:url value="/images/geoImg/viewer/write_btn.jpg"/>" onclick="imageWrite();" style="position:absolute; left:880px; top:565px; width:140px; height:35px; display:block; cursor: pointer;" id="makeImageBtn">');
+// 						$('#makeImageBtn').css('display', 'block');
 					}
 				}
 			}else{
 				base_url = '<c:url value="/"/>';
 				upload_url = '/upload/';
-				$('#makeImageBtn').css('display', 'block');
+				$('body').append('<img src="<c:url value="/images/geoImg/viewer/write_btn.jpg"/>" onclick="imageWrite();" style="position:absolute; left:880px; top:565px; width:140px; height:35px; display:block; cursor: pointer;" id="makeImageBtn">');
+// 				$('#makeImageBtn').css('display', 'block');
 			}
 		}
 	}
@@ -949,8 +953,7 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- 저작 버튼 -->
-	<!-- <button class='image_write_button' onclick='imageWrite();' style='position:absolute; left:820px; top:570px; width:180px; height:50px; display:block;'>저작</button> -->
-	<img src="<c:url value='/images/geoImg/viewer/write_btn.jpg'/>" onclick='imageWrite();' style='position:absolute; left:880px; top:565px; width:140px; height:35px; display:none; cursor: pointer;' id="makeImageBtn">
+	
 
 </body>
 
