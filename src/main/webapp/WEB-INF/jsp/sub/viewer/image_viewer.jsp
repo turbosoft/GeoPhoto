@@ -100,7 +100,7 @@ function httpRequest(textUrl){
 					$('body').append('<img src="<c:url value="/images/geoImg/viewer/write_btn.jpg"/>" onclick="imageWrite();" style="position:absolute; left:880px; top:565px; width:140px; height:35px; display:block; cursor: pointer;" id="makeImageBtn">');
 				}else{
 					if(editUserCheck() == 1 ||  (loginId != null && loginId != '' && loginId != 'null' && projectUserId == loginId)){
-						alert('qwe');
+						
 						$('body').append('<img src="<c:url value="/images/geoImg/viewer/write_btn.jpg"/>" onclick="imageWrite();" style="position:absolute; left:880px; top:565px; width:140px; height:35px; display:block; cursor: pointer;" id="makeImageBtn">');
 // 						$('#makeImageBtn').css('display', 'block');
 					}
