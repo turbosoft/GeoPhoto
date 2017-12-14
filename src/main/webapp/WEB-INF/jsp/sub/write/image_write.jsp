@@ -107,7 +107,8 @@ function getOneImageData(){
 					
 					$('#title_area').val(response.TITLE);
 					$('#content_area').val(response.CONTENT);
-					var nowShareTypeText = nowShareType == 0? '비공개':nowShareType== 1? '전체공개':'특정인 공개';
+// 					var nowShareTypeText = nowShareType == 0? '비공개':nowShareType== 1? '전체공개':'특정인 공개';
+					var nowShareTypeText = nowShareType == 0? 'Nondisclosure':nowShareType== 1? 'Full disclosure':'Selective disclosure';
 					
 					$('#showKindLabel').text(nowSelTab);
 					$('#shareKindLabel').text(nowShareTypeText);
@@ -120,7 +121,7 @@ function getOneImageData(){
 					}
 				}
 			}else{
-				jAlert(data.Message, '정보');
+				jAlert(data.Message, 'Info');
 			}
 		}
 	});
@@ -319,7 +320,8 @@ function createCaption() {
 	$('#'+div_element.attr('id')).contextMenu('context1', {
 		bindings: {
 			'context_modify': function(t) { inputCaption(t.id, text); },
-			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
+			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
+// 			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
 		}
 	});
 	
@@ -480,7 +482,8 @@ function createBubble() {
 	$('#'+div_element.attr('id')).contextMenu('context1', {
 		bindings: {
 			'context_modify': function(t) { inputBubble(t.id, text); },
-			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ 	if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
+			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ 	if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
+// 			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ 	if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
 		}
 	});
 	
@@ -595,7 +598,8 @@ function createIcon(img_src) {
 	$('#'+img_element.attr('id')).contextMenu('context2', {
 		bindings: {
 			'context_delete': function(t) {
-				jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
+				jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
+// 				jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
 			}
 		}
 	});
@@ -778,7 +782,8 @@ function createGeometry(type) {
 				var left = obj.css('left'); left = left.replace('px','');
 				autoCreateText('b', 'Normal', '#000000', '#FFFFFF', 'false', 'false', 'false', 'false', t.id+'의 말풍선', top, left);
 			},
-			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); }); }
+			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); }); }
+// 			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); }); }
 		}
 	});
 
@@ -938,7 +943,11 @@ function saveExif() {
 		type: 'POST',
 		url: base_url + '/geoExif.do',
 		data: 'file_name='+encode_file_name+'&type=save&data='+data_text,
-		success: function(data) { var response = data.trim(); jAlert('정상적으로 저장 되었습니다.', '정보'); }
+		success: function(data) {
+			var response = data.trim();
+// 			jAlert('정상적으로 저장 되었습니다.', '정보');
+			jAlert('Saved successfully.', 'Info');
+		}
 	});
 }
 
@@ -1094,17 +1103,20 @@ function saveImageWrite(type) {
 						tmpContent = tmpContent.replace(/\//g,'&sbsp');
 						
 						if(tmpTitle == null || tmpTitle == "" || tmpTitle == 'null'){
-							 jAlert('제목을 입력해 주세요.', '정보');
+// 							 jAlert('제목을 입력해 주세요.', '정보');
+							 jAlert('Please enter the subject.', 'Info');
 							 return;
 						 }
 						 
 						 if(tmpContent == null || tmpContent == "" || tmpContent == 'null'){
-							 jAlert('내용을 입력해 주세요.', '정보');
+// 							 jAlert('내용을 입력해 주세요.', '정보');
+							 jAlert('Please enter your details.', 'Info');
 							 return;
 						 }
 						 
 						 if(tmpShareType != null && tmpShareType == 2 && (tmpAddShareUser == null || tmpAddShareUser == '') && oldShareUserLen == 0){
-							 jAlert('공유 유저가 지정되지 않았습니다.', '정보');
+// 							 jAlert('공유 유저가 지정되지 않았습니다.', '정보');
+							 jAlert('No sharing user specified.', 'Info');
 							 return;
 						 }
 						 
@@ -1138,7 +1150,7 @@ function saveImageWrite(type) {
 					 				$('#showKindLabel').text();
 					 				$('#shareKindLabel').text();
 								}else{
-									jAlert(data.Message, '정보');
+									jAlert(data.Message, 'Info');
 								}
 							}
 						});
@@ -1424,7 +1436,6 @@ function loadXML() {
 		success: function(xml) {
 			$(xml).find('obj').each(function(index) {
 				var id = $(this).find('id').text();
-				//jAlert('객체 정보를 로드 합니다.', '정보');
 				if(id == "c" || id == "b") {
 					var font_size = $(this).find('fontsize').text(); var font_color = $(this).find('fontcolor').text(); var bg_color = $(this).find('backgroundcolor').text();
 					var bold = $(this).find('bold').text(); var italic = $(this).find('italic').text(); var underline = $(this).find('underline').text(); var href = $(this).find('href').text();
@@ -1480,7 +1491,8 @@ function loadXML() {
 
 /* exit_start ----------------------------------- 종료 버튼 설정 ------------------------------------- */
 function closeImageWrite() {
-	jConfirm('저작을 종료하시겠습니까?', '정보', function(type){
+// 	jConfirm('저작을 종료하시겠습니까?', '정보', function(type){
+	jConfirm('Do you want to end authoring?', 'Info', function(type){
 		if(type) { top.window.opener = top; top.window.open('','_parent',''); top.window.close(); }
 	});
 }
@@ -1794,9 +1806,12 @@ function sendMail() {
 			<table id="upload_table" border='0'>
 				<tr>
 					<td colspan="2" width="450">
-						<div><input type="radio" value="0" name="shareRadio">비공개</div>
-						<div><input type="radio" value="1" name="shareRadio">전체공개</div>
-						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">특정인 공개</div>
+						<div><input type="radio" value="0" name="shareRadio">Nondisclosure</div>
+						<div><input type="radio" value="1" name="shareRadio">Full disclosure</div>
+						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">Selective disclosure</div>
+<!-- 						<div><input type="radio" value="0" name="shareRadio">비공개</div> -->
+<!-- 						<div><input type="radio" value="1" name="shareRadio">전체공개</div> -->
+<!-- 						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">특정인 공개</div> -->
 						<select id="showKind"></select>
 					</td>
 				</tr>
