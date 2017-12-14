@@ -328,7 +328,8 @@ function createIcon(img_src) {
 	$('#'+img_element.attr('id')).contextMenu('context2', {
 		bindings: {
 			'context_delete': function(t) {
-				jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
+// 				jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
+				jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
 			}
 		}
 	});
@@ -536,7 +537,6 @@ function loadXML() {
 		contentType: "application/x-www-form-urlencoded; charset=utf-8", 
 		cache: false,
 		success:function(xml) {
-// 			jAlert('객체 정보를 로드 합니다.', '정보');
 			$(xml).find('obj').each(function(index) {
 				var id = $(this).find('id').text();
 				if(id == "c" || id == "b") {
@@ -721,7 +721,8 @@ function resizeMap() {
 
 //저작
 function imageWrite() {
-	jConfirm('뷰어를 닫고 저작을 수행하시겠습니까?', '정보', function(type){
+// 	jConfirm('뷰어를 닫고 저작을 수행하시겠습니까?', '정보', function(type){
+	jConfirm('Do you want to close the viewer and author?', 'Info', function(type){
 		if(type) {
 			$.FrameDialog.closeDialog();	//뷰어 닫기
 			openImageWrite();
