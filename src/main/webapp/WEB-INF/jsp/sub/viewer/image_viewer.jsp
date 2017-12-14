@@ -827,7 +827,7 @@ css3color = function(color, opacity) {
 				<td><input id="caption_font_color" type="text" class="iColorPicker" value="#FFFFFF" style="width:50px;"/></td>
 				<td><label style="font-size:12px;">BG Color : </label></td>
 				<td><input id="caption_bg_color" type="text" class="iColorPicker" value="#000000" style="width:50px;"/></td>
-				<td id='caption_checkbox_td'><input type="checkbox" name="caption_bg_checkbok" onclick="checkCaption();"/><label style="font-size:12px;">투명</label></td></tr>
+				<td id='caption_checkbox_td'><input type="checkbox" name="caption_bg_checkbok" onclick="checkCaption();"/><label style="font-size:12px;">Transparent</label></td></tr>
 				<tr><td colspan='7' id='caption_check'></td></tr>
 				<tr><td colspan='7'><hr/></td></tr>
 				<tr><td colspan='5'><input id="caption_text" type="text" style="width:90%; font-size:12px; border:solid 2px #777;"/></td>
@@ -848,7 +848,7 @@ css3color = function(color, opacity) {
 				<td><input id="bubble_font_color" type="text" class="iColorPicker" value="#FFFFFF" style="width:50px;"/></td>
 				<td><label style="font-size:12px;">BG Color : </label></td>
 				<td><input id="bubble_bg_color" type="text" class="iColorPicker" value="#000000" style="width:50px;"/></td>
-				<td id='bubble_checkbox_td'><input type="checkbox" name="bubble_bg_checkbok" onclick="checkBubble();"/><label style=" font-size:12px;">투명</label></td></tr>
+				<td id='bubble_checkbox_td'><input type="checkbox" name="bubble_bg_checkbok" onclick="checkBubble();"/><label style=" font-size:12px;">Transparent</label></td></tr>
 				<tr><td colspan='7' id='bubble_check'></td></tr>
 				<tr><td colspan='7'><hr/></td></tr>
 				<tr><td colspan='5'><textarea id="bubble_text" rows="3" style="width:90%; font-size:12px; border:solid 2px #777;"></textarea></td>
@@ -905,7 +905,7 @@ css3color = function(color, opacity) {
 					<input type='radio' name='geo_shape' value='rect'><label style="font-size:12px;">Rect</label>
 					<input type='radio' name='geo_shape' value='point' checked><label style="font-size:12px;">Point</label></td>
 					<td width='20'></td>
-					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">확인</button></td>
+					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">OK</button></td>
 				</tr>
 				<tr><td><hr/></td><td width='20'></td></tr>
 				<tr>
