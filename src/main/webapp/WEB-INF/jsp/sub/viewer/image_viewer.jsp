@@ -789,7 +789,7 @@ css3color = function(color, opacity) {
 <div id='image_main_area' style='position:absolute; left:10px; top:15px; width:780px; height:580px; display:block; border:1px solid #999999;'>
 </div>
 <!-- 추가 객체 영역 -->
-<div id="ioa_title" style='position:absolute; left:797px; top:12px; width:150px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="객체추가리스트"></div>
+<div id="ioa_title" style='position:absolute; left:797px; top:12px; width:150px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="Object added list"></div>
 <div id='image_object_area' style='position:absolute; left:800px; top:33px; width:300px; height:245px; display:block; border:1px solid #999999; overflow-y:scroll;'>
 	<table id='object_table'>
 		<tr style='font-size:12px; height:20px;' class='col_black'>
@@ -801,7 +801,7 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- EXIF 영역 -->
-<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:799px; top:288px;' alt="이미지정보"></div>
+<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:799px; top:288px;' alt="Image Information"></div>
 <div id='image_exif_area' style='position:absolute; left:800px; top:310px; width:300px; height:245px; display:block; /*border:1px solid #999999;*/ '>
 </div>
 
