@@ -1629,7 +1629,7 @@ function sendMail() {
 </div>
 
 <!-- 객체추가리스트 -->
-<div id="ioa_title" style='position:absolute; left:800px; top:73px; width:330px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="객체추가리스트"></div>
+<div id="ioa_title" style='position:absolute; left:800px; top:73px; width:330px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="Object added list"></div>
 <div id='image_object_area' style='position:absolute; left:800px; top:92px; width:330px; height:225px; display:block; border:1px solid #999999; overflow-y:scroll;'>
 	<table id='object_table'>
 		<tr style='font-size:12px; height:20px;' class='col_black'>
@@ -1645,12 +1645,12 @@ function sendMail() {
 </div>
 
 <!-- EXIF 영역 -->
-<div id="ex_title"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:800px; top:325px;' alt="이미지정보"></div>
+<div id="ex_title"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:800px; top:325px;' alt="Image Information"></div>
 <div id='image_exif_area' style='position:absolute; left:800px; top:345px; width:330px; height:185px; display:block; /*border:1px solid #999999;*/'>
 </div>
 
 <!-- 지도 영역 -->
-<div id="ima_title"><img src="<c:url value='/images/geoImg/write/title_04.gif'/>" style='position:absolute; left:802px; top:557px;' alt="지도"></div>
+<div id="ima_title"><img src="<c:url value='/images/geoImg/write/title_04.gif'/>" style='position:absolute; left:802px; top:557px;' alt="Map"></div>
 <div id='image_map_area' style='position:absolute; left:800px; top:580px; width:330px; height:270px; display:block;'>
 	<iframe id='googlemap' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
 	<div id='resize_map_btn' onclick='resizeMap();' style='position:absolute; left:0px; top:0px; width:30px; height:30px; cursor:pointer; background-image:url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'>
