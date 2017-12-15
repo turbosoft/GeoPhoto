@@ -1099,9 +1099,6 @@ function saveImageWrite(type) {
 						var longitude = $('#lon_text').val();
 						var latitude = $('#lat_text').val();
 										
-						tmpTitle = tmpTitle.replace(/\//g,'&sbsp');
-						tmpContent = tmpContent.replace(/\//g,'&sbsp');
-						
 						if(tmpTitle == null || tmpTitle == "" || tmpTitle == 'null'){
 // 							 jAlert('제목을 입력해 주세요.', '정보');
 							 jAlert('Please enter the subject.', 'Info');
@@ -1119,9 +1116,20 @@ function saveImageWrite(type) {
 							 jAlert('No sharing user specified.', 'Info');
 							 return;
 						 }
-						tmpTitle = encodeURIComponent(tmpTitle);
-						tmpContent = encodeURIComponent(tmpContent);
 						 
+						 if(tmpTitle != null && tmpTitle.indexOf('\'') > -1){
+// 								alert('특수문자 \' 는 사용할 수 없습니다.');
+								jAlert("Special characters \ ' can not be used.", 'Info');
+								return;
+						 }	
+						 if(tmpContent != null && tmpContent.indexOf('\'') > -1){
+// 								alert('특수문자 \' 는 사용할 수 없습니다.');
+								jAlert("Special characters \ ' can not be used.", 'Info');
+								return;
+						 }
+						 tmpTitle = tmpTitle.replace(/\//g,'&sbsp').replace(/\?/g,'&mbsp').replace(/\#/g,'&pbsp').replace(/\./g,'&obsp').replace(/</g,'&lt').replace(/>/g,'&gt').replace(/\\/g,'&bt').replace(/%/g,'&mt').replace(/;/g,'&vbsp').replace(/\r/g,'&rnsp').replace(/\n/g,'&nnsp');
+						 tmpContent = tmpContent.replace(/\//g,'&sbsp').replace(/\?/g,'&mbsp').replace(/\#/g,'&pbsp').replace(/\./g,'&obsp').replace(/</g,'&lt').replace(/>/g,'&gt').replace(/\\/g,'&bt').replace(/%/g,'&mt').replace(/;/g,'&vbsp').replace(/\r/g,'&rnsp').replace(/\n/g,'&nnsp');
+
 						if(tmpAddShareUser == null || tmpAddShareUser.length <= 0){ tmpAddShareUser = '&nbsp'; }
 						if(tmpRemoveShareUser == null || tmpRemoveShareUser.length <= 0){ tmpRemoveShareUser = '&nbsp'; }
 						if(tmpEditYes == null || tmpEditYes == ''){ tmpEditYes = '&nbsp'; }
