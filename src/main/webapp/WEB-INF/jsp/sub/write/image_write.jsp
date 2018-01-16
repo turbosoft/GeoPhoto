@@ -1342,8 +1342,7 @@ function saveImageWrite(type) {
 		}
 		else{
 			$('body').append('<div class="lodingOn" style="z-index:9000;"></div>');
-			var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url+"&idx="+idx;
-			
+			var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url;
 			if(emailCapture == 'Y'){
 				////////////////////////////////////////////////
 				$.ajax({
@@ -1371,6 +1370,7 @@ function saveImageWrite(type) {
 							   	$('#imgData_type').val('Y');
 								$('#imgData_email').val(emailAdrs);
 								$('#imgData_url').val(imgUrls);
+								$('#imgData_idx').val(idx);
 								
 								$('#chk_url').val(emailurl);
 								$('#chk_capture').val(emailCapture);
@@ -1428,7 +1428,7 @@ function saveImageWrite(type) {
 	 			$.ajax({
 					type: 'POST',
 					url: "<c:url value='/geoUserSendMail.do'/>",
-					data: 'imgData_type=Y&imgData_email='+emailAdrs +'&imgData_url='+imgUrls+'&chk_url='+emailurl+'&chk_capture=N',
+					data: 'imgData_type=Y&imgData_email='+emailAdrs +'&imgData_url='+imgUrls+'&imgData_idx='+ idx +'&chk_url='+emailurl+'&chk_capture=N',
 					success: function(data) {
 						jAlert(emailAdrs + '으로 메일이 전송되었습니다.', '정보', function(res){
 				        	  if(res){
@@ -1455,6 +1455,7 @@ function clearEdialog(){
 	$('#chk_url').val('');
 	$('#chk_capture').val('');
 	$('#imgData_url').val('');
+	$('#imgData_idx').val('');
 	$('#sendMail_url').attr('checked',false);
 	$('#sendMail_capture').attr('checked',false);
 }
@@ -2137,6 +2138,7 @@ function dataURItoBlob(dataURI) {
 		<input type="hidden" id="chk_url" name="chk_url"/>
 		<input type="hidden" id="chk_capture" name="chk_capture"/>
 		<input type="hidden" id="imgData_url" name="imgData_url"/>
+		<input type="hidden" id="imgData_idx" name="imgData_idx"/>
 	</form>
 </div>
 </body>

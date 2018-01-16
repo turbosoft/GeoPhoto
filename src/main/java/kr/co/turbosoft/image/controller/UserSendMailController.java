@@ -54,6 +54,7 @@ public class UserSendMailController {
 		String imgData_type = request.getParameter("imgData_type");
 		String imgData_email = request.getParameter("imgData_email");
 		String imgData_url = request.getParameter("imgData_url");
+		String imgData_idx = request.getParameter("imgData_idx");
 		String chk_url = request.getParameter("chk_url");
 		String chk_capture = request.getParameter("chk_capture");
 		String imgData = request.getParameter("imgData");
@@ -67,7 +68,7 @@ public class UserSendMailController {
 				String sendHtml = "";
 	    	
 				if(chk_url != null && "Y".equals(chk_url)){
-					sendHtml = "요청하신 url 주소는 <a href='"+ imgData_url +"&link=Y'>링크로 가기</a>";
+					sendHtml = "요청하신 url 주소는 <a href='"+ imgData_url +"&idx="+ imgData_idx + "&link=Y'>링크로 가기</a>";
 				}
 	       
 				MimeBodyPart messageBodyPart = new MimeBodyPart();
