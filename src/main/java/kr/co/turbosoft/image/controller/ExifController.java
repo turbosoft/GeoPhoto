@@ -2,6 +2,7 @@ package kr.co.turbosoft.image.controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,6 +41,7 @@ public class ExifController {
 		if(file_name != null && !"".equals(file_name)){
 			file_name = file_name.replace("\\/", "/");
 		}
+		file_name = URLEncoder.encode(file_name,"utf-8");
 		
 		String file_dir = "http://"+ serverUrlStr + "/shares/"+saveFilePathStr;
 		String fileSavePathStr = request.getSession().getServletContext().getRealPath("/");
