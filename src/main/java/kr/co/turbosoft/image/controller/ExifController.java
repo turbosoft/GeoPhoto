@@ -36,14 +36,13 @@ public class ExifController {
 	public void geoPhotoExif(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.setCharacterEncoding("utf-8");
 		
-		String file_name = request.getParameter("file_name");
 		String type = request.getParameter("type");
-		if(file_name != null && !"".equals(file_name)){
-			file_name = file_name.replace("\\/", "/");
-		}
+		String[] buf = request.getParameter("file_name").split("\\/");
+		String file_path = buf[0];
+		String file_name = buf[1];
 		file_name = URLEncoder.encode(file_name,"utf-8");
 		
-		String file_dir = "http://"+ serverUrlStr + "/shares/"+saveFilePathStr;
+		String file_dir = "http://"+ serverUrlStr + "/shares/"+saveFilePathStr +"/"+ file_path +"/"+file_name;
 		String fileSavePathStr = request.getSession().getServletContext().getRealPath("/");
 		fileSavePathStr = fileSavePathStr.replace("GeoPhoto/", "");
 		fileSavePathStr = fileSavePathStr+"GeoCMS_Gateway/upload";
@@ -53,8 +52,9 @@ public class ExifController {
 		ExifRW exifRW = new ExifRW();
 		String result = "";
 		
+		exifRW.exifSettingCon(fileSavePathStr, serverUrlStr, userIdStr, userPassStr, portNumStr, saveFilePathStr);
 		if(type.equals("init") || type.equals("load")) {
-			result = exifRW.read(fileSavePathStr, file_dir, file_name, type);
+			result = exifRW.read(file_dir,type);
 			System.out.println(result);
 		}
 		else if(type.equals("save")){

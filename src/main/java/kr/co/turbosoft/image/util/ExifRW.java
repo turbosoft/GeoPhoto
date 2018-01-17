@@ -42,15 +42,30 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class ExifRW {
 	
-	@Value("#{props['file.userId']}")
+	private String fileSavePathStr;
+	private String serverUrlStr;
 	private String userIdStr;
-	
-	@Value("#{props['file.userPass']}")
 	private String userPassStr;
+	private String portNumStr;
+	private String saveFilePathStr;
+	
+	public void exifSettingCon(String fileSavePathStr, String serverUrlStr, String userIdStr, String userPassStr, String portNumStr, String saveFilePathStr) {
+		this.fileSavePathStr = fileSavePathStr;
+        this.serverUrlStr = serverUrlStr;
+        this.userIdStr = userIdStr;
+        this.userPassStr = userPassStr;
+        this.portNumStr = portNumStr;
+        this.saveFilePathStr = saveFilePathStr;
+    }
 	
 	//EXIF Read
-	public String read(String fileSavePathStr, String fileDir, String file_name, String type) {
+	public String read(String file_name, String type) {
 		File file = new File(fileSavePathStr+"/"+"tmp.jpg");
+		
+		File fileDir = new File(fileSavePathStr);
+		if(!fileDir.isDirectory()){
+			fileDir.mkdir();
+		}
 	    
 		//데이터 저장 변수 선언
 		ArrayList<String> name = new ArrayList<String>();
@@ -59,9 +74,7 @@ public class ExifRW {
 		IImageMetadata metadata = null;
 				
 		try {			   
-			String paramS = URLEncoder.encode(file_name,"UTF-8");
-			URL gamelan = new URL(fileDir + "/" + paramS);
-			
+			URL gamelan = new URL(file_name);
 			Authenticator.setDefault(new Authenticator()
 			{
 			  @Override
