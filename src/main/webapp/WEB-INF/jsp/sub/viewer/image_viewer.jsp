@@ -321,7 +321,7 @@ function addImageMoveList(){
 						innerHTMLStr += "<div ";
 						var tmpViewId = "MOVE_"+ data[i].datakind + "_" + data[i].idx;
 
-						if(idx == data[i].idx || (nowIndexType == '&empty' && idx == '&empty' && i == 0 )){
+						if((idx == data[i].idx && data[i].datakind == 'GeoPhoto') || (nowIndexType == '&empty' && idx == '&empty' && i == 0 )){
 							innerHTMLStr += " style='border:2px solid #00b8b0;";
 						}else{
 							innerHTMLStr += " style='border:2px solid #888888;";
@@ -339,7 +339,7 @@ function addImageMoveList(){
 						
 						innerHTMLStr += "</a>";
 
-						if(idx == data[i].idx || (nowIndexType == '&empty' && idx == '&empty' && i == 0 )){
+						if((idx == data[i].idx && data[i].datakind == 'GeoPhoto') || (nowIndexType == '&empty' && idx == '&empty' && i == 0 )){
 							if(nowIndexType == '&empty' && idx == '&empty' && i == 0 ){
 								imgMapCenterChange("'"+ tempArr + "'");
 							}
