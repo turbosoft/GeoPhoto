@@ -54,7 +54,7 @@ public class ExifController {
 		
 		exifRW.exifSettingCon(fileSavePathStr, serverUrlStr, userIdStr, userPassStr, portNumStr, saveFilePathStr);
 		if(type.equals("init") || type.equals("load")) {
-			result = exifRW.read(file_dir,type);
+			result = exifRW.read(file_dir, type, file_name);
 			System.out.println(result);
 		}
 		else if(type.equals("save")){

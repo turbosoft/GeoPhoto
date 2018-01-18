@@ -59,8 +59,8 @@ public class ExifRW {
     }
 	
 	//EXIF Read
-	public String read(String file_name, String type) {
-		File file = new File(fileSavePathStr+"/"+"tmp.jpg");
+	public String read(String file_dir, String type, String fileName) {
+		File file = new File(fileSavePathStr+"/"+ fileName +".jpg");
 		
 		File fileDir = new File(fileSavePathStr);
 		if(!fileDir.isDirectory()){
@@ -74,7 +74,7 @@ public class ExifRW {
 		IImageMetadata metadata = null;
 				
 		try {			   
-			URL gamelan = new URL(file_name);
+			URL gamelan = new URL(file_dir);
 			Authenticator.setDefault(new Authenticator()
 			{
 			  @Override
@@ -93,9 +93,11 @@ public class ExifRW {
 		} 
 		
 		//EXIF 설정
-		try { metadata = Sanselan.getMetadata(file); if(file.exists()){file.delete();}}
-		catch(ImageReadException e) { e.printStackTrace(); }
-		catch(IOException e) { e.printStackTrace(); }
+		if(!fileName.contains(".png") && !fileName.contains(".PNG")){
+			try { metadata = Sanselan.getMetadata(file); if(file.exists()){ file.delete();}}
+			catch(ImageReadException e) { e.printStackTrace();}
+			catch(IOException e) { e.printStackTrace();}
+		}
 		
 		//이름 저장
 		if(type.equals("load")) {
