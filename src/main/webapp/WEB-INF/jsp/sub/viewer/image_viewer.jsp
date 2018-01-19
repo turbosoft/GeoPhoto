@@ -178,22 +178,32 @@ function httpRequest(textUrl){
 				base_url = 'http://'+ location.host + '/GeoCMS';
 				upload_url = '/GeoPhoto/';
 				
-				if(loginId != null && loginId != '' && loginId != 'null' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN')){
-					$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
-				}else{
-					if(editUserCheck() == 1 ||  (loginId != null && loginId != '' && loginId != 'null' && projectUserId == loginId)){
-						$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
-					}
-				}
+				btnViewCheck();
 				getOneImageData();
 			}else{
 				base_url = '<c:url value="/"/>';
 				upload_url = '/upload/';
 				$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+				$('#viewerColstBtn').css('display','block');
 				loadExif(null);
 			}
 			//이미지 그리기
 			changeImageNomal();
+		}
+	}
+}
+
+function btnViewCheck(){
+	$('#makeImageBtn').remove();
+	$('#viewerColstBtn').css('display','none');
+	
+	if(loginId != null && loginId != '' && loginId != 'null' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN')){
+		$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+		$('#viewerColstBtn').css('display','block');
+	}else{
+		if(editUserCheck() == 1 ||  (loginId != null && loginId != '' && loginId != 'null' && projectUserId == loginId)){
+			$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+			$('#viewerColstBtn').css('display','block');
 		}
 	}
 }
@@ -561,6 +571,9 @@ function imgMapCenterChange(tmpArr){
 	$('#Pro_'+ tmpKind +'_'+ idx + " DIV:first").css('border', '2px solid #888888');
 	idx = nowViewList[tmpMoveIdx].idx;
 	$('#Pro_'+ tmpKind +'_'+ idx + " DIV:first").css('border', '2px solid #00b8b0');
+	
+	idx = nowSelectIdx;
+	btnViewCheck();
 }
 
 function getMoveList(){
@@ -1805,7 +1818,7 @@ css3color = function(color, opacity) {
 		</table>
 	</div>
 </div>
-	<button style="position:absolute; left:580px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageViewClose();" id="viewerColstBtn">Close</button>
+	<button style="position:absolute; left:580px; top:780px; width:140px; height:35px; display:none; cursor: pointer;" onclick="imageViewClose();" id="viewerColstBtn">Close</button>
 </body>
 
 </html>
