@@ -624,7 +624,7 @@ function getMoveList(){
 							}
 						);
 						
-						var  tmpLeft2 = $('#view_category').offset().left+17;
+						var  tmpLeft2 = $('#view_category').offset().left -33;
 						$('#moveSelectDiv').css('display','block');
 						$('#moveSelectDiv').css('left',tmpLeft2);
 						var tmpToh2 = $('#view_category').offset().top - $('#moveSelectDiv').height() -16 ;
