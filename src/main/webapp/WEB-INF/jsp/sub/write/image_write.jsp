@@ -12,7 +12,6 @@ String file_url = request.getParameter("file_url");
 String idx = request.getParameter("idx");
 String loginToken = request.getParameter("loginToken");
 String loginId = request.getParameter("loginId");
-String b_contentTabArr = request.getParameter("b_contentTabArr");	//contentTab array
 String projectBoard = request.getParameter("projectBoard");
 String editUserYN = request.getParameter("editUserYN");
 %>
@@ -23,10 +22,6 @@ String editUserYN = request.getParameter("editUserYN");
 var idx = '<%= idx %>';
 var loginToken = '<%= loginToken %>';
 var loginId = '<%= loginId %>';
-var b_contentTabArr = "<%=b_contentTabArr%>";	//content tab array
-if(b_contentTabArr != null){
-	b_contentTabArr = b_contentTabArr.split(",");
-}
 var projectBoard = '<%= projectBoard %>';
 var editUserYN = '<%= editUserYN %>';
 
@@ -1033,7 +1028,7 @@ function loadExif(rObj) {
 	if(rObj != null && rObj != ''){
 		imgDroneType = rObj.dronetype;
 		
-		var encode_file_name = encodeURIComponent('/GeoPhoto/'+ rObj.filename);
+		var encode_file_name = encodeURIComponent('GeoPhoto/'+ rObj.filename);
 		$.ajax({
 			type: 'POST',
 			url: '<c:url value="/geoExif.do"/>',

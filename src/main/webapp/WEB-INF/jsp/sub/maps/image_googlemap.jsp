@@ -55,7 +55,7 @@ function setCenter(lat_str, lng_str, type) {
 		init();
 	}
 	
-	if(lat_str>0 && lng_str>0) { marker_latlng = new google.maps.LatLng(lat, lng); map.setZoom(16); }
+	if(lat_str!=0 && lng_str!=0) { marker_latlng = new google.maps.LatLng(lat, lng); map.setZoom(16); }
 	else {marker_latlng = new google.maps.LatLng(37.5663889, 126.9997222); map.setZoom(10);}
 	
 	var marker_image = "<c:url value='/images/geoImg/maps/photo_marker.png'/>";

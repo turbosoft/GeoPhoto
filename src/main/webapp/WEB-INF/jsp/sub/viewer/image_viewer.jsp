@@ -18,7 +18,6 @@ String loginToken = request.getParameter("loginToken");
 String idx = request.getParameter("idx");			//idx
 String user_id = request.getParameter("user_id");	//user id
 String file_url = request.getParameter("file_url");	//file url ex) upload/file.jpg
-String b_contentTabArr = request.getParameter("b_contentTabArr");	//contentTab array
 String projectUserId = request.getParameter("projectUserId");	//project User id
 String linkView = request.getParameter("link");	//project User id
 %>
@@ -32,7 +31,6 @@ var linkView = '<%= linkView %>';			//링크로 가기
 
 var idx = '<%= idx %>';
 var user_id = '<%= user_id %>';
-var b_contentTabArr = "<%=b_contentTabArr%>";	//content tab array
 var request = null;		//request;
 var projectBoard = 0;	//GeoCMS 연동여부		0:연동안됨, 1:연동됨
 
@@ -133,7 +131,7 @@ $(function() {
 
 	$('#image_map_area').maxZIndex({inc:1});
 	
-	callRequest();
+// 	callRequest();
 
 	if(linkView == 'Y'){
 		$('#viewerColstBtn').css('display','none');
@@ -194,6 +192,8 @@ function httpRequest(textUrl){
 				$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
 				loadExif(null);
 			}
+			//이미지 그리기
+			changeImageNomal();
 		}
 	}
 }
@@ -898,8 +898,9 @@ function editUserCheck(){
 
 //on load function
 function imageViewerInit() {
+	callRequest();
 	//이미지 그리기
-	changeImageNomal();
+// 	changeImageNomal();
 }
 
 function changeImageNomal() {
@@ -1594,12 +1595,6 @@ function openImageWrite() {
 	insertIdx.setAttribute('name','idx');
 	insertIdx.setAttribute('value',idx);
 	form.appendChild(insertIdx);
-	
-	var insertContentArr = document.createElement('input');
-	insertContentArr.setAttribute('type','hidden');
-	insertContentArr.setAttribute('name','b_contentTabArr');
-	insertContentArr.setAttribute('value',b_contentTabArr);
-	form.appendChild(insertContentArr);
 	
 	form.submit();
 }
