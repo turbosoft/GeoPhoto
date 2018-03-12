@@ -37,7 +37,9 @@ var projectBoard = 0;	//GeoCMS 연동여부		0:연동안됨, 1:연동됨
 var file_url = '<%= file_url %>';
 var base_url = '';
 var upload_url = '';
-var editUserYN  = 0;						//편집가능여부
+var editUserYN  = 0;	//편집가능여부
+var dMarkerLat = 0;		//default marker latitude
+var dMarkerLng = 0;		//default marker longitude
 
 $(function() {
 	$('.image_write_button').button();
@@ -105,6 +107,7 @@ function httpRequest(textUrl){
 // 						$('#makeImageBtn').css('display', 'block');
 					}
 				}
+				getBase();
 			}else{
 				base_url = '<c:url value="/"/>';
 				upload_url = '/upload/';
@@ -113,6 +116,32 @@ function httpRequest(textUrl){
 			}
 		}
 	}
+}
+
+//초기 설정 데이터 불러오기
+function getBase() {
+	
+	var Url			= baseRoot() + "cms/getbase";
+	var callBack	= "?callback=?";
+	
+	$.ajax({
+		type	: "get"
+		, url	: Url + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(data) {
+			if(data.Code == '100'){
+				var result = data.Data;
+				if(result != null){
+					dMarkerLat = result.latitude;
+					dMarkerLng = result.longitude;
+				}
+			}else{
+				jAlert(data.Message, 'Info');
+			}
+		}
+	});
 }
 
 //편집 가능 유저 확인
