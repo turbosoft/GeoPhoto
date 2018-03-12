@@ -1199,7 +1199,7 @@ function saveImageWrite(type) {
 		var emailAdrs = $('#eml').val();
 		
 		if(emailAdrs == "") {
-			alert("please, put E-mail adress in the box");
+			jAlert("please, put E-mail adress in the box",'Info');
 		}
 		else{
 			
