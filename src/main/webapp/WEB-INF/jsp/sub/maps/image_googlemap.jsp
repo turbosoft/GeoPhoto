@@ -40,8 +40,18 @@ function setCenter(lat_str, lng_str, type) {
 	var lat = parseFloat(lat_str);
 	var lng = parseFloat(lng_str);
 	
-	if(lat_str != 0 && lng_str != 0) { marker_latlng = new google.maps.LatLng(lat, lng); map.setZoom(16); }
-	else { marker_latlng = new google.maps.LatLng(37.5663889, 126.9997222); map.setZoom(10); }
+	if(lat_str != 0 && lng_str != 0) {
+		marker_latlng = new google.maps.LatLng(lat, lng); map.setZoom(16);
+	}else {
+		if(dMarkerLat == null || dMarkerLat == ""){
+    		dMarkerLat = 37.5663889;
+    	}
+    	if(dMarkerLng == null || dMarkerLng == ""){
+    		dMarkerLng = 126.9997222;
+    	}
+		marker_latlng = new google.maps.LatLng(dMarkerLat, dMarkerLng);
+		map.setZoom(10);
+	}
 	
 	var marker_image = "<c:url value='/images/geoImg/maps/photo_marker.png'/>";
 	
