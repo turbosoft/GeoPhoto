@@ -226,7 +226,7 @@ function inputCaption(id, text) {
 		var bg_color_value = $('#p'+id).css('backgroundColor'); 
 		var bg_color = '';
 		
-		if(bg_color_value!='transparent') { bg_color = rgb2hex($('#p'+id).css('backgroundColor')); $('input[name=caption_bg_checkbok]').attr('checked', false); }
+		if(bg_color_value!='rgba(0, 0, 0, 0)') { bg_color = rgb2hex($('#p'+id).css('backgroundColor')); $('input[name=caption_bg_checkbok]').attr('checked', false); }
 		else { bg_color = '#FFFFFF'; $('input[name=caption_bg_checkbok]').attr('checked', true); }
 		
 		$('#caption_bg_color').val(bg_color); 
@@ -394,7 +394,7 @@ function inputBubble(id, text) {
 		else $('#bubble_font_select').val('Normal');
 		var font_color = rgb2hex($('#f'+id).css('color')); $('#bubble_font_color').val(font_color); $('#bubble_font_color').css('background-color', font_color);
 		var bg_color_value = $('#p'+id).css('backgroundColor'); var bg_color = '';
-		if(bg_color_value!='transparent') { bg_color = rgb2hex($('#p'+id).css('backgroundColor')); $('input[name=bubble_bg_checkbok]').attr('checked', false); }
+		if(bg_color_value!='rgba(0, 0, 0, 0)') { bg_color = rgb2hex($('#p'+id).css('backgroundColor')); $('input[name=bubble_bg_checkbok]').attr('checked', false); }
 		else { bg_color = '#FFFFFF'; $('input[name=bubble_bg_checkbok]').attr('checked', true); }
 		$('#bubble_bg_color').val(bg_color); $('#bubble_bg_color').css('background-color', bg_color);
 		
