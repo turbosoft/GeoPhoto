@@ -42,6 +42,8 @@ var dMarkerLat = 0;		//default marker latitude
 var dMarkerLng = 0;		//default marker longitude
 
 $(function() {
+	$("#exif_dialog .accordionButton:eq(1)").trigger('click');
+	
 	$('.image_write_button').button();
 	$('.image_write_button').width(80);
 	$('.image_write_button').height(25);
@@ -763,7 +765,8 @@ function openImageWrite() {
 	if(editUserYN == 0 && (projectUserId == loginId && projectUserId != user_id)){
 		editUserYN = 1;
 	}
-	window.open('', 'image_write_page', 'width=1150, height=860');
+
+	window.open('', 'image_write_page', 'width=1140, height=860');
 	var form = document.createElement('form');
 	form.setAttribute('method','post');
 	form.setAttribute('action',"<c:url value='/geoPhoto/image_write_page.do'/>?loginToken="+loginToken+"&loginId="+loginId+"&projectBoard="+projectBoard+'&editUserYN='+editUserYN+'&projectUserId='+projectUserId);
