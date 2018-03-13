@@ -1635,7 +1635,7 @@ function sendMail() {
 <!-- 탭 , 공유 우저 영역 -->
 <div id="showInfoDiv" style="position:absolute; left:805px; top:13px; color:white; display: none; font-size:13px;">
 	<div> TabName : <label id="showKindLabel"></label></div>
-	<div style="margin-top: 5px;"> Sharing settings : <label id="shareKindLabel"></label></div>
+	<div style="margin-top: 5px;"> Sharing : <label id="shareKindLabel"></label></div>
 </div>
 
 <!-- 객체추가리스트 -->
