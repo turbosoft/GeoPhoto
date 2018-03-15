@@ -36,20 +36,21 @@ function init() {
 
 //촬영 지점 설정
 function setCenter(lat_str, lng_str, type) {
+	
 	map_type = type;
 	var lat = parseFloat(lat_str);
 	var lng = parseFloat(lng_str);
 	
-	if(lat_str != 0 && lng_str != 0) {
+	if(lat_str != 0 && lng_str != 0 && !isNaN(lat) && !isNaN(lng)) {
 		marker_latlng = new google.maps.LatLng(lat, lng); map.setZoom(16);
 	}else {
-		if(dMarkerLat == null || dMarkerLat == ""){
-    		dMarkerLat = 37.5663889;
+		if(lat_str == null || lat_str == "" || isNaN(lat)){
+			lat_str = 37.5663889;
     	}
-    	if(dMarkerLng == null || dMarkerLng == ""){
-    		dMarkerLng = 126.9997222;
+    	if(lng_str == null || lng_str == "" || isNaN(lng)){
+    		lng_str = 126.9997222;
     	}
-		marker_latlng = new google.maps.LatLng(dMarkerLat, dMarkerLng);
+		marker_latlng = new google.maps.LatLng(lat_str, lng_str);
 		map.setZoom(10);
 	}
 	
@@ -278,7 +279,7 @@ Number.prototype.toDeg = function() {
 </script>
 </head>
 
-<body style='margin:0px; padding:0px;' onload='init();'>
+<body style='margin:0px; padding:0px;' onload="init()">
 	<div id="map_canvas" style="width:100%; height:100%;"></div>
 </body>
 </html>
