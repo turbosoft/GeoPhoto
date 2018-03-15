@@ -38,6 +38,8 @@ var file_url = '<%= file_url %>';
 var base_url = '';
 var upload_url = '';
 var icon_css = ' style="width: 25px; height: 25px; margin: 3px; cursor:pointer;" ';
+var dMarkerLat = 0;		//default marker latitude
+var dMarkerLng = 0;		//default marker longitude
 
 $(function() {
 	$("#exif_dialog .accordionButton:eq(1)").trigger('click');
@@ -77,12 +79,38 @@ $(function() {
 			innerHTML += '<option value="'+ b_contentTabArr[i] +'">'+ b_contentTabArr[i] +'</option>';
 		}
 		$('#showKind').append(innerHTML);
+		getBasePhoto();
 		getOneImageData();
 	}else{
 		base_url = '<c:url value="/"/>';
 		upload_url = '/upload/';
 	}
 });
+
+//초기 설정 데이터 불러오기
+function getBasePhoto() {
+	var Url			= baseRoot() + "cms/getbase";
+	var callBack	= "?callback=?";
+	
+	$.ajax({
+		type	: "get"
+		, url	: Url + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(data) {
+			if(data.Code == '100'){
+				var result = data.Data;
+				if(result != null){
+					dMarkerLat = result.latitude;
+					dMarkerLng = result.longitude;
+				}
+			}else{
+				jAlert(data.Message, 'Info');
+			}
+		}
+	});
+}
 
 function getOneImageData(){
 	var Url			= baseRoot() + "cms/getImage/";
@@ -1510,7 +1538,11 @@ function closeImageWrite() {
 /* map_start ----------------------------------- 맵 버튼 설정 ------------------------------------- */
 function reloadMap(type) {
 	var arr = readMapData();
-	$('#googlemap').get(0).contentWindow.setCenter(arr[0], arr[1], 2);
+	if(arr[0] != 0 && arr[0] != '' && arr[0] != 'Not Found.' && arr[1] != 0 && arr[1] != '' && arr[1] != 'Not Found.'){
+		$('#googlemap').get(0).contentWindow.setCenter(arr[0], arr[1], 2);
+	}else{
+		$('#googlemap').get(0).contentWindow.setCenter(dMarkerLat, dMarkerLng, 2);
+	}
 	if(type==2) { $('#googlemap').get(0).contentWindow.setAngle(arr[2], arr[3]); }
 }
 
