@@ -38,6 +38,7 @@ var file_url = '<%= file_url %>';
 var base_url = '';
 var upload_url = '';
 var editUserYN  = 0;	//편집가능여부
+
 var dMarkerLat = 0;		//default marker latitude
 var dMarkerLng = 0;		//default marker longitude
 
@@ -109,7 +110,7 @@ function httpRequest(textUrl){
 // 						$('#makeImageBtn').css('display', 'block');
 					}
 				}
-				getBase();
+				getBasePhoto();
 			}else{
 				base_url = '<c:url value="/"/>';
 				upload_url = '/upload/';
@@ -121,8 +122,7 @@ function httpRequest(textUrl){
 }
 
 //초기 설정 데이터 불러오기
-function getBase() {
-	
+function getBasePhoto() {
 	var Url			= baseRoot() + "cms/getbase";
 	var callBack	= "?callback=?";
 	
@@ -703,7 +703,11 @@ function exifSetting(data) {
 /* map_start ----------------------------------- 맵 버튼 설정 ------------------------------------- */
 function reloadMap(type) {
 	var arr = readMapData();
-	$('#googlemap').get(0).contentWindow.setCenter(arr[0], arr[1], 1);
+	if(arr[0] != 0 && arr[0] != '' && arr[0] != 'Not Found.' && arr[1] != 0 && arr[1] != '' && arr[1] != 'Not Found.'){
+		$('#googlemap').get(0).contentWindow.setCenter(arr[0], arr[1], 1);
+	}else{
+		$('#googlemap').get(0).contentWindow.setCenter(dMarkerLat, dMarkerLng, 1);
+	}
 	if(type==2) { $('#googlemap').get(0).contentWindow.setAngle(arr[2], arr[3]); }
 }
 
