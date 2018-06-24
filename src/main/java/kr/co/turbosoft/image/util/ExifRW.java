@@ -41,62 +41,78 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 public class ExifRW {
-	
 	private String fileSavePathStr;
 	private String serverUrlStr;
-	private String userIdStr;
-	private String userPassStr;
-	private String portNumStr;
-	private String saveFilePathStr;
+	private String serverIdStr;
+	private String serverPassStr;
+//	private String portNumStr;
+	private String serverPathStr;
 	
-	public void exifSettingCon(String fileSavePathStr, String serverUrlStr, String userIdStr, String userPassStr, String portNumStr, String saveFilePathStr) {
+	public void exifSettingCon(String fileSavePathStr, String serverUrlStr, String serverIdStr, String serverPassStr, String serverPathStr) {
 		this.fileSavePathStr = fileSavePathStr;
         this.serverUrlStr = serverUrlStr;
-        this.userIdStr = userIdStr;
-        this.userPassStr = userPassStr;
-        this.portNumStr = portNumStr;
-        this.saveFilePathStr = saveFilePathStr;
+        this.serverIdStr = serverIdStr;
+        this.serverPassStr = serverPassStr;
+//        this.portNumStr = portNumStr;
+        this.serverPathStr = serverPathStr;
     }
 	
 	//EXIF Read
-	public String read(String file_dir, String type, String fileName) {
-		File file = new File(fileSavePathStr+"/"+ fileName +".jpg");
+	public String read(String file_full_url, String type, String GeoType, String fileName) {
+		File file = new File(fileSavePathStr+ File.separator + GeoType+ File.separator +fileName);
 		
-		File fileDir = new File(fileSavePathStr);
-		if(!fileDir.isDirectory()){
-			fileDir.mkdir();
-		}
+		File fileDir = null;
 	    
 		//데이터 저장 변수 선언
 		ArrayList<String> name = new ArrayList<String>();
 		ArrayList<String> data = new ArrayList<String>();
 		
 		IImageMetadata metadata = null;
-				
-		try {			   
-			URL gamelan = new URL(file_dir);
-			Authenticator.setDefault(new Authenticator()
-			{
-			  @Override
-			  protected PasswordAuthentication getPasswordAuthentication()
-			  {
-			    return new PasswordAuthentication(userIdStr, userPassStr.toCharArray());
-			  }
-			});
-			HttpURLConnection urlConnection = (HttpURLConnection)gamelan.openConnection();
-            urlConnection.connect();
-            FileUtils.copyURLToFile(gamelan, file);
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		
+		if(file_full_url != null && !"".equals(file_full_url)){
+			try {			   
+				fileName = URLEncoder.encode(fileName,"utf-8");
+				URL gamelan = new URL(file_full_url + "/" +fileName);
+				Authenticator.setDefault(new Authenticator()
+				{
+				  @Override
+				  protected PasswordAuthentication getPasswordAuthentication()
+				  {
+				    return new PasswordAuthentication(serverIdStr, serverPassStr.toCharArray());
+				  }
+				});
+				HttpURLConnection urlConnection = (HttpURLConnection)gamelan.openConnection();
+	            urlConnection.connect();
+	            
+	            fileDir = new File(fileSavePathStr);
+				if(!fileDir.isDirectory()){
+					fileDir.mkdir();
+				}
+				fileDir = new File(fileSavePathStr+ File.separator + GeoType);
+				if(!fileDir.isDirectory()){
+					fileDir.mkdir();
+				}
+	            
+	            FileUtils.copyURLToFile(gamelan, file);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		
 		//EXIF 설정
 		if(!fileName.contains(".png") && !fileName.contains(".PNG")){
-			try { metadata = Sanselan.getMetadata(file); if(file.exists()){ file.delete();}}
-			catch(ImageReadException e) { e.printStackTrace();}
-			catch(IOException e) { e.printStackTrace();}
+			try {
+				if(file.exists()){
+					metadata = Sanselan.getMetadata(file);
+					if(file_full_url != null && !"".equals(file_full_url)){
+						file.delete();
+					}
+				}
+			}
+			catch(Exception e) {
+//				e.printStackTrace();
+			}
 		}
 		
 		//이름 저장
@@ -109,7 +125,7 @@ public class ExifRW {
 			name.add("Aperture Value");
 			name.add("Max Aperture Value");
 			name.add("Focal Length");
-     			name.add("Digital Zoom Ratio");
+     		name.add("Digital Zoom Ratio");
 			name.add("White Balance");
 			name.add("Brightness Value");
 			name.add("User Comment");
@@ -120,7 +136,7 @@ public class ExifRW {
 		name.add("GPS Longitude");
 		name.add("GPS Latitude");
 		
-		if(metadata instanceof JpegImageMetadata) {
+		if(metadata != null && metadata instanceof JpegImageMetadata) {
 			JpegImageMetadata jpegMetadata = (JpegImageMetadata) metadata;
 			//일반 정보 + GPS 일부 정보 추출
 			TiffField field;
@@ -179,8 +195,7 @@ public class ExifRW {
 				data.add("Not Found.");
 				data.add("Not Found.");
 			}
-		}
-		else {
+		}else {
 			for(int i=0; i<name.size(); i++) {
 				data.add("Not Found.");
 			}

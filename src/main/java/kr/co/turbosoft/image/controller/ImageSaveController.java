@@ -1,12 +1,17 @@
 package kr.co.turbosoft.image.controller;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,22 +26,13 @@ import kr.co.turbosoft.image.util.ExifRW;
 
 @Controller
 public class ImageSaveController {
+	private String serverIdStrP;
+	private String serverPassStrP;
 	
-	@Value("#{props['file.serverUrl']}")
-	private String serverUrlStr;
-	
-	@Value("#{props['file.userId']}")
-	private String userIdStr;
-	
-	@Value("#{props['file.userPass']}")
-	private String userPassStr;
-	
-	@Value("#{props['file.portNum']}")
-	private String portNumStr;
-	
-	@Value("#{props['file.saveFilePath']}")
-	private String saveFilePathStr;
-	
+	public void ImageSaveCon(String serverIdStrP, String serverPassStrP) {
+		this.serverIdStrP = serverIdStrP;
+        this.serverPassStrP = serverPassStrP;
+    }
 	
 	@RequestMapping(value = "/ImageSaveInit.do", method = RequestMethod.POST)
 	public void ImageSave(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -48,36 +44,71 @@ public class ImageSaveController {
 			file_name = file_name.replace("\\/", "/");
 			file_name_pre = file_name.substring(0,file_name.lastIndexOf("."));
 		}
+		String serverTypeStr = request.getParameter("serverType");
+		String serverUrlSrt = request.getParameter("serverUrl");
+		String serverViewPortStr = request.getParameter("serverViewPort");
+		String serverPathStr = request.getParameter("serverPath");
+		String serverIdStr = request.getParameter("serverId");
+		String serverPassStr = request.getParameter("serverPass");
 		
-		String file_dir = "http://"+ serverUrlStr + "/shares/"+saveFilePathStr +"/GeoPhoto/"+file_name;
-		System.out.println("file_dir = "+file_dir);
-		
-		String tmpFileDir = request.getSession().getServletContext().getRealPath("/")+ "upload";
-		File file = new File(tmpFileDir);
+		String fileSavePathStr = request.getSession().getServletContext().getRealPath("/") + "mailPhoto";
+		File file = new File(fileSavePathStr);
 		if(!file.exists()) file.mkdir();
-		file = new File(tmpFileDir+"//"+ file_name_pre +"_tmp.jpg");
+		file = new File(fileSavePathStr + File.separator + file_name_pre +"_tmp.jpg");
 		
-		try {
-			URL gamelan = new URL(file_dir);
-			Authenticator.setDefault(new Authenticator()
-			{
-			  @Override
-			  protected PasswordAuthentication getPasswordAuthentication()
-			  {
-			    return new PasswordAuthentication(userIdStr, userPassStr.toCharArray());
-			  }
-			});
-			HttpURLConnection urlConnection = (HttpURLConnection)gamelan.openConnection();
-			
-            urlConnection.connect();
-            FileUtils.copyURLToFile(gamelan, file);
-            resultStr ="../upload/"+ file_name_pre +"_tmp.jpg";
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			if(file.exists()){file.delete();}
-			resultStr = "ERROR";
+		String file_dir = "";
+		if(serverTypeStr != null && "URL".equals(serverTypeStr)){
+			file_name = URLEncoder.encode(file_name,"utf-8");
+			file_dir = "http://"+ serverUrlSrt +":"+ serverViewPortStr +"/shares/"+serverPathStr +"/GeoPhoto/"+file_name;
+			ImageSaveCon(serverIdStr, serverPassStr);
+			try {
+				URL gamelan = new URL(file_dir);
+				Authenticator.setDefault(new Authenticator()
+				{
+				  @Override
+				  protected PasswordAuthentication getPasswordAuthentication()
+				  {
+				    return new PasswordAuthentication(serverIdStrP, serverPassStrP.toCharArray());
+				  }
+				});
+				
+				HttpURLConnection urlConnection = (HttpURLConnection)gamelan.openConnection();
+				
+	            urlConnection.connect();
+	            FileUtils.copyURLToFile(gamelan, file);
+	            resultStr ="../mailPhoto/"+ file_name_pre +"_tmp.jpg";
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				resultStr = "ERROR";
+			}
+		}else{
+			try {
+				String fileOnePathStr = request.getSession().getServletContext().getRealPath("/");
+				fileOnePathStr = fileOnePathStr.substring(0, fileOnePathStr.lastIndexOf("GeoPhoto")) + "GeoCMS"+ 
+						fileOnePathStr.substring(fileOnePathStr.lastIndexOf("GeoPhoto")+8) +
+						File.separator + serverPathStr + File.separator + "GeoPhoto"+ File.separator + file_name;
+//				fileOnePathStr = fileOnePathStr.substring(0, fileOnePathStr.lastIndexOf("GeoPhoto")) + "GeoCMS"+ File.separator + serverPathStr + File.separator + "GeoPhoto"+ File.separator + file_name;
+				
+				FileInputStream fis = new FileInputStream(new File(fileOnePathStr));
+				FileOutputStream fos = new FileOutputStream(file);
+			   
+				int data = 0;
+				while((data=fis.read())!=-1) {
+					fos.write(data);
+				}
+				fis.close();
+				fos.close();
+				resultStr ="../mailPhoto/"+ file_name_pre +"_tmp.jpg";
+			  	}catch (Exception e) {
+			  		// TODO Auto-generated catch block
+			  		e.printStackTrace();
+			  		resultStr = "ERROR";
+			 	}
 		}
+		
+		System.out.println("ImageSaveController file_dir = "+file_dir);
+		
 		
 		//setContentType	
 		response.setContentType("text/html;charset=utf-8");
