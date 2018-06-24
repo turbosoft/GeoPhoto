@@ -36,6 +36,7 @@ public class ExifController {
 	public void geoPhotoExif(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		request.setCharacterEncoding("utf-8");
 		
+		
 		String type = request.getParameter("type");
 		String[] buf = request.getParameter("file_name").split("\\/");
 		String file_path = buf[0];
