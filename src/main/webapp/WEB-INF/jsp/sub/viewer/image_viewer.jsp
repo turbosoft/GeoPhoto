@@ -1863,7 +1863,15 @@ function imageWrite() {
 
 //뷰어 닫기
 function imageViewClose(){
-	$.FrameDialog.closeDialog();	
+	var iframes = window.parent.document.getElementsByTagName("IFRAME");
+	for (var i = 0; i < iframes.length; i++) {
+		var id = iframes[i].id || iframes[i].name || i;
+		if (window.parent.frames[id] == window && jQuery.type( id ) != 'number') {
+			var tmpID = id.replace("-VIEW", "");
+			window.parent.jQuery("#" + tmpID).dialog('close');
+		}
+	}
+// 	$.FrameDialog.closeDialog();	
 }
 
 //새창 띄우기 (저작)
