@@ -1464,7 +1464,7 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 		var emailCapture = $('#sendMail_capture').attr('checked') == 'checked' ? 'Y' :'N';
 		
 		if(emailAdrs == "" || (emailurl != 'Y' && emailCapture != 'Y')) {
-			alert("please, put E-mail adress in the box!!");
+			jAlert("please, put E-mail adress in the box!!", 'Info');
 			return;
 		}
 		else{
@@ -1920,7 +1920,6 @@ function loadXML2(tmpServerId, tmpServerPass, tmpServerPort) {
 					var font_size = $(this).find('fontsize').text(); var font_color = $(this).find('fontcolor').text(); var bg_color = $(this).find('backgroundcolor').text();
 					var bold = $(this).find('bold').text(); var italic = $(this).find('italic').text(); var underline = $(this).find('underline').text(); var href = $(this).find('href').text();
 					var text = $(this).find('text').text(); var top = $(this).find('top').text(); var left = $(this).find('left').text();
-					alert(text);
 					autoCreateText(id, font_size, font_color, bg_color, bold, italic, underline, href, text, top, left);
 				}
 				else if(id == "i") {
