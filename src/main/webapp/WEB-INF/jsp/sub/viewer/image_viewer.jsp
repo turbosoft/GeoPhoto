@@ -494,7 +494,7 @@ function addImageMoveList(){
 							if(data[i].latitude != null && data[i].latitude != '' && data[i].latitude != undefined && 
 									data[i].longitude != null && data[i].longitude != '' && data[i].longitude != undefined){
 								beforeGpsChk = true;
-								innerHTMLStr += '<div style="position:relative; width:36px; height:53px; top:-16px;left:-67px; display:inline-block;  background-image:url(../images/geoImg/sample_marker.png); zoom:0.7;"></div>';
+								innerHTMLStr += '<div style="position:relative; width:36px; height:36px; top:-16px;left:-67px; display:inline-block;  background-image:url(../images/geoImg/sample_marker.png); zoom:0.7;"></div>';
 							}
 						}
 						
