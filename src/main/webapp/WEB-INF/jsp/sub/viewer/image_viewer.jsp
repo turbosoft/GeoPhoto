@@ -373,9 +373,10 @@ function getProjectGroupViewList(){
 			var response = data.Data;
 			if(data.Code == '100'){
 				projectList = response;
-			}else if(data.Code != '203'){
-				jAlert(data.Message, 'Info getProjectGroupViewList');
 			}
+//			else if(data.Code != '203'){
+//				jAlert(data.Message, 'Info getProjectGroupViewList');
+//			}
 		}
 	});
 }
