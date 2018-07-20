@@ -52,6 +52,7 @@ var projectIdx = 0;
 var nowIndexType = 'GeoPhoto';
 var imgEditMode = 0;						//편집모드 : 1, 아니면 0;
 var moveWidthNum = 135;						//imageWidth + margin + border
+// var moveWidthNum = 140;						//imageWidth + margin + border
 var nowSelectIdx = 0;
 
 var dMarkerLat = 0;		//default marker latitude
@@ -374,9 +375,9 @@ function getProjectGroupViewList(){
 			if(data.Code == '100'){
 				projectList = response;
 			}
-//			else if(data.Code != '203'){
-//				jAlert(data.Message, 'Info getProjectGroupViewList');
-//			}
+// 			else if(data.Code != '203'){
+// 				jAlert(data.Message, 'Info getProjectGroupViewList');
+// 			}
 		}
 	});
 }
@@ -495,7 +496,7 @@ function addImageMoveList(){
 							if(data[i].latitude != null && data[i].latitude != '' && data[i].latitude != undefined && 
 									data[i].longitude != null && data[i].longitude != '' && data[i].longitude != undefined){
 								beforeGpsChk = true;
-								innerHTMLStr += '<div style="position:relative; width:36px; height:36px; top:-16px;left:-67px; display:inline-block;  background-image:url(../images/geoImg/sample_marker.png); zoom:0.7;"></div>';
+								innerHTMLStr += '<div style="position:relative; width:36px; height:36px; top:-16px;left:-67px; display:inline-block;  background-image:url(../images/geoImg/sample_marker.png); zoom:0.7;" class="sampleMarkerClass"></div>';
 							}
 						}
 						
@@ -829,14 +830,22 @@ function imgMapCenterChangeGpsMode(tmpArr){
 	var tmpProjectId = tpAr[8];
 	var tmpMoveIdx = 0;
 	var tempVideoCnt = 0;
+	var tmpSampleMarkerCnt = 0;
 	
 	$.each(nowViewList, function(idx1, val1){
 		if(val1.datakind == "GeoVideo"){
 			tempVideoCnt ++;
 		}
+		
 		if(val1.idx == nowSelectIdx && val1.datakind == tmpKind){
 			tmpMoveIdx = idx1;
 			return false;
+		}
+		
+		if(val1.datakind == "GeoPhoto" &&
+				val1.latitude != null && val1.latitude != '' && val1.latitude != undefined && 
+				val1.longitude != null && val1.longitude != '' && val1.longitude != undefined){
+			tmpSampleMarkerCnt += 5;
 		}
 	});
 	tmpMoveIdx = tmpMoveIdx-tempVideoCnt;
@@ -857,6 +866,10 @@ function imgMapCenterChangeGpsMode(tmpArr){
 		}else{
 			var tmpLeft = tmpMoveIdx*moveWidthNum;
 			editContentArr.push(tmpKind+"_"+nowSelectIdx);
+			if(tmpMoveIdx > 0 ){
+				tmpLeft += tmpSampleMarkerCnt;
+			}
+			
 			var tmpDiv = '<div id="checkArea_'+ tmpKind+"_"+nowSelectIdx +'" class="checkAreaClass" style="position:absolute; width:112px; height:112px; background-image: url(../images/geoImg/viewer/select_photo_btn_pop.png); background-repeat:no-repeat;cursor:pointer; top:10px; left:'+ tmpLeft +'px;" ></div>';
 			$('#Pro_'+ tmpKind +'_'+nowSelectIdx).append(tmpDiv);
 		}
