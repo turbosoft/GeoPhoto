@@ -13,8 +13,7 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 
 <jsp:include page="../../page_common.jsp"></jsp:include>
-<!-- <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAth-_FyQxRomNh2JkI_MvAWXRJuLOEXNI&language=ko&region=KR"></script> -->
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAth-_FyQxRomNh2JkI_MvAWXRJuLOEXNI&v=3.exp&sensor=false&libraries=places,geometry&language=ko&region=KR"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAth-_FyQxRomNh2JkI_MvAWXRJuLOEXNI&v=3.exp&sensor=false&libraries=places,geometry&language=en&region=EN"></script>
 <script type='text/javascript'>
 
 /* --------------------- 내부 함수 --------------------*/
