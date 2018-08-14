@@ -193,7 +193,7 @@ function httpRequest(textUrl){
 			}else{
 				base_url = '<c:url value="/"/>';
 				upload_url = '/upload/';
-				$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+				$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 				$('#viewerColstBtn').css('display','block');
 				loadExif(null);
 			}
@@ -208,11 +208,11 @@ function btnViewCheck(){
 	$('#viewerColstBtn').css('display','none');
 	
 	if(loginId != null && loginId != '' && loginId != 'null' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN')){
-		$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+		$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 		$('#viewerColstBtn').css('display','block');
 	}else{
 		if(editUserCheck() == 1 ||  (loginId != null && loginId != '' && loginId != 'null' && projectUserId == loginId)){
-			$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+			$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 			$('#viewerColstBtn').css('display','block');
 		}
 	}
@@ -1848,21 +1848,21 @@ function setExifData(lat_str, lng_str, direction) {
 var resize_map_state = 1;
 var resize_scale = 400;
 var init_map_left, init_map_top, init_map_width, init_map_height;
-function resizeMap() {
-	if(resize_map_state==1) {
-		init_map_left = 765;
-		init_map_top = 530;
-		init_map_width = $('#image_map_area').width();
-		init_map_height = $('#image_map_area').height();
-		resize_map_state=2;
-		$('#image_map_area').animate({left:init_map_left-resize_scale, top:init_map_top-resize_scale, width:init_map_width+resize_scale, height:init_map_height+resize_scale},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_min.jpg"/>)'); reloadMap(1); });
-	}
-	else if(resize_map_state==2) {
-		resize_map_state=1;
-		$('#image_map_area').animate({left:init_map_left, top:init_map_top, width:init_map_width, height:init_map_height},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'); reloadMap(1); });
-	}
-	else {}
-}
+// function resizeMap() {
+// 	if(resize_map_state==1) {
+// 		init_map_left = 765;
+// 		init_map_top = 530;
+// 		init_map_width = $('#image_map_area').width();
+// 		init_map_height = $('#image_map_area').height();
+// 		resize_map_state=2;
+// 		$('#image_map_area').animate({left:init_map_left-resize_scale, top:init_map_top-resize_scale, width:init_map_width+resize_scale, height:init_map_height+resize_scale},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_min.jpg"/>)'); reloadMap(1); });
+// 	}
+// 	else if(resize_map_state==2) {
+// 		resize_map_state=1;
+// 		$('#image_map_area').animate({left:init_map_left, top:init_map_top, width:init_map_width, height:init_map_height},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'); reloadMap(1); });
+// 	}
+// 	else {}
+// }
 
 //저작
 function imageWrite() {
@@ -1937,7 +1937,7 @@ css3color = function(color, opacity) {
 <!---------------------------------------------------- 메인 영역 시작 ------------------------------------------------>
 
 <!-- 이미지 영역 -->
-<div id='image_main_area' style='position:absolute; left:10px; top:15px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
+<div id='image_main_area' style='position:absolute; left:320px; top:15px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
 	<div id="image_viewer_canvas_div" style="width:780px; height: 545px; left:0px; top:0px;position:absolute;"><img id='image_viewer_canvas'></img></div>
 	<div class="viewerMoreL" style="display: none;"></div>
 	<div class="viewerMoreR" style="display: none;"></div>
@@ -1958,26 +1958,26 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- 추가 객체 영역 -->
-<div id="ioa_title" style='position:absolute; left:797px; top:12px; width:150px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="객체추가리스트"></div>
-<div id='image_object_area' style='position:absolute; left:800px; top:33px; width:300px; height:245px; display:block; border:1px solid #999999; overflow-y:scroll;'>
-	<table id='object_table'>
-		<tr style='font-size:12px; height:20px;' class='col_black'>
-			<td width=50 class='anno_head_tr'>ID</td>
-			<td width=80 class='anno_head_tr'>Type</td>
-			<td width=170 class='anno_head_tr'>Data</td>
-		</tr>
-	</table>
-</div>
+<%-- <div id="ioa_title" style='position:absolute; left:797px; top:12px; width:150px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="객체추가리스트"></div> --%>
+<!-- <div id='image_object_area' style='position:absolute; left:800px; top:33px; width:300px; height:245px; display:block; border:1px solid #999999; overflow-y:scroll;'> -->
+<!-- 	<table id='object_table'> -->
+<!-- 		<tr style='font-size:12px; height:20px;' class='col_black'> -->
+<!-- 			<td width=50 class='anno_head_tr'>ID</td> -->
+<!-- 			<td width=80 class='anno_head_tr'>Type</td> -->
+<!-- 			<td width=170 class='anno_head_tr'>Data</td> -->
+<!-- 		</tr> -->
+<!-- 	</table> -->
+<!-- </div> -->
 
 <!-- EXIF 영역 -->
-<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:799px; top:288px;' alt="이미지정보"></div>
-<div id='image_exif_area' style='position:absolute; left:800px; top:310px; width:300px; height:245px; display:block; /*border:1px solid #999999;*/ '>
+<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:10px; top:288px;' alt="이미지정보"></div>
+<div id='image_exif_area' style='position:absolute; left:10px; top:310px; width:300px; height:245px; display:block; /*border:1px solid #999999;*/ '>
 </div>
 
 <!-- 지도 영역 -->
-<div id='image_map_area' style='position:absolute; left:765px; top:530px; width:30px; height:30px; display:block; background-color:#999;'>
+<div id='image_map_area' style='position:absolute; left:10px; top:15px; width:300px; height:260px; display:block; background-color:#999;'>
 	<iframe id='googlemap' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
-	<div id='resize_map_btn' onclick='resizeMap();' style='position:absolute; left:0px; top:0px; width:30px; height:30px; cursor:pointer; background-image:url(<c:url value='/images/geoImg/icon_map_max.jpg'/>);'>
+<%-- 	<div id='resize_map_btn' onclick='resizeMap();' style='position:absolute; left:0px; top:0px; width:30px; height:30px; cursor:pointer; background-image:url(<c:url value='/images/geoImg/icon_map_max.jpg'/>);'> --%>
 	</div>
 </div>
 
@@ -2096,9 +2096,9 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- EXIF 삽입 다이얼로그 객체 -->
-<div id='exif_dialog' style='position:absolute; left:800px; top:310px; width:300px; height:248px; border:1px solid #999999; display:block; font-size:13px;'>
+<div id='exif_dialog' style='position:absolute; left:10px; top:310px; width:300px; height:200px; border:1px solid #999999; display:block; font-size:13px;'>
 	<div class='accordionButton col_black'>&nbsp;EXIF Normal Info</div>
-	<div class='accordionContent' style='height:207px; overflow-y:scroll;'>
+	<div class='accordionContent' style='height:157px; overflow-y:scroll;'>
 		<table id='normal_exif_table'>
 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Make</label></td><td width='150'><input id='make_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
 			<tr><td width='15'><td><label>Model</label></td><td><input id='model_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
@@ -2116,8 +2116,8 @@ css3color = function(color, opacity) {
 	</div>
 	
 	<div class='accordionButton col_black'>&nbsp;EXIF GPS Info</div>
-	<div class='accordionContent' style='height:205px; overflow-y:scroll;'>
-		<table id='gps_exif_table' style="margin-top: 15px;">
+	<div class='accordionContent' style='height:155px; overflow-y:scroll;'>
+		<table id='gps_exif_table' style="margin-top: 5px;">
 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
 			<tr><td width='15'></td><td><label>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
 			<tr><td width='15'></td><td><label>GPS Direction</label></td><td><input id='gps_direction_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
@@ -2126,7 +2126,6 @@ css3color = function(color, opacity) {
 		</table>
 	</div>
 </div>
-	<button style="position:absolute; left:580px; top:780px; width:140px; height:35px; display:none; cursor: pointer;" onclick="imageViewClose();" id="viewerColstBtn">Close</button>
 </body>
 
 </html>
