@@ -51,7 +51,8 @@ var nowViewList = new Array();				//현재 리스트
 var projectIdx = 0;
 var nowIndexType = 'GeoPhoto';
 var imgEditMode = 0;						//편집모드 : 1, 아니면 0;
-var moveWidthNum = 150;						//imageWidth + margin + border
+var moveWidthNum = 135;						//imageWidth + margin + border
+var moveWidthNum2 = 150;						//imageWidth + margin + border
 var nowSelectIdx = 0;
 
 var dMarkerLat = 0;		//default marker latitude
@@ -516,7 +517,7 @@ function addImageMoveList(){
 						tmpDataLen++;
 					}//end for
 					
-					$('#img_move_list_long').css('width', moveWidthNum*tmpDataLen +"px");
+					$('#img_move_list_long').css('width', moveWidthNum2*tmpDataLen +"px");
 					$('#img_move_list_long').append(innerHTMLStr);
 					
 
