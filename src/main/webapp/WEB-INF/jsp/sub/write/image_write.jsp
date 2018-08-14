@@ -192,7 +192,7 @@ function getOneImageData(){
 					$('#title_area').val(response.title);
 					$('#content_area').val(response.content);
 // 					var nowShareTypeText = nowShareType == 0? '비공개':nowShareType== 1? '전체공개':'특정인 공개';
-					var nowShareTypeText = nowShareType == 0? 'Nondisclosure':nowShareType== 1? 'Full disclosure':'Selective disclosure';
+					var nowShareTypeText = nowShareType == 0? "private":nowShareType== 1? "public":"sharing with friends";
 					
 					$('#shareKindLabel').text(nowShareTypeText);
 					
@@ -977,8 +977,8 @@ function inputGeometryShape(type) {
 	canvas_element.appendTo('#image_write_canvas_div');
 	
 	//그리기 완료 및 그리기 취소 버튼
-	var html_text = '<button class="geometry_complete_button" onclick="createGeometry('+type+');" style="left:0px; top:0px;">그리기 완료</button>';
-	html_text += '<button class="geometry_cancel_button" onclick="cancelGeometry();" style="left:10px; top:0px;">그리기 취소</button>';
+	var html_text = '<button class="geometry_complete_button" onclick="createGeometry('+type+');" style="left:0px; top:0px;">Draw complete</button>';
+	html_text += '<button class="geometry_cancel_button" onclick="cancelGeometry();" style="left:10px; top:0px;">Undo drawing</button>';
 	$('#image_main_area').append(html_text);
 	$('.geometry_complete_button').button(); $('.geometry_cancel_button').button();
 	$('.geometry_complete_button').width(100); $('.geometry_cancel_button').width(100);
@@ -2359,9 +2359,9 @@ function dataURItoBlob(dataURI) {
 <!-- 						<div><input type="radio" value="0" name="shareRadio">비공개</div> -->
 <!-- 						<div><input type="radio" value="1" name="shareRadio">전체공개</div> -->
 <!-- 						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">특정인 공개</div> -->
-						<div><input type="radio" value="0" name="shareRadio">Nondisclosure</div>
-						<div><input type="radio" value="1" name="shareRadio">Full disclosure</div>
-						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">Selective disclosure</div>
+						<div><input type="radio" value="0" name="shareRadio">private</div>
+						<div><input type="radio" value="1" name="shareRadio">public</div>
+						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">sharing with friends</div>
 					</td>
 				</tr>
 				<tr class='tr_line'><td colspan='2'><hr/></td></tr>
@@ -2410,10 +2410,9 @@ function dataURItoBlob(dataURI) {
 
 <!-- 저장 버튼 다이얼로그 객체 -->
 <div id='save_dialog' class='save_dialog' title='SAVE AREA'>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(1);'>SAVE TO EXIF</button><br/><br/>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(2);'>SAVE TO XML</button><br/><br/>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(3);'>VIEW XML</button><br/><br/>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='sendMail()'>SEND EMAIL</button>
+	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(2);'>export to XML</button><br/><br/>
+	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(3);'>view XML</button><br/><br/>
+	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='sendMail()'>send EMAIL</button>
 </div>
 
 <!-- 이메일공유 다이얼로그 객체 -->
@@ -2423,7 +2422,7 @@ function dataURItoBlob(dataURI) {
 		<input type="checkbox" id="sendMail_url"/> Send link
 		<input type="checkbox" id="sendMail_capture" style="margin-left: 25px;" /> Send image
 	</div>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px; margin-top:35px; display:block; ' onclick='saveImageWrite(4);'>SEND EMAIL</button>
+	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px; margin-top:35px; display:block; ' onclick='saveImageWrite(4);'>send EMAIL</button>
 	
 	<form name="imgFormArea" id="imgFormArea" method="POST">
 		<textarea  id="imgData" name="imgData" style="visibility: hidden;"></textarea>
