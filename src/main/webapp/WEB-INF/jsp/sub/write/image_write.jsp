@@ -981,7 +981,7 @@ function inputGeometryShape(type) {
 	html_text += '<button class="geometry_cancel_button" onclick="cancelGeometry();" style="left:10px; top:0px;">Undo drawing</button>';
 	$('#image_main_area').append(html_text);
 	$('.geometry_complete_button').button(); $('.geometry_cancel_button').button();
-	$('.geometry_complete_button').width(100); $('.geometry_cancel_button').width(100);
+	$('.geometry_complete_button').width(110); $('.geometry_cancel_button').width(110);
 	$('.geometry_complete_button').height(30); $('.geometry_cancel_button').height(30);
 	$('.geometry_complete_button').css('fontSize', 12); $('.geometry_cancel_button').css('fontSize', 12);
 }
