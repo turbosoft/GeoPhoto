@@ -2155,8 +2155,9 @@ function dataURItoBlob(dataURI) {
 	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/image_btn.png'/>" onclick='inputIcon();' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
 	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/geo_btn.png'/>" onclick='inputGeometry();' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
 	<div style="width: 18%; float: left; display: none;" class="menuIcon menuIconData"><img src="<c:url value='/images/geoImg/write/data_btn.png'/>" onclick='dataChangeClick();' style="cursor: pointer; width: 30px; height: 40px; margin-top: 10px; margin-left:25%;"></div>
-	<input type="button" onclick='closeImageWrite();' class='close_btn' value="Close">
-	<input type="button" onclick='saveSetting();' class='save_btn' value="Save">
+	<input type="button" onclick='closeImageWrite();' class='close_btn' value="Close" style="margin:17px 15px 17px 5px";>
+	<input type="button" onclick='saveSetting();' class='save_btn' value="Export">
+	<input type="button" onclick='saveImageWrite1(2);' class='save_btn' value="Save">
 </div>
 
 <!-- 저작 영역 -->
@@ -2409,8 +2410,8 @@ function dataURItoBlob(dataURI) {
 </div>
 
 <!-- 저장 버튼 다이얼로그 객체 -->
-<div id='save_dialog' class='save_dialog' title='SAVE AREA'>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(2);'>export to XML</button><br/><br/>
+<div id='save_dialog' class='save_dialog' title='Export AREA'>
+<!-- 	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(2);'>export to XML</button><br/><br/> -->
 	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(3);'>view XML</button><br/><br/>
 	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='sendMail()'>send EMAIL</button>
 </div>
