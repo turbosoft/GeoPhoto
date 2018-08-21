@@ -52,7 +52,15 @@ var projectIdx = 0;
 var nowIndexType = 'GeoPhoto';
 var imgEditMode = 0;						//편집모드 : 1, 아니면 0;
 var moveWidthNum = 135;						//imageWidth + margin + border
+var moveWidthNum2 = 150;						//imageWidth + margin + border
 var nowSelectIdx = 0;
+
+var dMarkerLat = 0;		//default marker latitude
+var dMarkerLng = 0;		//default marker longitude
+var dMapZoom = 10;		//defalut map zoom
+
+var setNewMarkerLat = 0;	//new Marker latitude
+var setNewMarkerLng = 0;	//new Marker logitude
 
 $(function() {
 	$("#exif_dialog .accordionButton:eq(1)").trigger('click');
@@ -179,11 +187,13 @@ function httpRequest(textUrl){
 				upload_url = '/GeoPhoto/';
 				
 				btnViewCheck();
+				getBasePhoto();
+				getServer("", "");
 				getOneImageData();
 			}else{
 				base_url = '<c:url value="/"/>';
 				upload_url = '/upload/';
-				$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+				$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 				$('#viewerColstBtn').css('display','block');
 				loadExif(null);
 			}
@@ -198,11 +208,11 @@ function btnViewCheck(){
 	$('#viewerColstBtn').css('display','none');
 	
 	if(loginId != null && loginId != '' && loginId != 'null' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN')){
-		$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+		$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 		$('#viewerColstBtn').css('display','block');
 	}else{
 		if(editUserCheck() == 1 ||  (loginId != null && loginId != '' && loginId != 'null' && projectUserId == loginId)){
-			$('body').append('<button style="position:absolute; left:380px; top:780px; width:140px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Write</button>');
+			$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 			$('#viewerColstBtn').css('display','block');
 		}
 	}
@@ -231,10 +241,118 @@ function getOneImageData(){
 					addImageMoveList();
 				}
 			}else{
-				jAlert(data.Message, '정보');
+				jAlert(data.Message, 'Info getOneImageData');
 			}
 		}
 	});
+}
+
+//초기 설정 데이터 불러오기
+function getBasePhoto() {
+	var Url			= baseRoot() + "cms/getbase";
+	var callBack	= "?callback=?";
+	
+	$.ajax({
+		type	: "get"
+		, url	: Url + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(data) {
+			if(data.Code == '100'){
+				var result = data.Data;
+				if(result != null && result.length > 0){
+					dMarkerLat = result[0].latitude;
+					dMarkerLng = result[0].longitude;
+					dMapZoom = result[0].mapzoom;
+					$('#googlemap').get(0).contentWindow.setDefaultData(dMarkerLat, dMarkerLng, dMapZoom);
+				}
+			}else{
+				jAlert(data.Message, 'Info getBasePhoto');
+			}
+		}
+	});
+}
+
+//get server
+function getServer(rObj, tmpFileType){
+	var Url			= baseRoot() + "cms/selectServerList/";
+	var param		= loginToken + "/" + loginId +"/" +"Y";
+	var callBack	= "?callback=?";
+	$.ajax({
+		type	: "get"
+		, url	: Url + param + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(data) {
+			var response = data.Data;
+			var tmpServerId = '';
+			var tmpServerPass = '';
+			var tmpServerPort = '';
+			
+			if(data.Code == '100'){
+				b_serverUrl = response[0].serverurl;
+				b_serverViewPort = response[0].serverviewport;
+				b_serverPath = response[0].serverpath;
+				if(b_serverUrl != null && b_serverUrl != "" && b_serverUrl != undefined){
+					b_serverType = "URL";
+				}else{
+					b_serverType = "LOCAL";
+				}
+				tmpServerId = response[0].serverid;
+				tmpServerPass = response[0].serverpass;
+				tmpServerPort = response[0].serverport;
+				
+			}else if(data.Code != '200'){
+				b_serverPath = "upload";
+				jAlert(data.Message, 'Info getServer');
+			}else{
+				b_serverPath = "upload";
+			}
+			
+			if(tmpFileType != null){
+				if(tmpFileType == 'EXIF'){
+					getServerExif(rObj, tmpServerId, tmpServerPass, tmpServerPort);
+				}else if(tmpFileType == 'XML'){
+					loadXML2(tmpServerId, tmpServerPass, tmpServerPort);
+				}
+			}
+		}
+	});
+}
+
+function getServerExif(rObj, tmpServerId, tmpServerPass, tmpServerPort){
+	if(rObj != null && rObj != ''){
+		imgDroneType = rObj.dronetype;
+		
+		var encode_file_name = encodeURIComponent('GeoPhoto/'+ rObj.filename);
+		$.ajax({
+			type: 'POST',
+			url: '<c:url value="/geoExif.do"/>',
+			data: 'file_name='+encode_file_name+'&type=load&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+			'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
+			success: function(data) {
+				var response = data.trim();
+				exifSetting(response, rObj.longitude, rObj.latitude);
+			}
+		});
+	}else{
+		var encode_file_name = upload_url + file_url;
+		encode_file_name = encode_file_name.substring(1);
+		encode_file_name = encodeURIComponent(encode_file_name);
+		
+		$.ajax({
+			type: 'POST',
+			url: base_url + '/geoExif.do',
+			data: 'file_name='+encode_file_name+'&type=load&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+			'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
+			success: function(data) {
+				var response = data.trim();
+				exifSetting(response, null, null);
+			}
+		});
+	}
 }
 
 //get projectList
@@ -256,9 +374,10 @@ function getProjectGroupViewList(){
 			var response = data.Data;
 			if(data.Code == '100'){
 				projectList = response;
-			}else if(data.Code != '203'){
-				jAlert(data.Message, '정보');
 			}
+// 			else if(data.Code != '203'){
+// 				jAlert(data.Message, 'Info getProjectGroupViewList');
+// 			}
 		}
 	});
 }
@@ -291,6 +410,8 @@ function addImageMoveList(){
 				if(data != null && data.length > 0){
 					nowViewList = data;
 					var innerHTMLStr = '';
+					var beforeGpsChk = false;
+					var tmpDataLen = 0;
 					
 					for(var i=0; i<data.length;i++){
 						var localAddress = imageBaseUrl() + "/"+ data[i].datakind +"/";
@@ -301,9 +422,12 @@ function addImageMoveList(){
 								localAddress += tmpFileN;
 							}else if(data[i].datakind == "GeoVideo"){
 								localAddress += data[i].thumbnail;
+								if(imgEditMode == 2){
+									continue;
+								}
 							}
 						}
-
+						
 						innerHTMLStr += "<a class='imageTag' id='Pro_"+ data[i].datakind +"_"+data[i].idx +"' href='javascript:;' onclick="+'"';
 						var tempArr = new Array; //mapCenterChange에 넘길 객체 생성
 						tempArr.push(data[i].latitude);
@@ -322,8 +446,15 @@ function addImageMoveList(){
 						tempArr.push(data[i].u_date);
 						tempArr.push(data[i].projectidx);
 						tempArr.push(data[i].dronetype);
-						innerHTMLStr += "imgMapCenterChange('"+ tempArr +"');";
-						innerHTMLStr += '"'+" title='제목 : "+ data[i].title +"\n내용 : "+ data[i].content +"\n작성자 : "+ data[i].id +"\n작성일 : "+ data[i].u_date +"' border='0'>";
+						if(imgEditMode == 2){
+							innerHTMLStr += "imgMapCenterChangeGpsMode('"+ tempArr +"');";
+						}else{
+							innerHTMLStr += "imgMapCenterChange('"+ tempArr +"');";
+						}
+						
+						innerHTMLStr += '"'+" title='TITLE : "+ data[i].title +"\nCONTENT : "+ data[i].content +"\nWRITER : "+ data[i].id +"\nDATE : "+ data[i].u_date;
+						innerHTMLStr += " title=latitude : "+ data[i].latitude +"\nlongitude : "+ data[i].longitude;
+						innerHTMLStr += "' border='0'>";
 
 						var tmpMarginTop = '0';
 						
@@ -337,7 +468,12 @@ function addImageMoveList(){
 							innerHTMLStr += " style='border:2px solid #888888;";
 						}
 
-						innerHTMLStr += " background: url(\""+ localAddress +"\") no-repeat center; display: inline-block; width: 110px; height:110px; background-size: 110px 110px; margin:10px 0 10px 0;'> ";
+						innerHTMLStr += " background: url(\""+ localAddress +"\") no-repeat center; display: inline-block; width: 110px; height:110px; background-size: 110px 110px; ";
+						if(beforeGpsChk){
+							innerHTMLStr += " margin:10px 0 10px -21px;'> ";
+						}else{
+							innerHTMLStr += " margin:10px 0 10px 0;'> ";
+						}
 						innerHTMLStr += "</div>";
 						
 						//이미지 및 동영상 아이콘
@@ -345,6 +481,23 @@ function addImageMoveList(){
 							innerHTMLStr += '<div style="position:relative; width:30px; height:30px; top:-146px;left:-163px; display:inline-block;  background-image:url(../images/geoImg/GeoPhoto_marker.png); zoom:0.7;"></div>';
 						}else if(data[i].datakind == 'GeoVideo'){
 							innerHTMLStr += '<div style="position:relative; width:30px; height:30px; top:-146px;left:-163px; display:inline-block;  background-image:url(../images/geoImg/GeoVideo_marker.png); zoom:0.7;"></div>';
+							
+							//동영상은 좌표 설정하지 못하도록
+// 							if(imgEditMode == 2){
+// 								var tmpLeft = i*moveWidthNum;
+// 								var tmpDiv = '<div class="noSelectAreaClass" style="position:absolute; width:112px; height:112px; background-image: url(../images/geoImg/viewer/select_photo_btn_pop.png); background-repeat:no-repeat;cursor:pointer; top:10px; left:'+ tmpLeft +'px;" ></div>';
+// 								innerHTMLStr += tmpDiv;
+// 							}
+						}
+						
+						beforeGpsChk = false;
+						if(imgEditMode == 2 && data[i].datakind == 'GeoPhoto'){
+							//좌표 여부
+							if(data[i].latitude != null && data[i].latitude != '' && data[i].latitude != undefined && 
+									data[i].longitude != null && data[i].longitude != '' && data[i].longitude != undefined){
+								beforeGpsChk = true;
+								innerHTMLStr += '<div style="position:relative; width:36px; height:36px; top:-16px;left:-67px; display:inline-block;  background-image:url(../images/geoImg/sample_marker.png); zoom:0.7;" class="sampleMarkerClass"></div>';
+							}
 						}
 						
 						innerHTMLStr += "</a>";
@@ -361,14 +514,15 @@ function addImageMoveList(){
 						}
 
 						totalMoveWidth += moveWidthNum;
-					}
-
-					$('#img_move_list_long').css('width', moveWidthNum*data.length +"px");
+						tmpDataLen++;
+					}//end for
+					
+					$('#img_move_list_long').css('width', moveWidthNum2*tmpDataLen +"px");
 					$('#img_move_list_long').append(innerHTMLStr);
 					
 
 					//9개 이상일 경우 move btn 
-					if(data.length > 8){
+					if(tmpDataLen > 8){
 						$('#img_move_list').css('width','1035px');
 						$('#img_move_list').css('left','40px');
 						$('#img_move_list').css('top','0');
@@ -422,11 +576,14 @@ function imgDataSetting(obj){
 	var projectNameTxt = '';
 	var proShare = '';
 	if(obj.sharetype == '1'){
-		proShare = '공개';
+// 		proShare = '공개';
+		proShare = 'FULL';
 	}else if(obj.sharetype == '0'){
-		proShare = '비공개';
+// 		proShare = '비공개';
+		proShare = 'NON';
 	}else{
-		proShare = '선택공개';
+// 		proShare = '선택공개';
+		proShare = 'SELECTIVE';
 	}
 
 	tmpGroup = obj.projectname;
@@ -437,63 +594,151 @@ function imgDataSetting(obj){
 	tmpGroupHTML += '<div class="m_l_15" style="float:left; margin: 12px 0 0 10px; font-size:10px; color:#00b8b0;">'+ proShare +'</div>';
 	tmpLeft1 = '10px';
 	tmpGroupHTML += "<div class='titleLabel' style='float:left; margin: 8px 0 0 "+ tmpLeft1 +";' title='"+ tmpGroup +"'>"+ projectNameTxt +"</div>";
-
+	
 	tmpGroupHTML += "<img src='<c:url value='/images/geoImg/viewer/setting_btn_pop.png'/>' style='float:right; margin:8px 0 0 20px; width:30px; height:26px; display: none; cursor:pointer;' id='mv_setting' onclick='imageControllView(\"Y\")'>";
+	
+	//좌표 설정 버튼
+	tmpGroupHTML += "<div style='float: right;margin: 8px 0px 0px 20px;width: 120px;height: 26px;display: none;cursor: pointer;color: #0c9b95;font-size: 12px;background-color: #4f3639;border-radius: 3px;font-weight: bold;text-align: center;line-height: 26px;' id='gps_setting' onclick='imageControllView(\"G\")'>Coordinate setting</div>";
 	
 	tmpGroupHTML += "<img src='<c:url value='/images/geoImg/viewer/close_btn_pop.png'/>' style='float:right; margin:8px 0 0 20px; width:30px; height:26px; display: none; cursor:pointer;' class='mv_setting_on' onclick='imageControllView(\"N\")'>";
 	tmpGroupHTML += "<img src='<c:url value='/images/geoImg/viewer/picdel_btn_viewer.png'/>' style='float:right; margin:8px 0 0 20px; width:47px; height:27px; display: none; cursor:pointer;' class='mv_setting_on' onclick='removeMoveList()'>";
 	tmpGroupHTML += "<img src='<c:url value='/images/geoImg/viewer/picmove_btn_viewer.png'/>' style='float:right; margin:8px 0 0 20px; width:47px; height:27px; display: none; cursor:pointer;' id='view_category' class='mv_setting_on' onclick='getMoveList()'>";
+	
+	//좌표 저장 및 닫기
+	tmpGroupHTML += "<img src='<c:url value='/images/geoImg/viewer/close_btn_pop.png'/>' style='float:right; margin:8px 0 0 20px; width:30px; height:26px; display: none; cursor:pointer;' class='gps_setting_on' onclick='imageControllView(\"N\")'>";
+	tmpGroupHTML += "<div style='float: right;margin: 8px 0px 0px 20px;width: 120px;height: 26px;display: none;cursor: pointer;color: #0c9b95;font-size: 12px;background-color: #4f3639;border-radius: 3px;font-weight: bold;text-align: center;line-height: 26px;' class='gps_setting_on' onclick='newMarkerSave()'>Save coordinates</div>";
 	
 	$('#image_view_group').append(tmpGroupHTML);
 
 	if(imgEditMode == 1){
 		$('.mv_setting_on').css('display','block');
 		$('#moveSelectDiv').empty();
+	}else if(imgEditMode == 2){
+		$('.gps_setting_on').css('display','block');
+		$('#moveSelectDiv').empty();
 	}
 	
 	if(loginId != null && loginId != '' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN' || (user_id == null || user_id == '' || user_id == 'null'))){
 		$('.edit_btn_bottom').css('display', 'block');
-		if(imgEditMode != 1){
+		if(imgEditMode != 1 && imgEditMode != 2){
 			$('#mv_setting').css('display', 'block');
+			$('#gps_setting').css('display', 'block');
 		}
 	}else if(editUserCheck() == 1 ||  projectUserId == loginId){
 		$('.edit_btn_bottom').css('display', 'block');
-		if(imgEditMode != 1 && projectUserId == loginId){
+		if(imgEditMode != 1 && imgEditMode != 2 && projectUserId == loginId){
 			$('#mv_setting').css('display', 'block');
+			$('#gps_setting').css('display', 'block');
 		}
 	}else{
 		$('.edit_btn_bottom').css('display', 'none');
 		$('#mv_setting').css('display', 'none');
+		$('#gps_setting').css('display', 'none');
 	}
 }
 
 //img modify mode
 function imageControllView(type){
 	$('.checkAreaClass').remove();
+	setNewMarkerLat = 0;
+	setNewMarkerLng = 0;
 	
 	if(type == 'Y'){
 		imgEditMode = 1;
 		addImageMoveList();
 		
 		$('#mv_setting').css('display','none');
+		$('#gps_setting').css('display','none');
 		$('.mv_setting_on').css('display','block');
 
-		var tmpDiv = '<div id="grayDivArea" style="position:absolute; width:1135px; height:569px; background:gray; opacity:0.5; left:0; top:0;" ></div>';
+		var tmpDiv = '<div id="grayDivArea" style="position:absolute; width:1135px; height:569px; background:gray; opacity:0.5; left:0; top:0;z-index:1;" ></div>';
 		$('body').append(tmpDiv);
 		
 		$('#image_view_group').maxZIndex({inc:1});
 		$('#img_move_area').maxZIndex({inc:1});
 		$('#moveSelectDiv').maxZIndex({inc:1});
 		
-	}else{
+	}else if(type == 'N'){
+		if(imgEditMode == 2){
+			$('#googlemap_gray').get(0).contentWindow.grayMarkerSet('cancel');
+			$('#image_map_area_gray').css('display','none');
+		}else{
+			$('#image_map_area_gray').css('display','none');
+			$('#grayDivArea').remove();
+		}
+		
 		imgEditMode = 0;
 		addImageMoveList();
 		$('.mv_setting_on').css('display','none');
-		$('#grayDivArea').remove();
 		$('#moveSelectDiv').empty();
 		$('#moveSelectDiv').css('display','none');
+		$('.gps_setting_on').css('display','none');
+	}else if(type == 'G'){
+		imgEditMode = 2;
+		addImageMoveList();
+		
+		$('#mv_setting').css('display','none');
+		$('#gps_setting').css('display','none');
+		$('.mv_setting_on').css('display','none');
+		$('.gps_setting_on').css('display','block');
+		
+		$('#image_map_area_gray').css('display','block');
+
+// 		var tmpDiv = "<div id='grayMapDivArea' style='position:absolute; left:0; top:0; z-index:1; width:1135px; height:569px; display:block; background-color:#999;'>";
+// 		tmpDiv += "<iframe id='grayGooglemap' src='<c:url value='/geoPhoto/image_googlemap.do'/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>";
+// 		tmpDiv += "</div>";
+// 		$('body').append(tmpDiv);
+		
+		$('#googlemap_gray').get(0).contentWindow.graySetCenter();
+		var dMarkerLat = 0;		//default marker latitude
+		var dMarkerLng = 0;		//default marker longitude
+		var dMapZoom = 10;		//defalut map zoom
+
+		$('#image_map_area_gray').maxZIndex({inc:1});
+		$('#image_view_group').maxZIndex({inc:1});
+		$('#img_move_area').maxZIndex({inc:1});
+		$('#moveSelectDiv').maxZIndex({inc:1});
 	}
+	
 }
+
+//new marker setting
+function newMarkerSave(){
+	$('#googlemap_gray').get(0).contentWindow.grayMarkerSet('ok');
+	
+	if(setNewMarkerLat == 0 || setNewMarkerLng == 0){
+// 		jAlert('이동할 컨텐츠를 선택해 주세요', '정보');
+		jAlert('Please select gps.', 'Info');
+		$('#popup_container').maxZIndex({inc:1});
+		return;
+	}
+	
+	if(editContentArr == null || editContentArr.length <= 0){
+// 		jAlert('이동할 컨텐츠를 선택해 주세요', '정보');
+		jAlert('Please select content.', 'Info');
+		$('#popup_container').maxZIndex({inc:1});
+		return;
+	}
+	
+	var gpsSaveUrl = 'cms/updateGpsData/'+ loginToken +'/'+ loginId +'/'+ setNewMarkerLat + "/"+  setNewMarkerLng + "/" + editContentArr;
+	
+	var Url			= baseRoot() + gpsSaveUrl;
+	var callBack	= "?callback=?";
+	
+	$.ajax({
+		  type	: "POST"
+		, url	: Url + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(response) {
+			if(response.Code == 100){
+				addImageMoveList();
+			}
+		}
+	});
+}
+
 
 var editContentArr = new Array();	//이동할 컨텐츠
 //img center Change
@@ -515,7 +760,7 @@ function imgMapCenterChange(tmpArr){
 		if(!(loginId != null && loginId != '' && (((loginId == tmpId && loginType != 'WRITE') || loginType == 'ADMIN' || (tmpId == null || tmpId == '' || tmpId == 'null')) || (editUserCheck() == 1 ||  tmpProjectId == loginId)))){
 			return;
 		}
-
+		
 		var tmp1 = $.inArray(tmpKind+"_"+nowSelectIdx, editContentArr);
 		if(tmp1 > -1 ){
 			editContentArr.splice(tmp1,1);
@@ -576,6 +821,62 @@ function imgMapCenterChange(tmpArr){
 	btnViewCheck();
 }
 
+//check image
+function imgMapCenterChangeGpsMode(tmpArr){
+	var tpAr = tmpArr.split(",");
+	nowSelectIdx = tpAr[3];
+	var tmpKind = tpAr[4];
+	var tmpId = tpAr[7];
+	var tmpProjectId = tpAr[8];
+	var tmpMoveIdx = 0;
+	var tempVideoCnt = 0;
+	var tmpSampleMarkerCnt = 0;
+	
+	$.each(nowViewList, function(idx1, val1){
+		if(val1.datakind == "GeoVideo"){
+			tempVideoCnt ++;
+		}
+		
+		if(val1.idx == nowSelectIdx && val1.datakind == tmpKind){
+			tmpMoveIdx = idx1;
+			return false;
+		}
+		
+		if(val1.datakind == "GeoPhoto" &&
+				val1.latitude != null && val1.latitude != '' && val1.latitude != undefined && 
+				val1.longitude != null && val1.longitude != '' && val1.longitude != undefined){
+			tmpSampleMarkerCnt += 5;
+		}
+	});
+	tmpMoveIdx = tmpMoveIdx-tempVideoCnt;
+	
+	if(imgEditMode == 2){
+		if(!(loginId != null && loginId != '' && (((loginId == tmpId && loginType != 'WRITE') || loginType == 'ADMIN' || (tmpId == null || tmpId == '' || tmpId == 'null')) || (editUserCheck() == 1 ||  tmpProjectId == loginId)))){
+			return;
+		}
+		
+		if(imgEditMode == 2 && tmpKind == 'GeoVideo'){
+			return;
+		}
+
+		var tmp1 = $.inArray(tmpKind+"_"+nowSelectIdx, editContentArr);
+		if(tmp1 > -1 ){
+			editContentArr.splice(tmp1,1);
+			$('#checkArea_'+tmpKind+"_"+nowSelectIdx).remove();
+		}else{
+			var tmpLeft = tmpMoveIdx*moveWidthNum;
+			editContentArr.push(tmpKind+"_"+nowSelectIdx);
+			if(tmpMoveIdx > 0 ){
+				tmpLeft += tmpSampleMarkerCnt;
+			}
+			
+			var tmpDiv = '<div id="checkArea_'+ tmpKind+"_"+nowSelectIdx +'" class="checkAreaClass" style="position:absolute; width:112px; height:112px; background-image: url(../images/geoImg/viewer/select_photo_btn_pop.png); background-repeat:no-repeat;cursor:pointer; top:10px; left:'+ tmpLeft +'px;" ></div>';
+			$('#Pro_'+ tmpKind +'_'+nowSelectIdx).append(tmpDiv);
+		}
+		return;
+	}
+}
+
 function getMoveList(){
 	var moveUrl = '';
 	moveUrl = 'cms/getProjectList/'+ loginToken +'/'+ loginId +'/&nbsp/Y';
@@ -600,11 +901,14 @@ function getMoveList(){
 							var tmpTabName = result[i].projectname;
 							var proShare = '';
 							if(result[i].sharetype == '1'){
-								proShare = '공개';
+// 								proShare = '공개';
+								proShare = 'FULL';
 							}else if(result[i].sharetype == '0'){
-								proShare = '비공개';
+// 								proShare = '비공개';
+								proShare = 'NON';
 							}else{
-								proShare = '선택공개';
+// 								proShare = '선택공개';
+								proShare = 'SELECTIVE';
 							}
 							
 							if(result[i].idx != projectIdx){
@@ -630,10 +934,12 @@ function getMoveList(){
 						var tmpToh2 = $('#view_category').offset().top - $('#moveSelectDiv').height() -16 ;
 						$('#moveSelectDiv').css('top',tmpToh2);
 					}else{
-						jAlert('이동할 프로젝트 정보가 없습니다', '정보');
+// 						jAlert('이동할 프로젝트 정보가 없습니다', '정보');
+						jAlert('No project information to move.', 'Info');
 					}
 				}else if(response.Code == 200){
-					jAlert('이동할 프로젝트 정보가 없습니다', '정보');
+// 					jAlert('이동할 프로젝트 정보가 없습니다', '정보');
+					jAlert('No project information to move.', 'Info');
 				}
 			}
 		});
@@ -646,7 +952,8 @@ function getMoveList(){
 //move Content
 function modifyCategory(tmpProIdx){
 	if(editContentArr == null || editContentArr.length <= 0){
-		jAlert('이동할 컨텐츠를 선택해 주세요', '정보');
+// 		jAlert('이동할 컨텐츠를 선택해 주세요', '정보');
+		jAlert('Please select content to move.', 'Info');
 		$('#popup_container').maxZIndex({inc:1});
 		return;
 	}
@@ -673,12 +980,14 @@ function modifyCategory(tmpProIdx){
 
 function removeMoveList(){
 	if(editContentArr == null || editContentArr.length <= 0){
-		jAlert('삭제할 사진을 선택해 주세요', '정보');
+// 		jAlert('삭제할 사진을 선택해 주세요', '정보');
+		jAlert('Please select a photo to delete.', 'Info');
 		$('#popup_container').maxZIndex({inc:1});
 		return;
 	}
 	
-	jConfirm('정말 삭제하시겠습니까?', '정보', function(type){
+// 	jConfirm('정말 삭제하시겠습니까?', '정보', function(type){
+	jConfirm('Are you sure you want to delete?', 'Info', function(type){
 		if(type){
 			var rmPhotoList = new Array();
 			var rmVideoList = new Array();
@@ -775,7 +1084,8 @@ function makeViewOrd(){
 	if(nowViewList.length == editContentArr.length){
 		window.parent.viewMyProjects(null);
 		
-		jAlert('불러올 컨텐츠가 없습니다.', '정보', function(res){
+// 		jAlert('불러올 컨텐츠가 없습니다.', '정보', function(res){
+		jAlert('There is no content to import.', 'Info', function(res){
 			imageViewClose();
 		});
 	}
@@ -1154,7 +1464,8 @@ function createIcon(img_src) {
 	$('#'+img_element.attr('id')).contextMenu('context2', {
 		bindings: {
 			'context_delete': function(t) {
-				jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
+// 				jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
+				jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
 			}
 		}
 	});
@@ -1352,13 +1663,20 @@ function insertTableObject(data_arr) {
 }
 
 function loadXML() {
+	getServer("", 'XML');
+}
+
+function loadXML2(tmpServerId, tmpServerPass, tmpServerPort) {
 	var file_arr = file_url.split(".");   		// ["/upload/20141201_140526", "jpg"]
 	var xml_file_name = file_arr[0] + '.xml';  		// "/upload/20141201_140526.xml"
+	xml_file_name = upload_url + xml_file_name;
+	xml_file_name = xml_file_name.substring(1);
 	
 	$.ajax({
 		type: "POST",
-		url: base_url + '/getGeoXml.do',
-		data: 'file_name='+ imageBaseUrl() + upload_url + xml_file_name,
+		url: base_url + '/geoXml.do',
+		data: 'file_name='+xml_file_name+'&type=load&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+		'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
 		success:function(xml) {
 			$(xml).find('obj').each(function(index) {
 				var id = $(this).find('id').text();
@@ -1417,31 +1735,7 @@ function loadXML() {
 
 /* exif_start ----------------------------------- EXIF 설정 ------------------------------------- */
 function loadExif(rObj) {
-	if(rObj != null && rObj != ''){
-		imgDroneType = rObj.dronetype;
-		
-		var encode_file_name = encodeURIComponent('GeoPhoto/'+ rObj.filename);
-		$.ajax({
-			type: 'POST',
-			url: '<c:url value="/geoExif.do"/>',
-			data: 'file_name='+encode_file_name+'&type=load',
-			success: function(data) {
-				var response = data.trim();
-				exifSetting(response, rObj.longitude, rObj.latitude);
-			}
-		});
-	}else{
-		var encode_file_name = encodeURIComponent(upload_url + file_url);
-		$.ajax({
-			type: 'POST',
-			url: base_url + '/geoExif.do',
-			data: 'file_name='+encode_file_name+'&type=load',
-			success: function(data) {
-				var response = data.trim();
-				exifSetting(response, null, null);
-			}
-		});
-	}
+	getServer(rObj, 'EXIF');
 }
 
 function exifSetting(data, rLon, rlat) {
@@ -1554,25 +1848,26 @@ function setExifData(lat_str, lng_str, direction) {
 var resize_map_state = 1;
 var resize_scale = 400;
 var init_map_left, init_map_top, init_map_width, init_map_height;
-function resizeMap() {
-	if(resize_map_state==1) {
-		init_map_left = 765;
-		init_map_top = 530;
-		init_map_width = $('#image_map_area').width();
-		init_map_height = $('#image_map_area').height();
-		resize_map_state=2;
-		$('#image_map_area').animate({left:init_map_left-resize_scale, top:init_map_top-resize_scale, width:init_map_width+resize_scale, height:init_map_height+resize_scale},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_min.jpg"/>)'); reloadMap(1); });
-	}
-	else if(resize_map_state==2) {
-		resize_map_state=1;
-		$('#image_map_area').animate({left:init_map_left, top:init_map_top, width:init_map_width, height:init_map_height},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'); reloadMap(1); });
-	}
-	else {}
-}
+// function resizeMap() {
+// 	if(resize_map_state==1) {
+// 		init_map_left = 765;
+// 		init_map_top = 530;
+// 		init_map_width = $('#image_map_area').width();
+// 		init_map_height = $('#image_map_area').height();
+// 		resize_map_state=2;
+// 		$('#image_map_area').animate({left:init_map_left-resize_scale, top:init_map_top-resize_scale, width:init_map_width+resize_scale, height:init_map_height+resize_scale},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_min.jpg"/>)'); reloadMap(1); });
+// 	}
+// 	else if(resize_map_state==2) {
+// 		resize_map_state=1;
+// 		$('#image_map_area').animate({left:init_map_left, top:init_map_top, width:init_map_width, height:init_map_height},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'); reloadMap(1); });
+// 	}
+// 	else {}
+// }
 
 //저작
 function imageWrite() {
-	jConfirm('뷰어를 닫고 저작을 수행하시겠습니까?', '정보', function(type){
+// 	jConfirm('뷰어를 닫고 저작을 수행하시겠습니까?', '정보', function(type){
+	jConfirm('Do you want to close the viewer and author?', 'Info', function(type){
 		if(type) {
 			imageViewClose();
 			openImageWrite();
@@ -1582,7 +1877,15 @@ function imageWrite() {
 
 //뷰어 닫기
 function imageViewClose(){
-	$.FrameDialog.closeDialog();	
+	var iframes = window.parent.document.getElementsByTagName("IFRAME");
+	for (var i = 0; i < iframes.length; i++) {
+		var id = iframes[i].id || iframes[i].name || i;
+		if (window.parent.frames[id] == window && jQuery.type( id ) != 'number') {
+			var tmpID = id.replace("-VIEW", "");
+			window.parent.jQuery("#" + tmpID).dialog('close');
+		}
+	}
+// 	$.FrameDialog.closeDialog();	
 }
 
 //새창 띄우기 (저작)
@@ -1634,7 +1937,7 @@ css3color = function(color, opacity) {
 <!---------------------------------------------------- 메인 영역 시작 ------------------------------------------------>
 
 <!-- 이미지 영역 -->
-<div id='image_main_area' style='position:absolute; left:10px; top:15px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
+<div id='image_main_area' style='position:absolute; left:320px; top:15px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
 	<div id="image_viewer_canvas_div" style="width:780px; height: 545px; left:0px; top:0px;position:absolute;"><img id='image_viewer_canvas'></img></div>
 	<div class="viewerMoreL" style="display: none;"></div>
 	<div class="viewerMoreR" style="display: none;"></div>
@@ -1655,27 +1958,32 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- 추가 객체 영역 -->
-<div id="ioa_title" style='position:absolute; left:797px; top:12px; width:150px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="객체추가리스트"></div>
-<div id='image_object_area' style='position:absolute; left:800px; top:33px; width:300px; height:245px; display:block; border:1px solid #999999; overflow-y:scroll;'>
-	<table id='object_table'>
-		<tr style='font-size:12px; height:20px;' class='col_black'>
-			<td width=50 class='anno_head_tr'>ID</td>
-			<td width=80 class='anno_head_tr'>Type</td>
-			<td width=170 class='anno_head_tr'>Data</td>
-		</tr>
-	</table>
-</div>
+<%-- <div id="ioa_title" style='position:absolute; left:797px; top:12px; width:150px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="객체추가리스트"></div> --%>
+<!-- <div id='image_object_area' style='position:absolute; left:800px; top:33px; width:300px; height:245px; display:block; border:1px solid #999999; overflow-y:scroll;'> -->
+<!-- 	<table id='object_table'> -->
+<!-- 		<tr style='font-size:12px; height:20px;' class='col_black'> -->
+<!-- 			<td width=50 class='anno_head_tr'>ID</td> -->
+<!-- 			<td width=80 class='anno_head_tr'>Type</td> -->
+<!-- 			<td width=170 class='anno_head_tr'>Data</td> -->
+<!-- 		</tr> -->
+<!-- 	</table> -->
+<!-- </div> -->
 
 <!-- EXIF 영역 -->
-<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:799px; top:288px;' alt="이미지정보"></div>
-<div id='image_exif_area' style='position:absolute; left:800px; top:310px; width:300px; height:245px; display:block; /*border:1px solid #999999;*/ '>
+<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:10px; top:288px;' alt="이미지정보"></div>
+<div id='image_exif_area' style='position:absolute; left:10px; top:310px; width:300px; height:245px; display:block; /*border:1px solid #999999;*/ '>
 </div>
 
 <!-- 지도 영역 -->
-<div id='image_map_area' style='position:absolute; left:765px; top:530px; width:30px; height:30px; display:block; background-color:#999;'>
+<div id='image_map_area' style='position:absolute; left:10px; top:15px; width:300px; height:260px; display:block; background-color:#999;'>
 	<iframe id='googlemap' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
-	<div id='resize_map_btn' onclick='resizeMap();' style='position:absolute; left:0px; top:0px; width:30px; height:30px; cursor:pointer; background-image:url(<c:url value='/images/geoImg/icon_map_max.jpg'/>);'>
+<%-- 	<div id='resize_map_btn' onclick='resizeMap();' style='position:absolute; left:0px; top:0px; width:30px; height:30px; cursor:pointer; background-image:url(<c:url value='/images/geoImg/icon_map_max.jpg'/>);'> --%>
 	</div>
+</div>
+
+<!-- 좌표 설정 지도 영역 -->
+<div id='image_map_area_gray' style='position:absolute; left:0px; top:0px; width:1135px; height:560px; display:none; background-color:#999;'>
+	<iframe id='googlemap_gray' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
 </div>
 
 <!----------------------------------------------------- 메인 영역 끝 ------------------------------------------------->
@@ -1693,7 +2001,7 @@ css3color = function(color, opacity) {
 				<td><input id="caption_font_color" type="text" class="iColorPicker" value="#FFFFFF" style="width:50px;"/></td>
 				<td><label style="font-size:12px;">BG Color : </label></td>
 				<td><input id="caption_bg_color" type="text" class="iColorPicker" value="#000000" style="width:50px;"/></td>
-				<td id='caption_checkbox_td'><input type="checkbox" name="caption_bg_checkbok" onclick="checkCaption();"/><label style="font-size:12px;">투명</label></td></tr>
+				<td id='caption_checkbox_td'><input type="checkbox" name="caption_bg_checkbok" onclick="checkCaption();"/><label style="font-size:12px;">Transparency</label></td></tr>
 				<tr><td colspan='7' id='caption_check'></td></tr>
 				<tr><td colspan='7'><hr/></td></tr>
 				<tr><td colspan='5'><input id="caption_text" type="text" style="width:90%; font-size:12px; border:solid 2px #777;"/></td>
@@ -1714,7 +2022,7 @@ css3color = function(color, opacity) {
 				<td><input id="bubble_font_color" type="text" class="iColorPicker" value="#FFFFFF" style="width:50px;"/></td>
 				<td><label style="font-size:12px;">BG Color : </label></td>
 				<td><input id="bubble_bg_color" type="text" class="iColorPicker" value="#000000" style="width:50px;"/></td>
-				<td id='bubble_checkbox_td'><input type="checkbox" name="bubble_bg_checkbok" onclick="checkBubble();"/><label style=" font-size:12px;">투명</label></td></tr>
+				<td id='bubble_checkbox_td'><input type="checkbox" name="bubble_bg_checkbok" onclick="checkBubble();"/><label style=" font-size:12px;">Transparency</label></td></tr>
 				<tr><td colspan='7' id='bubble_check'></td></tr>
 				<tr><td colspan='7'><hr/></td></tr>
 				<tr><td colspan='5'><textarea id="bubble_text" rows="3" style="width:90%; font-size:12px; border:solid 2px #777;"></textarea></td>
@@ -1771,7 +2079,7 @@ css3color = function(color, opacity) {
 					<input type='radio' name='geo_shape' value='rect'><label style="font-size:12px;">Rect</label>
 					<input type='radio' name='geo_shape' value='point' checked><label style="font-size:12px;">Point</label></td>
 					<td width='20'></td>
-					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">확인</button></td>
+					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">Confirm</button></td>
 				</tr>
 				<tr><td><hr/></td><td width='20'></td></tr>
 				<tr>
@@ -1788,9 +2096,9 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- EXIF 삽입 다이얼로그 객체 -->
-<div id='exif_dialog' style='position:absolute; left:800px; top:310px; width:300px; height:248px; border:1px solid #999999; display:block; font-size:13px;'>
+<div id='exif_dialog' style='position:absolute; left:10px; top:310px; width:300px; height:200px; border:1px solid #999999; display:block; font-size:13px;'>
 	<div class='accordionButton col_black'>&nbsp;EXIF Normal Info</div>
-	<div class='accordionContent' style='height:207px; overflow-y:scroll;'>
+	<div class='accordionContent' style='height:157px; overflow-y:scroll;'>
 		<table id='normal_exif_table'>
 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Make</label></td><td width='150'><input id='make_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
 			<tr><td width='15'><td><label>Model</label></td><td><input id='model_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
@@ -1808,8 +2116,8 @@ css3color = function(color, opacity) {
 	</div>
 	
 	<div class='accordionButton col_black'>&nbsp;EXIF GPS Info</div>
-	<div class='accordionContent' style='height:205px; overflow-y:scroll;'>
-		<table id='gps_exif_table' style="margin-top: 15px;">
+	<div class='accordionContent' style='height:155px; overflow-y:scroll;'>
+		<table id='gps_exif_table' style="margin-top: 5px;">
 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
 			<tr><td width='15'></td><td><label>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
 			<tr><td width='15'></td><td><label>GPS Direction</label></td><td><input id='gps_direction_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
@@ -1818,7 +2126,6 @@ css3color = function(color, opacity) {
 		</table>
 	</div>
 </div>
-	<button style="position:absolute; left:580px; top:780px; width:140px; height:35px; display:none; cursor: pointer;" onclick="imageViewClose();" id="viewerColstBtn">Close</button>
 </body>
 
 </html>

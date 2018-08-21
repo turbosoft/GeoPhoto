@@ -43,6 +43,12 @@ var imgHeight = 0;
 var marginImgL = 0;
 var marginImgT = 0;
 var isPanorama = true;
+var dMarkerLat = 0;		//default marker latitude
+var dMarkerLng = 0;		//default marker longitude
+var dMapZoom = 10;		//default map zoom
+var changeGps = false;	//marker gps change boolean
+var imageLatitude = 0;
+var imageLongitude  = 0;
 
 $(function() {
 	$("#exif_dialog .accordionButton:eq(1)").trigger('click');
@@ -139,6 +145,9 @@ $(function() {
 		modal: true
 	});
 	
+});
+
+function imageWriteOnload(){
 	if(projectBoard == 1){
 		base_url = 'http://'+ location.host + '/GeoCMS';
 		upload_url = '/GeoPhoto/';
@@ -148,14 +157,16 @@ $(function() {
 			$('.menuIcon').css('width','14%');
 			$('.menuIconData').css('display', 'block');
 		}
+		getServer("", "");
 		getOneImageData();
+		getBasePhoto();
 	}else{
 		base_url = '<c:url value="/"/>';
 		upload_url = '/upload/';
 		imageWriteInit();
 		loadExif(null);
 	}
-});
+}
 
 function getOneImageData(){
 	var Url			= baseRoot() + "cms/getImage/";
@@ -180,7 +191,8 @@ function getOneImageData(){
 					
 					$('#title_area').val(response.title);
 					$('#content_area').val(response.content);
-					var nowShareTypeText = nowShareType == 0? '비공개':nowShareType== 1? '전체공개':'특정인 공개';
+// 					var nowShareTypeText = nowShareType == 0? '비공개':nowShareType== 1? '전체공개':'특정인 공개';
+					var nowShareTypeText = nowShareType == 0? "private":nowShareType== 1? "public":"sharing with friends";
 					
 					$('#shareKindLabel').text(nowShareTypeText);
 					
@@ -193,10 +205,120 @@ function getOneImageData(){
 					loadExif(response);
 				}
 			}else{
-				jAlert(data.Message, '정보');
+				jAlert(data.Message, 'Info');
 			}
 		}
 	});
+}
+
+//초기 설정 데이터 불러오기
+function getBasePhoto() {
+	var Url			= baseRoot() + "cms/getbase";
+	var callBack	= "?callback=?";
+	
+	$.ajax({
+		type	: "get"
+		, url	: Url + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(data) {
+			if(data.Code == '100'){
+				var result = data.Data;
+				if(result != null && result.length > 0){
+					dMarkerLat = result[0].latitude;
+					dMarkerLng = result[0].longitude;
+					dMapZoom = result[0].mapzoom;
+					$('#googlemap').get(0).contentWindow.setDefaultData(dMarkerLat, dMarkerLng, dMapZoom);
+				}
+			}else{
+				jAlert(data.Message, 'Info');
+			}
+		}
+	});
+}
+
+//get server
+function getServer(rObj, tmpFileType){
+	var Url			= baseRoot() + "cms/selectServerList/";
+	var param		= loginToken + "/" + loginId +"/" +"Y";
+	var callBack	= "?callback=?";
+	$.ajax({
+		type	: "get"
+		, url	: Url + param + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(data) {
+			var response = data.Data;
+			var tmpServerId = '';
+			var tmpServerPass = '';
+			var tmpServerPort = '';
+			
+			if(data.Code == '100'){
+				b_serverUrl = response[0].serverurl;
+				b_serverViewPort = response[0].serverviewport;
+				b_serverPath = response[0].serverpath;
+				if(b_serverUrl != null && b_serverUrl != "" && b_serverUrl != undefined){
+					b_serverType = "URL";
+				}else{
+					b_serverType = "LOCAL";
+				}
+				tmpServerId = response[0].serverid;
+				tmpServerPass = response[0].serverpass;
+				tmpServerPort = response[0].serverport;
+				
+			}else if(data.Code != '200'){
+				b_serverPath = "upload";
+				jAlert(data.Message, 'Info');
+			}else{
+				b_serverPath = "upload";
+			}
+			if(tmpFileType != null){
+				if(tmpFileType == 'EXIF'){
+					getServerExif(rObj, tmpServerId, tmpServerPass, tmpServerPort);
+				}else if(tmpFileType == 'XML'){
+					loadXML2(tmpServerId, tmpServerPass, tmpServerPort);
+				}else if(tmpFileType == "1" || tmpFileType == "2"){
+					saveImageWrite(tmpFileType, tmpServerId, tmpServerPass, tmpServerPort);
+				}else if(tmpFileType == 'emailCapture'){
+					saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort);
+				}
+			}
+		}
+	});
+}
+
+function getServerExif(rObj, tmpServerId, tmpServerPass, tmpServerPort){
+	if(rObj != null && rObj != ''){
+		imgDroneType = rObj.dronetype;
+		
+		var encode_file_name = encodeURIComponent('GeoPhoto/'+ rObj.filename);
+		$.ajax({
+			type: 'POST',
+			url: '<c:url value="/geoExif.do"/>',
+			data: 'file_name='+encode_file_name+'&type=load&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+			'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
+			success: function(data) {
+				var response = data.trim();
+				exifSetting(response, rObj.longitude, rObj.latitude);
+			}
+		});
+	}else{
+		var encode_file_name = upload_url + file_url;
+		encode_file_name = encode_file_name.substring(1);
+		encode_file_name = encodeURIComponent(encode_file_name);
+		$.ajax({
+			type: 'POST',
+			url: base_url + '/geoExif.do',
+			data: 'file_name='+encode_file_name+'&type=load&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+			'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
+			success: function(data) {
+				var response = data.trim();
+				exifSetting(response, null, null);
+			}
+		});
+	}
 }
 
 function dataChangeClick(){
@@ -286,7 +408,7 @@ function toDataUrl() {
 	xhr.open('GET', imageBaseUrl() + upload_url + file_url, false);
 	xhr.responseType = 'blob';
 	xhr.onload = function(e) {
-	    alert(base64ArrayBuffer(e.currentTarget.response));
+// 	    alert(base64ArrayBuffer(e.currentTarget.response));
 	};
 	xhr.send();
 }
@@ -328,7 +450,7 @@ function inputCaption(id, text) {
 	
 	if(id==0 & text=="") {
 		//caption dialog 내부 객체 초기화
-		$('#caption_font_select').val('Normal'); $('#caption_font_color').val('#000000'); $('#caption_font_color').css('background-color', '#000000'); $('#caption_bg_color').val('#FFFFFF'); $('#caption_bg_color').css('background-color', '#FFFFFF'); $('input[name=caption_bg_checkbok]').attr('checked', true); $('#icp_caption_bg_color').removeAttr('onclick'); $('#caption_check').html('<input type="checkbox" id="caption_bold" style="display:none;"/><img src="<c:url value="/images/geoImg/write/bold_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_italic" style="display:none;" /><img src="<c:url value="/images/geoImg/write/italic_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_underline" style="display:none;" /><img src="<c:url value="/images/geoImg/write/underLine_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_link" style="display:none;"/><img src="<c:url value="/images/geoImg/write/hyperLink_off.png"/>" '+icon_css+' onclick="captionCheck(this);">'); $('#caption_button').html('<button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="createCaption();">입력</button>'); $('#caption_text').val('');
+		$('#caption_font_select').val('Normal'); $('#caption_font_color').val('#000000'); $('#caption_font_color').css('background-color', '#000000'); $('#caption_bg_color').val('#FFFFFF'); $('#caption_bg_color').css('background-color', '#FFFFFF'); $('input[name=caption_bg_checkbok]').attr('checked', true); $('#icp_caption_bg_color').removeAttr('onclick'); $('#caption_check').html('<input type="checkbox" id="caption_bold" style="display:none;"/><img src="<c:url value="/images/geoImg/write/bold_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_italic" style="display:none;" /><img src="<c:url value="/images/geoImg/write/italic_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_underline" style="display:none;" /><img src="<c:url value="/images/geoImg/write/underLine_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_link" style="display:none;"/><img src="<c:url value="/images/geoImg/write/hyperLink_off.png"/>" '+icon_css+' onclick="captionCheck(this);">'); $('#caption_button').html('<button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="createCaption();">input</button>'); $('#caption_text').val('');
 	}
 	else {
 		//caption dialog 내부 객체 설정
@@ -388,7 +510,7 @@ function inputCaption(id, text) {
 		
 		$('#caption_check').html(check_html); 
 		$('#caption_text').val($('#p'+id).html()); 
-		$('#caption_button').html('<button id="caption_replace_btn" class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;">수정</button>');
+		$('#caption_button').html('<button id="caption_replace_btn" class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;">Modified</button>');
 		$('#caption_replace_btn').click(function() { replaceCaption(id); });
 	}
 	
@@ -435,7 +557,8 @@ function createCaption() {
 	$('#'+div_element.attr('id')).contextMenu('context1', {
 		bindings: {
 			'context_modify': function(t) { inputCaption(t.id, text); },
-			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
+// 			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
+			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
 		}
 	});
 	
@@ -496,7 +619,7 @@ function inputBubble(id, text) {
 	
 	if(id==0 & text=="") {
 		//bubble dialog 내부 객체 초기화
-		$('#bubble_font_select').val('Normal'); $('#bubble_font_color').val('#000000'); $('#bubble_font_color').css('background-color', '#000000'); $('#bubble_bg_color').val('#FFFFFF'); $('#bubble_bg_color').css('background-color', '#FFFFFF'); $('input[name=bubble_bg_checkbok]').attr('checked', true); $('#icp_bubble_bg_color').removeAttr('onclick'); $('#bubble_check').html('<input type="checkbox" id="bubble_bold" style="display:none;"/><img src="<c:url value="/images/geoImg/write/bold_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_italic" style="display:none;" /><img src="<c:url value="/images/geoImg/write/italic_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_underline" style="display:none;" /><img src="<c:url value="/images/geoImg/write/underLine_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_link" style="display:none;"/><img src="<c:url value="/images/geoImg/write/hyperLink_off.png"/>" '+icon_css+' onclick="captionCheck(this);">'); $('#bubble_button').html('<button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="createBubble();">입력</button>'); $('#bubble_text').val('');
+		$('#bubble_font_select').val('Normal'); $('#bubble_font_color').val('#000000'); $('#bubble_font_color').css('background-color', '#000000'); $('#bubble_bg_color').val('#FFFFFF'); $('#bubble_bg_color').css('background-color', '#FFFFFF'); $('input[name=bubble_bg_checkbok]').attr('checked', true); $('#icp_bubble_bg_color').removeAttr('onclick'); $('#bubble_check').html('<input type="checkbox" id="bubble_bold" style="display:none;"/><img src="<c:url value="/images/geoImg/write/bold_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_italic" style="display:none;" /><img src="<c:url value="/images/geoImg/write/italic_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_underline" style="display:none;" /><img src="<c:url value="/images/geoImg/write/underLine_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_link" style="display:none;"/><img src="<c:url value="/images/geoImg/write/hyperLink_off.png"/>" '+icon_css+' onclick="captionCheck(this);">'); $('#bubble_button').html('<button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="createBubble();">input</button>'); $('#bubble_text').val('');
 	}
 	else {
 		//caption dialog 내부 객체 설정
@@ -548,7 +671,7 @@ function inputBubble(id, text) {
 		
 		$('#bubble_check').html(check_html);
 		$('#bubble_text').val($('#p'+id).html()); 
-		$('#bubble_button').html('<button id="bubble_replace_btn" class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;">수정</button>');
+		$('#bubble_button').html('<button id="bubble_replace_btn" class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;">Modified</button>');
 		$('#bubble_replace_btn').click(function() { replaceBubble(id); });
 	}
 	
@@ -593,7 +716,8 @@ function createBubble() {
 	$('#'+div_element.attr('id')).contextMenu('context1', {
 		bindings: {
 			'context_modify': function(t) { inputBubble(t.id, text); },
-			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ 	if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
+// 			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ 	if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
+			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ 	if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
 		}
 	});
 	
@@ -713,7 +837,8 @@ function createIcon(img_src) {
 	$('#'+img_element.attr('id')).contextMenu('context2', {
 		bindings: {
 			'context_delete': function(t) {
-				jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
+// 				jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
+				jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); });
 			}
 		}
 	});
@@ -852,11 +977,11 @@ function inputGeometryShape(type) {
 	canvas_element.appendTo('#image_write_canvas_div');
 	
 	//그리기 완료 및 그리기 취소 버튼
-	var html_text = '<button class="geometry_complete_button" onclick="createGeometry('+type+');" style="left:0px; top:0px;">그리기 완료</button>';
-	html_text += '<button class="geometry_cancel_button" onclick="cancelGeometry();" style="left:10px; top:0px;">그리기 취소</button>';
+	var html_text = '<button class="geometry_complete_button" onclick="createGeometry('+type+');" style="left:0px; top:0px;">Draw complete</button>';
+	html_text += '<button class="geometry_cancel_button" onclick="cancelGeometry();" style="left:10px; top:0px;">Undo drawing</button>';
 	$('#image_main_area').append(html_text);
 	$('.geometry_complete_button').button(); $('.geometry_cancel_button').button();
-	$('.geometry_complete_button').width(100); $('.geometry_cancel_button').width(100);
+	$('.geometry_complete_button').width(115); $('.geometry_cancel_button').width(115);
 	$('.geometry_complete_button').height(30); $('.geometry_cancel_button').height(30);
 	$('.geometry_complete_button').css('fontSize', 12); $('.geometry_cancel_button').css('fontSize', 12);
 }
@@ -880,7 +1005,7 @@ function createGeometry(type) {
 	}
 	var left = min_x; var top = min_y; var width = max_x - min_x; var height = max_y - min_y;
 // 	var left_str = $('#image_write_canvas').css('left'); var top_str = $('#image_write_canvas').css('top');
-	var left_str = $('#image_write_canvas_div').css('left'); var top_str = $('#image_write_canvas').css('top');
+	var left_str = $('#image_write_canvas_div').css('left'); var top_str = $('#image_write_canvas_div').css('top');
 	var left_offset = parseInt(left_str.replace('px','')); var top_offset = parseInt(top_str.replace('px',''));
 	left += left_offset; top += top_offset;
 	//canvas 객체 삽입
@@ -903,9 +1028,11 @@ function createGeometry(type) {
 				var obj = $('#'+t.id);
 				var top = obj.css('top'); top = top.replace('px','');
 				var left = obj.css('left'); left = left.replace('px','');
-				autoCreateText('b', 'Normal', '#000000', '#FFFFFF', 'false', 'false', 'false', 'false', t.id+'의 말풍선', top, left);
+// 				autoCreateText('b', 'Normal', '#000000', '#FFFFFF', 'false', 'false', 'false', 'false', t.id+'의 말풍선', top, left);
+				autoCreateText('b', 'Normal', '#000000', '#FFFFFF', 'false', 'false', 'false', 'false', t.id+' speech bubble', top, left);
 			},
-			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); }); }
+// 			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); }); }
+			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); }); }
 		}
 	});
 
@@ -1025,32 +1152,7 @@ function cancelGeometry() {
 
 /* exif_start ----------------------------------- EXIF 설정 ------------------------------------- */
 function loadExif(rObj) {
-	if(rObj != null && rObj != ''){
-		imgDroneType = rObj.dronetype;
-		
-		var encode_file_name = encodeURIComponent('GeoPhoto/'+ rObj.filename);
-		$.ajax({
-			type: 'POST',
-			url: '<c:url value="/geoExif.do"/>',
-			data: 'file_name='+encode_file_name+'&type=load',
-			success: function(data) {
-				var response = data.trim();
-				exifSetting(response, rObj.longitude, rObj.latitude);
-			}
-		});
-	}else{
-		var encode_file_name = encodeURIComponent(upload_url + file_url);
-		
-		$.ajax({
-			type: 'POST',
-			url: base_url + '/geoExif.do',
-			data: 'file_name='+encode_file_name+'&type=load',
-			success: function(data) {
-				var response = data.trim();
-				exifSetting(response,null, null);
-			}
-		});
-	}
+	getServer(rObj, 'EXIF');
 }
 
 function saveExif() {
@@ -1076,7 +1178,8 @@ function saveExif() {
 		type: 'POST',
 		url: base_url + '/geoExif.do',
 		data: 'file_name='+encode_file_name+'&type=save&data='+data_text,
-		success: function(data) { var response = data.trim(); jAlert('정상적으로 저장 되었습니다.', '정보'); }
+// 		success: function(data) { var response = data.trim(); jAlert('정상적으로 저장 되었습니다.', '정보'); }
+		success: function(data) { var response = data.trim(); jAlert('Saved successfully.', 'Info'); }
 	});
 }
 
@@ -1135,15 +1238,19 @@ function exifSetting(data, rLon, rlat) {
 	//GPS Longitude
 	if(rLon == null){
 		line_data_buf_arr = line_buf_arr[15].split("\<Separator\>"); $('#lon_text').val(line_data_buf_arr[1]);
+		imageLongitude  =  line_data_buf_arr[1];
 	}else{
 		$('#lon_text').val(rLon);
+		imageLongitude  =  rLon;
 	}
 	
 	//GPS Latitude
 	if(rlat == null){
 		line_data_buf_arr = line_buf_arr[16].split("\<Separator\>"); $('#lat_text').val(line_data_buf_arr[1]);
+		imageLatitude = line_data_buf_arr[1];
 	}else{
 		$('#lat_text').val(rlat);
+		imageLatitude = rlat;
 	}
 	
 	//맵설정
@@ -1155,12 +1262,22 @@ function exifSetting(data, rLon, rlat) {
 function saveSetting() {
 	$('#save_dialog').dialog('open');
 }
+
 //저장 실행
-function saveImageWrite(type) {
+function saveImageWrite1(type) {
+	if(type == "1" || type == "2"){
+		getServer("", type);
+	}else{
+		saveImageWrite(type, "", "", "");
+	}
+	
+}
+
+//저장 실행
+function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 	$('#save_dialog').dialog('close');
 	
 	var obj_data_arr = new Array();
-	
 	var html_text = '';
 	
 	var objCount = $('#image_write_canvas_div').children().size(); // 오브젝트 몇개인지파악(그림까지 포함이니 +1)
@@ -1201,9 +1318,9 @@ function saveImageWrite(type) {
 	var xml_text = makeXMLStr(obj_data_arr);
 	var encode_xml_text = encodeURIComponent(xml_text); // xml text encoding
 
-	var encode_file_name = encodeURIComponent(upload_url + file_url);
-	
-	
+	var encode_file_name = upload_url + file_url;
+	encode_file_name = encode_file_name.substring(1, encode_file_name.lastIndexOf(".")+1) +"xml" ;
+	encode_file_name = encodeURIComponent(encode_file_name);
 	
 	if(type==1 || type==2) {
 		var tmpTitle = $('#title_area').val();
@@ -1218,27 +1335,32 @@ function saveImageWrite(type) {
 		var latitude = $('#lat_text').val();
 		
 		if(tmpTitle == null || tmpTitle == "" || tmpTitle == 'null'){
-			 jAlert('제목을 입력해 주세요.', '정보');
+// 			 jAlert('제목을 입력해 주세요.', '정보');
+			 jAlert('Please enter the title.', 'Info');
 			 return;
 		 }
 		 
 		 if(tmpContent == null || tmpContent == "" || tmpContent == 'null'){
-			 jAlert('내용을 입력해 주세요.', '정보');
+// 			 jAlert('내용을 입력해 주세요.', '정보');
+			 jAlert('Please enter your details.', 'Info');
 			 return;
 		 }
 		 
 		 if(tmpShareType != null && tmpShareType == 2 && (tmpAddShareUser == null || tmpAddShareUser == '') && oldShareUserLen == 0){
-			 jAlert('공유 유저가 지정되지 않았습니다.', '정보');
+// 			 jAlert('공유 유저가 지정되지 않았습니다.', '정보');
+			 jAlert('No sharing user specified.', 'Info');
 			 return;
 		 }
 		 
 		 if(tmpTitle != null && tmpTitle.indexOf('\'') > -1){
-			 jAlert('제목에 특수문자 \' 는 사용할 수 없습니다.', '정보');
+// 			 jAlert('제목에 특수문자 \' 는 사용할 수 없습니다.', '정보');
+			 jAlert('Can not use special character \' in title.', 'Info');
 			 return;
 		 }
 		 
 		 if(tmpContent != null && tmpContent.indexOf('\'') > -1){
-			 jAlert('내용에 특수문자 \' 는 사용할 수 없습니다.', '정보');
+// 			 jAlert('내용에 특수문자 \' 는 사용할 수 없습니다.', '정보');
+			 jAlert('Can not use special character \' in content.', 'Info');
 			 return;
 		 }
 		 
@@ -1246,16 +1368,24 @@ function saveImageWrite(type) {
 		$.ajax({
 			type: 'POST',
 			url: base_url + '/geoXml.do',
-			data: 'file_name='+encode_file_name+'&xml_data='+encode_xml_text,
+			data: 'file_name='+encode_file_name+'&xml_data='+ encode_xml_text+'&type=save&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+			'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
+// 			data: 'file_name='+encode_file_name+'&xml_data='+encode_xml_text,
 			success: function(data) {
 				var response = data.trim();
 				if(response == 'XML_SAVE_SUCCESS'){
 					if(projectBoard == 1){
-						
 						var tmp_xml_text = xml_text.replace(/\//g,'&sbsp');
 						tmp_xml_text = tmp_xml_text.replace(/\?/g,'&mbsp');
 						tmp_xml_text = tmp_xml_text.replace(/\#/g,'&pbsp');
 						tmp_xml_text = tmp_xml_text.replace(/\./g,'&obsp');
+						
+						var tmpLat  = '&nbsp';
+						var tmpLong  = '&nbsp';
+						if(changeGps){
+							tmpLat = $('#lat_text').val();
+							tmpLong = $('#lon_text').val();
+						}
 										
 						if(tmpAddShareUser == null || tmpAddShareUser.length <= 0){ tmpAddShareUser = '&nbsp'; }
 						if(tmpRemoveShareUser == null || tmpRemoveShareUser.length <= 0){ tmpRemoveShareUser = '&nbsp'; }
@@ -1269,7 +1399,8 @@ function saveImageWrite(type) {
 						tmpContent = dataReplaceFun(tmpContent);
 						
 						var Url			= baseRoot() + "cms/updateImage/";
-						var param		= loginToken + "/" + loginId + "/" + idx + "/" + tmpTitle + "/" + tmpContent + "/" + tmpShareType + "/" + tmpAddShareUser + "/" + tmpRemoveShareUser + "/" + tmp_xml_text + "/" + tmpEditYes + "/" + tmpEditNo;
+						var param		= loginToken + "/" + loginId + "/" + idx + "/" + tmpTitle + "/" + tmpContent + "/" + tmpShareType + "/" + tmpAddShareUser + "/" + 
+										tmpRemoveShareUser + "/" + tmp_xml_text + "/"+ tmpLat + "/" + tmpLong +"/"+ tmpEditYes + "/" + tmpEditNo;
 						var callBack	= "?callback=?";
 						
 						$.ajax({
@@ -1281,7 +1412,8 @@ function saveImageWrite(type) {
 							, success: function(data) {
 								var response = data.Data;
 								if(data.Code == '100'){
-									jAlert('정상적으로 저장 되었습니다.', '정보');
+// 									jAlert('정상적으로 저장 되었습니다.', '정보');
+									jAlert('Saved successfully.', 'Info');
 									
 									//exif 저장
 					 				var comment_text = $('#comment_text').val();
@@ -1291,7 +1423,7 @@ function saveImageWrite(type) {
 					 				
 					 				$('#shareKindLabel').text();
 								}else{
-									jAlert(data.Message, '정보');
+									jAlert(data.Message, 'Info');
 								}
 							}
 						});
@@ -1332,100 +1464,22 @@ function saveImageWrite(type) {
 		var emailCapture = $('#sendMail_capture').attr('checked') == 'checked' ? 'Y' :'N';
 		
 		if(emailAdrs == "" || (emailurl != 'Y' && emailCapture != 'Y')) {
-			alert("please, put E-mail adress in the box!!");
+			jAlert("please, put E-mail adress in the box!!", 'Info');
 			return;
 		}
 		else{
 			$('body').append('<div class="lodingOn" style="z-index:9000;"></div>');
 			var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url;
 			if(emailCapture == 'Y'){
-				////////////////////////////////////////////////
-				$.ajax({
-					type: 'POST',
-					url: "<c:url value='/ImageSaveInit.do'/>",
-					data: 'file_name='+file_url,
-					success: function(data) {
-						if(data == 'ERROR'){
-							
-						}else{
-							var copyWidth = $('#image_write_canvas').width();
-							var copyHeight = $('#image_write_canvas').height();
-							$('body').css('width', (copyWidth+10)+'px');
-							$('#image_write_canvas').attr('src', data);
-							var tmpLeftNum = $('#image_write_canvas_div').position().left;
-							$('#image_write_canvas_div').css('left','0px');
-							var element = $("#image_write_canvas_div"); // global variable
-							html2canvas(element, {
-								useCORS: true,
-							   	onrendered: function (canvas) {
-							   	  if (typeof FlashCanvas != "undefined") {
-						             FlashCanvas.initElement(canvas);
-						          }
-							   	  
-							   	$('#imgData_type').val('Y');
-								$('#imgData_email').val(emailAdrs);
-								$('#imgData_url').val(imgUrls);
-								$('#imgData_idx').val(idx);
-								
-								$('#chk_url').val(emailurl);
-								$('#chk_capture').val(emailCapture);
-								
-								var imageU = canvas.toDataURL("image/png");
-								$('#image_write_canvas').attr('src', imageBaseUrl() + upload_url + file_url);
-
-								$('#image_main_area').prepend('<img src="'+ imageU +'" id="image_write_copy" style="position:absolute; top:50px; width:'+ (copyWidth/2)+'px; height:'+ (copyHeight/2)+'px; "></div>');
-								
-								element = $("#image_write_copy"); // global variable
-								
-								html2canvas(element, {
-									useCORS: true,
-								   	onrendered: function (canvas) {
-								   	  if (typeof FlashCanvas != "undefined") {
-							             FlashCanvas.initElement(canvas);
-							          }   
-								
-						          $("#image_write_copy").remove();
-						          imageU = canvas.toDataURL("image/png");
-						          $("#imgData").val(imageU);
-						          
-						        
-						          var imgDataOrignU = data.split("/")[2];
-						          $('#imgDataOrign').val(imgDataOrignU);
-
-						          var iframe = $('<iframe name="postiframe" id="postiframe" style="display: none"></iframe>');
-						          $("body").append(iframe);
-						          
-						          var form = $('#imgFormArea');
-						          form.attr("target", "postiframe");
-						          form.attr("action", "<c:url value='/geoUserSendMail.do'/>");
-						          form.submit();
-						          
-						          $("#postiframe").load(function (e) {
-						            	var doc = this.contentWindow ? this.contentWindow.document : (this.contentDocument ? this.contentDocument : this.document);
-						                var root = doc.documentElement ? doc.documentElement : doc.body;
-						                var data = root.textContent ? root.textContent : root.innerText;
-						                
-						                jAlert(emailAdrs + '으로 메일이 전송되었습니다.', '정보', function(res){
-								        	  if(res){
-												   $('.lodingOn').remove();
-								        		  clearEdialog();
-								        		  $('#e_dialog').dialog('close');
-								        	  }
-								         });
-						          });  }});
-						       }
-						   });
-						}
-					}
-				});	
-				
+				getServer("", "emailCapture");
 			}else if(emailurl == 'Y'){
 	 			$.ajax({
 					type: 'POST',
 					url: "<c:url value='/geoUserSendMail.do'/>",
 					data: 'imgData_type=Y&imgData_email='+emailAdrs +'&imgData_url='+imgUrls+'&imgData_idx='+ idx +'&chk_url='+emailurl+'&chk_capture=N',
 					success: function(data) {
-						jAlert(emailAdrs + '으로 메일이 전송되었습니다.', '정보', function(res){
+// 						jAlert(emailAdrs + '으로 메일이 전송되었습니다.', '정보', function(res){
+						jAlert('Mail sent to '+ emailAdrs + '.', 'Info', function(res){
 				        	  if(res){
 				        		  $('.lodingOn').remove();
 				        		  clearEdialog();
@@ -1440,6 +1494,133 @@ function saveImageWrite(type) {
 		
 	}
 	else {}
+}
+	
+function saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort){
+	var emailAdrs = $.trim($('#eml').val());
+	var emailurl = $('#sendMail_url').attr('checked') == 'checked'?'Y' :'N';
+	var emailCapture = $('#sendMail_capture').attr('checked') == 'checked' ? 'Y' :'N';
+	var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url;
+
+	var obj_data_arr = new Array();
+	
+	var objCount = $('#image_write_canvas_div').children().size(); // 오브젝트 몇개인지파악(그림까지 포함이니 +1)
+	for(var i=0; i<objCount; i++) {
+		var obj = $('#image_write_canvas_div').children().eq(i);
+		var id = obj.attr('id');
+		if(id=='' || id == undefined) { obj = obj.children().eq(0); id = obj.attr('id'); }
+
+		if(id!='image_write_canvas') {
+			if(id.indexOf("c")!=-1) {
+				var obj_font = $('#f'+id);
+				var obj_pre = $('#p'+id); // 디버깅시 background: 값이 없다.
+				
+				obj_data_arr.push([id.substring(0, 1), obj.position().top, obj.position().left, obj.html(), obj_font.css('font-size'), obj_font.css('color'), obj_pre.css('backgroundColor'), obj_pre.html()]);
+			}
+			else if(id.indexOf("b")!=-1) {
+				var obj_font = $('#f'+id);
+				var obj_pre = $('#p'+id);
+				var obj_pre_text = obj_pre.html();
+				obj_pre_text = obj_pre_text.replace(/(\n|\r)+/g, "@line@");
+				obj_data_arr.push([id.substring(0, 1), obj.position().top, obj.position().left, obj.html(), obj_font.css('font-size'), obj_font.css('color'), obj_pre.css('backgroundColor'), obj_pre_text]);
+			}
+			else if(id.indexOf("i")!=-1) {
+				obj_data_arr.push([id.substring(0, 1), obj.parent().position().top, obj.parent().position().left, obj.css('width'), obj.css('height'), obj.attr('src')]);
+			}
+			else if(id.indexOf("g")!=-1) {
+				var check_id, left, top, x_str, y_str, line_color, bg_color, geo_type;
+				for(var j=0; j<geometry_total_arr_buf_1.length; j++) {
+					var buf1 = geometry_total_arr_buf_1[j].split("\@");
+					var buf2 = geometry_total_arr_buf_2[j].split("\@");
+					check_id = buf1[0]; left = buf1[1]; top = buf2[1]; x_str = buf1[2]; y_str = buf2[2]; line_color = buf1[3]; bg_color = buf2[3]; geo_type = buf2[4];
+					if(check_id==id) { obj_data_arr.push([id.substring(0, 1), top, left, x_str, y_str, line_color, bg_color, geo_type]); }
+				}
+			}
+			else {}
+		}
+	}
+	var xml_text = makeXMLStr(obj_data_arr);
+	var encode_xml_text = encodeURIComponent(xml_text); // xml text encoding
+	
+	$.ajax({
+		type: 'POST',
+		url: "<c:url value='/ImageSaveInit.do'/>",
+		data: 'file_name='+file_url+'&xml_data='+ encode_xml_text+'&type=save&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+		'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
+		success: function(data) {
+			if(data != 'ERROR'){
+				var copyWidth = $('#image_write_canvas').width();
+				var copyHeight = $('#image_write_canvas').height();
+				$('body').css('width', (copyWidth+10)+'px');
+				$('#image_write_canvas').attr('src', data);
+				
+				var tmpLeftNum = $('#image_write_canvas_div').position().left;
+				$('#image_write_canvas_div').css('left','0px');
+				var element = $("#image_write_canvas_div"); // global variable
+				html2canvas(element, {
+					useCORS: true,
+				   	onrendered: function (canvas) {
+				   	  if (typeof FlashCanvas != "undefined") {
+			             FlashCanvas.initElement(canvas);
+			          }
+				   	  
+				   	$('#imgData_type').val('Y');
+					$('#imgData_email').val(emailAdrs);
+					$('#imgData_url').val(imgUrls);
+					$('#imgData_idx').val(idx);
+					
+					$('#chk_url').val(emailurl);
+					$('#chk_capture').val(emailCapture);
+					
+					var imageU = canvas.toDataURL("image/png");
+					$('#image_write_canvas').attr('src', imageBaseUrl() + upload_url + file_url);
+
+					$('#image_main_area').prepend('<img src="'+ imageU +'" id="image_write_copy" style="position:absolute; top:50px; width:'+ (copyWidth/2)+'px; height:'+ (copyHeight/2)+'px; "></div>');
+					
+					element = $("#image_write_copy"); // global variable
+
+					html2canvas(element, {
+						useCORS: true,
+					   	onrendered: function (canvas) {
+					   	  if (typeof FlashCanvas != "undefined") {
+				             FlashCanvas.initElement(canvas);
+				          }   
+					
+			          $("#image_write_copy").remove();
+			          imageU = canvas.toDataURL("image/png");
+			          $("#imgData").val(imageU);
+			          
+			        
+			          var imgDataOrignU = data.split("/")[2];
+			          $('#imgDataOrign').val(imgDataOrignU);
+
+			          var iframe = $('<iframe name="postiframe" id="postiframe" style="display: none"></iframe>');
+			          $("body").append(iframe);
+			          
+			          var form = $('#imgFormArea');
+			          form.attr("target", "postiframe");
+			          form.attr("action", "<c:url value='/geoUserSendMail.do'/>");
+			          form.submit();
+			          
+			          $("#postiframe").load(function (e) {
+			            	var doc = this.contentWindow ? this.contentWindow.document : (this.contentDocument ? this.contentDocument : this.document);
+			                var root = doc.documentElement ? doc.documentElement : doc.body;
+			                var data = root.textContent ? root.textContent : root.innerText;
+			                
+//				                jAlert(emailAdrs + '으로 메일이 전송되었습니다.', '정보', function(res){
+			                jAlert('Mail sent to '+ emailAdrs + '.', 'Info', function(res){
+					        	  if(res){
+									   $('.lodingOn').remove();
+					        		  clearEdialog();
+					        		  $('#e_dialog').dialog('close');
+					        	  }
+					         });
+			          });  }});
+			       }
+			   });
+			}
+		}
+	});	
 }
 
 function clearEdialog(){
@@ -1657,13 +1838,81 @@ function autoCreateText(id, font_size, font_color, bg_color, bold, italic, under
 }
 
 function loadXML() {
+	getServer("", 'XML');
+	
+// 	var file_arr = file_url.split(".");   		// ["/upload/20141201_140526", "jpg"]
+// 	var xml_file_name = file_arr[0] + '.xml';  		// "/upload/20141201_140526.xml"
+	
+// 	$.ajax({
+// 		type: "POST",
+// 		url: base_url + '/getGeoXml.do',
+// 		data: 'file_name='+ imageBaseUrl() + upload_url + xml_file_name,
+// 		success:function(xml) {
+// 			$(xml).find('obj').each(function(index) {
+// 				var id = $(this).find('id').text();
+// 				if(id == "c" || id == "b") {
+// 					var font_size = $(this).find('fontsize').text(); var font_color = $(this).find('fontcolor').text(); var bg_color = $(this).find('backgroundcolor').text();
+// 					var bold = $(this).find('bold').text(); var italic = $(this).find('italic').text(); var underline = $(this).find('underline').text(); var href = $(this).find('href').text();
+// 					var text = $(this).find('text').text(); var top = $(this).find('top').text(); var left = $(this).find('left').text();
+// 					autoCreateText(id, font_size, font_color, bg_color, bold, italic, underline, href, text, top, left);
+// 				}
+// 				else if(id == "i") {
+// 					var top = $(this).find('top').text();
+// 					var left = $(this).find('left').text();
+// 					var width = $(this).find('width').text();
+// 					var height = $(this).find('height').text();
+// 					var src = $(this).find('src').text();
+					
+// 					createIcon(src);
+// 					var obj = $('#'+auto_icon_str);
+// 					obj.parent().position().top = top;
+// 					obj.parent().position().left = left;
+					
+// 					obj.parent().attr('style', 'overflow: hidden; position: absolute; width:'+width+'; height:'+height+'; top:'+top+'px; left:'+left+'px; margin:0px;');
+// 					obj.attr('style', 'position:static; display: block; top:'+top+'px; left:'+left+'px; width:'+width+'; height:'+height+';');
+// 				}
+// 				else if(id == "g") {
+// 					var buf = $(this).find('type').text();
+// 					var type;
+// 					if(buf=='circle') type = 1;
+// 					else if(buf=='rect') type = 2;
+// 					else if(buf=='point') type = 3;
+// 					else {}
+					
+// 					var top = $(this).find('top').text();
+// 					var left = $(this).find('left').text();
+// 					var x_str = $(this).find('xstr').text();
+// 					var y_str = $(this).find('ystr').text();
+// 					var line_color = $(this).find('linecolor').text();
+// 					var bg_color = $(this).find('backgroundcolor').text();
+// 					$('#geometry_line_color').val(line_color);
+// 					$('#geometry_bg_color').val(bg_color);
+// 					var buf1 = x_str.split('_');
+// 					for(var i=0; i<buf1.length; i++) { geometry_point_arr_1.push(parseInt(buf1[i])); }
+// 					var buf2 = y_str.split('_');
+// 					for(var i=0; i<buf2.length; i++) { geometry_point_arr_2.push(parseInt(buf2[i])); }
+// 					createGeometry(type);
+// 				}
+// 				else {}
+// 			});
+// 		},
+// 		error: function(xhr, status, error) {
+// 			//alert('XML 호출 오류! 관리자에게 문의하여 주세요.');
+// 		}
+// 	});
+}
+
+function loadXML2(tmpServerId, tmpServerPass, tmpServerPort) {
 	var file_arr = file_url.split(".");   		// ["/upload/20141201_140526", "jpg"]
 	var xml_file_name = file_arr[0] + '.xml';  		// "/upload/20141201_140526.xml"
+	xml_file_name = upload_url + xml_file_name;
+	xml_file_name = xml_file_name.substring(1);
 	
 	$.ajax({
 		type: "POST",
-		url: base_url + '/getGeoXml.do',
-		data: 'file_name='+ imageBaseUrl() + upload_url + xml_file_name,
+		url: base_url + '/geoXml.do',
+		data: 'file_name='+xml_file_name+'&type=load&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+		'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
 		success:function(xml) {
 			$(xml).find('obj').each(function(index) {
 				var id = $(this).find('id').text();
@@ -1721,7 +1970,8 @@ function loadXML() {
 
 /* exit_start ----------------------------------- 종료 버튼 설정 ------------------------------------- */
 function closeImageWrite() {
-	jConfirm('저작을 종료하시겠습니까?', '정보', function(type){
+// 	jConfirm('저작을 종료하시겠습니까?', '정보', function(type){
+	jConfirm('Do you want to end authoring?', 'Info', function(type){
 		if(type) { top.window.opener = top; top.window.open('','_parent',''); top.window.close(); }
 	});
 }
@@ -1729,7 +1979,6 @@ function closeImageWrite() {
 /* map_start ----------------------------------- 맵 버튼 설정 ------------------------------------- */
 function reloadMap(type) {
 	var arr = readMapData();
-	
 	$('#googlemap').get(0).contentWindow.setCenter(arr[0], arr[1], 2);
 	if(type==2) {
 		if(imgDroneType != null && imgDroneType == 'Y'){
@@ -1788,9 +2037,31 @@ function resizeMap() {
 	}
 	else if(resize_map_state==2) {
 		resize_map_state=1;
-		$('#image_map_area').animate({left:init_map_left, top:init_map_top, width:init_map_width, height:init_map_height},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'); reloadMap(1); });
+		$('#image_map_area').animate({left:init_map_left, top:init_map_top, width:init_map_width, height:init_map_height},"slow", function() {  });
+		$('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'); reloadMap(1);
 	}
-	else {}
+	else if(resize_map_state == 3){
+		init_map_left = 801;
+		init_map_top = 580;
+		init_map_width = $('#image_map_area').width();
+		init_map_height = $('#image_map_area').height();
+		resize_map_state= 4;
+		$('#image_map_area').animate({left:init_map_left-resize_scale, top:init_map_top-resize_scale, width:init_map_width+resize_scale, height:init_map_height+resize_scale},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_min.jpg"/>)');});
+	}
+	else if(resize_map_state==4) {
+		resize_map_state=3;
+		$('#image_map_area').animate({left:init_map_left, top:init_map_top, width:init_map_width, height:init_map_height},"slow", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)');});
+// 		init_map_left = 801;
+// 		init_map_top = 580;
+// 		init_map_width = $('#image_map_area').width();
+// 		init_map_height = $('#image_map_area').height();
+		
+// 		var rWidth = $('#writer_menubar').width();
+// 		var rHeight = $('#image_main_area').height() +  $('#image_sub_area').height() + $('#writer_menubar').height();
+// 		var rTop = $('#writer_menubar').height();
+// 		alert(rWidth + " : " + rHeight + " : "+ rTop);
+// 		$('#image_map_area').animate({left:10, top:2, width:rWidth, height:rHeight},"fast", function() { $('#resize_map_btn').css('background-image','url(<c:url value="/images/geoImg/icon_map_min.jpg"/>)'); reloadMap(1); });
+	}
 }
 //객체 테이블
 function insertTableObject(data_arr) {
@@ -1854,20 +2125,39 @@ function dataURItoBlob(dataURI) {
     return new Blob([ia], {type:mimeString});
 }
 
+// function markerNewGps(sType){
+// 	if(sType == 'open'){
+// 		changeGps = false; 
+// 		setExifData(imageLatitude, imageLongitude, 0);
+// 		$('.imgModeCls1').css('display','none');
+// 		$('.imgModeCls2').css('display','block');
+// 	}else if(sType == 'cancel'){
+// 		changeGps = false; 
+// 		setExifData(imageLatitude, imageLongitude, 0);
+// 		$('.imgModeCls1').css('display','block');
+// 		$('.imgModeCls2').css('display','none');
+// 	}else if(sType == 'ok'){
+// 		changeGps = true; 
+// 	}
+	
+// 	$('#googlemap').get(0).contentWindow.defaultMarkerSet(sType);
+// }
+
 </script>
 </head>
-<body style="overflow: hidden;">
+<body onload="imageWriteOnload();" style="overflow: hidden;">
 
 <!------------------------------------------------------ 화면 영역 ----------------------------------------------------------->
 <!-- 저작 버튼 영역 -->
-<div class='image_write_function col_gray3' style='position:absolute; left:10px; top:2px; width:1125px; height:65px; display:block;'>	
+<div class='image_write_function col_gray3' id="writer_menubar" style='position:absolute; left:10px; top:2px; width:1125px; height:65px; display:block;'>	
 	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/caption_btn.png'/>" onclick='inputCaption(0,"");' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
 	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/speech_btn.png'/>" onclick='inputBubble(0,"");' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
 	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/image_btn.png'/>" onclick='inputIcon();' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
 	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/geo_btn.png'/>" onclick='inputGeometry();' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
 	<div style="width: 18%; float: left; display: none;" class="menuIcon menuIconData"><img src="<c:url value='/images/geoImg/write/data_btn.png'/>" onclick='dataChangeClick();' style="cursor: pointer; width: 30px; height: 40px; margin-top: 10px; margin-left:25%;"></div>
-	<input type="button" onclick='closeImageWrite();' class='close_btn' value="닫기">
-	<input type="button" onclick='saveSetting();' class='save_btn' value="저장">
+	<input type="button" onclick='closeImageWrite();' class='close_btn' value="Close" style="margin:17px 15px 17px 5px";>
+	<input type="button" onclick='saveSetting();' class='save_btn' value="Export">
+	<input type="button" onclick='saveImageWrite1(2);' class='save_btn' value="Save">
 </div>
 
 <!-- 저작 영역 -->
@@ -1879,7 +2169,7 @@ function dataURItoBlob(dataURI) {
 
 <!-- 탭 , 공유 우저 영역 -->
 <div id="showInfoDiv" style="position:absolute; left:805px; top:13px; color:white; display: none; font-size:13px;">
-	<div style="margin-top: 5px;"> 공유 설정 : <label id="shareKindLabel"></label></div>
+	<div style="margin-top: 5px;"> Sharing settings : <label id="shareKindLabel"></label></div>
 </div>
 
 <!-- 객체추가리스트 -->
@@ -1905,6 +2195,14 @@ function dataURItoBlob(dataURI) {
 
 <!-- 지도 영역 -->
 <div id="ima_title"><img src="<c:url value='/images/geoImg/write/title_04.gif'/>" style='position:absolute; left:802px; top:557px;' alt="지도"></div>
+
+<!-- <div class="imgModeCls1" onclick="markerNewGps('open');" style='position:absolute;left: 872px;top: 555px;font-size: 14px;background-color: #066ab0;color: #ffffff;line-height: 18px; -->
+<!-- 	height: 23px;width: 80px;text-align: center;border-radius: 3px;'>gps setting</div> -->
+<!-- <div class="imgModeCls2" id="morkerModeSave" onclick="markerNewGps('ok');" style="display: none;height: 23px;width: 50px;position: absolute;left: 1022px;top: 555px;z-index: 9; -->
+<!-- 		background-color: rgb(68, 68, 68);text-align: center;cursor: pointer;font-size: 14px;color: rgb(255, 255, 255);border-radius: 3px;line-height: 20px;">Ok</div> -->
+<!-- <div class="imgModeCls2" id="morkerModeCancel" onclick="markerNewGps('cancel');" style="display: none;height: 23px;width: 50px;position: absolute;left: 1082px;top: 555px;z-index: 9; -->
+<!-- 		background-color: rgb(68, 68, 68);text-align: center;cursor: pointer;font-size: 14px;color: rgb(255, 255, 255);border-radius: 3px; line-height: 20px;">Cancel</div> -->
+	
 <div id='image_map_area' style='position:absolute; left:800px; top:580px; width:330px; height:240px; display:block;'>
 	<iframe id='googlemap' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
 	<div id='resize_map_btn' onclick='resizeMap();' style='position:absolute; left:0px; top:0px; width:30px; height:30px; cursor:pointer; background-image:url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'>
@@ -1916,17 +2214,17 @@ function dataURItoBlob(dataURI) {
 <!----------------------------------------------------- 서브 영역 ------------------------------------------------------------->
 
 <!-- Caption 삽입 다이얼로그 객체 -->
-<div id='caption_dialog' style='position:absolute; left:150px; top:645px; width:500px; height:150px; border:1px solid #999999; display:none;'>
+<div id='caption_dialog' style='position:absolute; left:120px; top:645px; width:560px; height:150px; border:1px solid #999999; display:none;'>
 	<div style='display:table; width:100%; height:100%;'>
 		<div align="center" style='display:table-cell; vertical-align:middle;'>
-			<table border='0' style="width:460px;">
+			<table border='0' style="width:520px;">
 				<tr><td width=65><label style="font-size:12px;">Font Size : </label></td>
 				<td><select id="caption_font_select" style="font-size:12px;"><option>Normal<option>H3<option>H2<option>H1</select></td>
 				<td><label style="font-size:12px;">Font Color : </label></td>
 				<td><input id="caption_font_color" type="text" class="iColorPicker" value="#FFFFFF" style="width:50px;"/></td>
 				<td><label style="font-size:12px;">BG Color : </label></td>
 				<td><input id="caption_bg_color" type="text" class="iColorPicker" value="FFFFFF" style="width:50px;"/></td>
-				<td id='caption_checkbox_td'><input type="checkbox" name="caption_bg_checkbok" onclick="checkCaption();"/><label style="font-size:12px;">투명</label></td></tr>
+				<td id='caption_checkbox_td'><input type="checkbox" name="caption_bg_checkbok" onclick="checkCaption();"/><label style="font-size:12px;">Transparency</label></td></tr>
 				<tr><td colspan='7' id='caption_check'></td></tr>
 				<tr class='lineTr'><td colspan='7'><hr/></td></tr>
 				<tr><td colspan='5'><input id="caption_text" type="text" style="width:90%; font-size:12px; border:solid 2px #777;"/></td>
@@ -1937,17 +2235,17 @@ function dataURItoBlob(dataURI) {
 </div>
 
 <!-- Bubble 삽입 다이얼로그 객체 -->
-<div id='bubble_dialog' style='position:absolute; left:150px; top:630px; width:500px; height:180px; border:1px solid #999999; display:none;'>
+<div id='bubble_dialog' style='position:absolute; left:120px; top:630px; width:560px; height:180px; border:1px solid #999999; display:none;'>
 	<div style='display:table; width:100%; height:100%;'>
 		<div align="center" style='display:table-cell; vertical-align:middle;'>
-			<table border='0' style="width:460px;">
+			<table border='0' style="width:520px;">
 				<tr><td width=65><label style="font-size:12px;">Font Size : </label></td>
 				<td><select id="bubble_font_select" style="font-size:12px;"><option>Normal<option>H3<option>H2<option>H1</select></td>
 				<td><label style="font-size:12px;">Font Color : </label></td>
 				<td><input id="bubble_font_color" type="text" class="iColorPicker" value="#FFFFFF" style="width:50px;"/></td>
 				<td><label style="font-size:12px;">BG Color : </label></td>
 				<td><input id="bubble_bg_color" type="text" class="iColorPicker" value="#000000" style="width:50px;"/></td>
-				<td id='bubble_checkbox_td'><input type="checkbox" name="bubble_bg_checkbok" onclick="checkBubble();"/><label style=" font-size:12px;">투명</label></td></tr>
+				<td id='bubble_checkbox_td'><input type="checkbox" name="bubble_bg_checkbok" onclick="checkBubble();"/><label style=" font-size:12px;">Transparency</label></td></tr>
 				<tr><td colspan='7' id='bubble_check'></td></tr>
 				<tr class='lineTr'><td colspan='7'><hr/></td></tr>
 				<tr><td colspan='5'><textarea id="bubble_text" rows="3" style="width:90%; font-size:12px; border:solid 2px #777;"></textarea></td>
@@ -2004,7 +2302,7 @@ function dataURItoBlob(dataURI) {
 					<input type='radio' name='geo_shape' value='rect'><label style="font-size:12px;">Rect</label>
 					<input type='radio' name='geo_shape' value='point' checked><label style="font-size:12px;">Point</label></td>
 					<td width='20'></td>
-					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">확인</button></td>
+					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">Confirm</button></td>
 				</tr>
 				<tr><td><hr/></td><td width='20'></td></tr>
 				<tr>
@@ -2059,9 +2357,12 @@ function dataURItoBlob(dataURI) {
 			<table id="upload_table" border='0'>
 				<tr>
 					<td colspan="2" width="450">
-						<div><input type="radio" value="0" name="shareRadio">비공개</div>
-						<div><input type="radio" value="1" name="shareRadio">전체공개</div>
-						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">특정인 공개</div>
+<!-- 						<div><input type="radio" value="0" name="shareRadio">비공개</div> -->
+<!-- 						<div><input type="radio" value="1" name="shareRadio">전체공개</div> -->
+<!-- 						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">특정인 공개</div> -->
+						<div><input type="radio" value="0" name="shareRadio">private</div>
+						<div><input type="radio" value="1" name="shareRadio">public</div>
+						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">sharing with friends</div>
 					</td>
 				</tr>
 				<tr class='tr_line'><td colspan='2'><hr/></td></tr>
@@ -2109,21 +2410,20 @@ function dataURItoBlob(dataURI) {
 </div>
 
 <!-- 저장 버튼 다이얼로그 객체 -->
-<div id='save_dialog' class='save_dialog' title='SAVE AREA'>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite(1);'>SAVE TO EXIF</button><br/><br/>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite(2);'>SAVE TO XML</button><br/><br/>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite(3);'>VIEW XML</button><br/><br/>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='sendMail()'>SEND EMAIL</button>
+<div id='save_dialog' class='save_dialog' title='Export AREA'>
+<!-- 	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(2);'>export to XML</button><br/><br/> -->
+	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(3);'>view XML</button><br/><br/>
+	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='sendMail()'>send EMAIL</button>
 </div>
 
 <!-- 이메일공유 다이얼로그 객체 -->
 <div id="e_dialog" class='e_dialog' title='EMAIL'>
 	<span>E-mail </span><input type='text' id="eml" style="width:200px; height: 20px; margin-left:15px; margin-top:10px;"><br>
 	<div style="margin: 25px 0;">
-		<input type="checkbox" id="sendMail_url"/> 링크 보내기
-		<input type="checkbox" id="sendMail_capture" style="margin-left: 25px;" /> 이미지 보내기
+		<input type="checkbox" id="sendMail_url"/> Send link
+		<input type="checkbox" id="sendMail_capture" style="margin-left: 25px;" /> Send image
 	</div>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px; margin-top:35px; display:block; ' onclick='saveImageWrite(4);'>SEND EMAIL</button>
+	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px; margin-top:35px; display:block; ' onclick='saveImageWrite(4);'>send EMAIL</button>
 	
 	<form name="imgFormArea" id="imgFormArea" method="POST">
 		<textarea  id="imgData" name="imgData" style="visibility: hidden;"></textarea>

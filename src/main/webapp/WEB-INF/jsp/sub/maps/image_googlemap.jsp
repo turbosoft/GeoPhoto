@@ -12,7 +12,8 @@
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3&key=AIzaSyAth-_FyQxRomNh2JkI_MvAWXRJuLOEXNI&language=ko&region=KR"></script>
+<jsp:include page="../../page_common.jsp"></jsp:include>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAth-_FyQxRomNh2JkI_MvAWXRJuLOEXNI&v=3.exp&sensor=false&libraries=places,geometry&language=en&region=ER"></script>
 <script type='text/javascript'>
 
 /* --------------------- 내부 함수 --------------------*/
@@ -34,6 +35,10 @@ var draw_direction;
 
 var circle;
 
+var imgDMarkerLat = 0;		//default marker latitude
+var imgDMarkerLng = 0;		//default marker longitude
+var imgDMapZoom = 10;		//defalut map zoom
+
 function init() {
 	if(map == null || map == undefined){
 		//set map option
@@ -41,6 +46,13 @@ function init() {
 		//create map
 		map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 	}
+}
+
+//base map setting
+function setDefaultData(dMarkerLat, dMarkerLng, dMapZoom){
+	imgDMarkerLat = dMarkerLat;
+	imgDMarkerLng = dMarkerLng;
+	imgDMapZoom = dMapZoom;
 }
 
 /* --------------------- 초기 설정 함수 --------------------*/
@@ -55,14 +67,24 @@ function setCenter(lat_str, lng_str, type) {
 		init();
 	}
 	
-	if(lat_str!=0 && lng_str!=0) { marker_latlng = new google.maps.LatLng(lat, lng); map.setZoom(16); }
-	else {marker_latlng = new google.maps.LatLng(37.5663889, 126.9997222); map.setZoom(10);}
+	if(lat_str!=0 && lng_str!=0) {
+		marker_latlng = new google.maps.LatLng(lat, lng); map.setZoom(16);
+	}else{
+		if(imgDMarkerLat == null || imgDMarkerLat == ""){
+			imgDMarkerLat = 37.5663889;
+    	}
+    	if(imgDMarkerLng == null || imgDMarkerLng == ""){
+    		imgDMarkerLng = 126.9997222;
+    	}
+		marker_latlng = new google.maps.LatLng(imgDMarkerLat, imgDMarkerLng);
+		map.setZoom(imgDMapZoom);
+	}
 	
 	var marker_image = "<c:url value='/images/geoImg/maps/photo_marker.png'/>";
 
-	if(marker==null) {
+	if(marker == null || marker == undefined) {
 		var drag = false;
-		if(map_type==2) drag = true;
+// 		if(map_type==2) drag = true;
 		marker = new google.maps.Marker({
 			position: marker_latlng,
 			map: map,
@@ -70,6 +92,11 @@ function setCenter(lat_str, lng_str, type) {
 			icon: marker_image,
 			draggable: drag
 		});
+// 		if(map_type==2){
+// 			google.maps.event.addListener(marker, 'dragend', function() {
+// 				dragEventEmpty();
+// 			});
+// 		}
 	}
 	else {
 		marker.setPosition(marker_latlng);
@@ -196,9 +223,9 @@ function createViewPolyline(point1, point2) {
 function createViewMarker(point) {
 	var marker_image = "<c:url value='/images/geoImg/maps/view_marker.png'/>";
 	
-	if(view_marker==null) {
+	if(view_marker==null || marker == undefined) {
 		var drag = false;
-		if(map_type==2) drag = true;
+// 		if(map_type==2) drag = true;
 		view_marker = new google.maps.Marker({
 			position: point,
 			map: map,
@@ -211,12 +238,12 @@ function createViewMarker(point) {
 		view_marker.setPosition(point);
 	}
 	if(map_type==2) {
-		google.maps.event.addListener(view_marker, 'dragend', function() {
-			dragEvent(1);
-		});
-		google.maps.event.addListener(marker, 'dragend', function() {
-			dragEvent(2);
-		});
+// 		google.maps.event.addListener(view_marker, 'dragend', function() {
+// 			dragEvent(1);
+// 		});
+// 		google.maps.event.addListener(marker, 'dragend', function() {
+// 			dragEvent(2);
+// 		});
 	}
 }
 //마커 드래그 이벤트
@@ -226,8 +253,12 @@ function dragEvent(type) {
 	var km = draw_direction.inKm();
 	var degree = draw_direction.Bearing();
 	createViewPolygon(km, degree, fov);
-	
 	parent.setExifData(marker.getPosition().lat(), marker.getPosition().lng(), parseInt(degree));
+}
+
+//좌표없는 마커 드래그 이벤트
+function dragEventEmpty() {
+	parent.setExifData(marker.getPosition().lat(), marker.getPosition().lng(), 0);
 }
 
 /**
@@ -303,11 +334,118 @@ Number.prototype.toDeg = function() {
 	return this * 180 / Math.PI;
 };
 
+//-------------------------------------------------------------좌표 추가------------------------------------------------
 
+//촬영 지점 설정
+function graySetCenter() {
+	if(map == null || map == undefined){
+		//set map option
+		var myOptions = { mapTypeId: google.maps.MapTypeId.ROADMAP };
+		//create map
+		map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+	}
+	
+	if(imgDMarkerLat == null || imgDMarkerLat == "" || imgDMarkerLat == 0){
+		imgDMarkerLat = 37.5663889;
+	}
+	if(imgDMarkerLng == null || imgDMarkerLng == "" || imgDMarkerLng == 0){
+		imgDMarkerLng = 126.9997222;
+	}
+	marker_latlng = new google.maps.LatLng(imgDMarkerLat, imgDMarkerLng);
+	map.setZoom(imgDMapZoom);
+	
+	var marker_image = "<c:url value='/images/geoImg/maps/photo_marker.png'/>";
+
+ 	marker = new google.maps.Marker({
+		position: marker_latlng,
+		map: map,
+		title: "Center",
+		icon: marker_image,
+		draggable: true
+	});
+		
+	map.setCenter(marker_latlng);
+	
+	$('#searchDefaultPlace').val("");
+	
+	map.setOptions({
+		streetViewControl: false,
+	    scaleControl:false,
+	    mapTypeControl: false,
+	    scaleControl : false
+	});
+	
+	google.maps.event.addListener(map, 'click', function(event) {
+		var latitude = event.latLng.lat();
+	    var longitude = event.latLng.lng();
+	    marker.setPosition(event.latLng);
+    });
+	
+	$('.imgModeCls2').css('display','block');
+	
+	mapAutocomplete = new google.maps.places.Autocomplete(
+            /** @type {!HTMLInputElement} */ (
+                document.getElementById('searchDefaultPlace')), {
+//	              types: ['(cities)'],
+//	              componentRestrictions: countryRestrict
+    });
+    places = new google.maps.places.PlacesService(map);
+    mapAutocomplete.addListener('place_changed', onPlaceChanged);
+}
+
+var mapAutocomplete = null;
+//place text click
+function onPlaceChanged() {
+	var place = mapAutocomplete.getPlace();
+    if (place.geometry) {
+      map.panTo(place.geometry.location);
+      map.setZoom(15);
+      marker.setPosition(place.geometry.location);
+    }else {
+      document.getElementById('searchDefaultPlace').placeholder = 'Enter a city';
+    }
+}
+
+function grayMarkerSet(setType){
+	if(setType == 'ok'){
+// 		$('.imgModeCls2').css('display','none');
+		parent.setNewMarkerLat = marker.getPosition().lat();
+		parent.setNewMarkerLng = marker.getPosition().lng();
+		google.maps.event.clearListeners(map, 'click');
+		marker.setDraggable = false;
+		
+	}else if(setType == 'cancel'){
+		if(marker != null && marker != undefined){
+			marker.setDraggable = false;
+			google.maps.event.clearListeners(map, 'click');
+			$('.imgModeCls2').css('display','none');
+		}
+		
+	}else if(setType == 'reset'){
+		setNewMarkerLat = imgDMarkerLat;
+		setNewMarkerLng = imgDMarkerLng;
+		
+		marker_latlng = new google.maps.LatLng(imgDMarkerLat, imgDMarkerLng);
+		map.setZoom(imgDMapZoom);
+		map.setCenter(marker_latlng);
+	}
+}
 </script>
 </head>
 
 <body style='margin:0px; padding:0px;' onload='init();'>
+	<!-- center setting -->
+<!-- 	<div class="imgModeCls1" id="morkerModeOpen" onclick="defaultMarkerSet('open');" style="display: none; height: 30px;width: 130px;position: absolute;left: 100px;top: 10px;z-index: 9;background-color: #ffffff;text-align: center;cursor: pointer;"> -->
+<!-- 		<div style="margin-top: 3px; display: inline-block;">Set default location</div> -->
+<!-- 	</div> -->
+	<div class="imgModeCls2" id="morkerModeReset" onclick="grayMarkerSet('reset');" style="display: none; height: 30px;width: 50px;position: absolute;left: 105px;top: 10px;z-index: 9;background-color: #ffffff;text-align: center;cursor: pointer;">
+		<div style="margin-top: 3px; display: inline-block;">Reset</div>
+	</div>
+	
+	<div class="imgModeCls2" style="display: none;height: 30px;width: 290px;position: absolute;left: 40px;/* top: 10px; */z-index: 9;text-align: center;cursor: pointer;">
+		<input type="text" id="searchDefaultPlace" style="margin-top: 3px; display: inline-block; width: 100%;" placeholder="Enter location">
+	</div>
+	
 	<div id="map_canvas" style="width:100%; height:100%;"></div>
 </body>
 </html>

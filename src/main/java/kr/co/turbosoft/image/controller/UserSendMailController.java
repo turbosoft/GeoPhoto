@@ -46,9 +46,11 @@ public class UserSendMailController {
 
 		String msgBody = "";
 		if(thisType != null && thisType != "" && "checkEmail".equals(thisType)){
-			msgBody = "인증 번호 는 "+ text +" 입니다.";
+//			msgBody = "인증 번호 는 "+ text +" 입니다.";
+			msgBody = "The authentication number is "+ text +" .";
 		}else{
-			msgBody = "요청하신 "+ textType +"는 "+ text +" 입니다.";
+//			msgBody = "요청하신 "+ textType +"는 "+ text +" 입니다.";
+			msgBody = "The requested "+ textType +" is "+ text +" .";
 		}
 	   
 		String imgData_type = request.getParameter("imgData_type");
@@ -68,7 +70,8 @@ public class UserSendMailController {
 				String sendHtml = "";
 	    	
 				if(chk_url != null && "Y".equals(chk_url)){
-					sendHtml = "요청하신 url 주소는 <a href='"+ imgData_url +"&idx="+ imgData_idx + "&link=Y'>링크로 가기</a>";
+//					sendHtml = "요청하신 url 주소는 <a href='"+ imgData_url +"&idx="+ imgData_idx + "&link=Y'>링크로 가기</a>";
+					sendHtml = "The url address you requested is <a href='"+ imgData_url +"&idx="+ imgData_idx + "&link=Y'>Go to link</a>";
 				}
 	       
 				MimeBodyPart messageBodyPart = new MimeBodyPart();
@@ -77,10 +80,10 @@ public class UserSendMailController {
 	        
 				if(chk_capture != null && "Y".equals(chk_capture)){
 	    		
-					imgData = imgData.replaceAll("data:image/png;base64,", "");
+					imgData = imgData.split(",")[1];
 					System.out.println(imgData);
 					byte[] files = Base64.decodeBase64(imgData);
-					ByteArrayDataSource dSource = new ByteArrayDataSource(files, "image/*");
+					ByteArrayDataSource dSource = new ByteArrayDataSource(files, "image/png");
 					messageBodyPart = new MimeBodyPart();
 					DataSource fds = dSource;
 					messageBodyPart.setDataHandler( new DataHandler(fds));
@@ -89,7 +92,7 @@ public class UserSendMailController {
 					String imgDataOrign = request.getParameter("imgDataOrign");
 	         
 					mp.addBodyPart(messageBodyPart);
-					String tmpFileDir = request.getSession().getServletContext().getRealPath("/")+ "upload";
+					String tmpFileDir = request.getSession().getServletContext().getRealPath("/")+ "mailPhoto";
 					File file = new File(tmpFileDir+ "/" + imgDataOrign);
 					if(file.exists()){file.delete();}
 				}
