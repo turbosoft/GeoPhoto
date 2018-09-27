@@ -54,6 +54,12 @@ textarea
 .save_btn {background-color: #066ab0;color: #fff;cursor: pointer;float: right;margin: 17px 5px;height: 30px;border: 1px solid #000000;}
 .close_btn {background-color: #444444;color: #fff;cursor: pointer;float: right;margin: 17px 15px;height: 30px;border: 1px solid #000000;}
 
+.fileSelectCol{background-color: #066ab0;color: #fff;}
+#fileListTable tr{font-size:12px; height:30px; color:rgb(21, 74, 119); border-bottom:1px solid #000000;}
+#fileListTable tr td:FIRST-CHILD {padding:2px 5px;}
+#fileListTable tr td:nth-child(2){padding:2px 5px;}
+#fileListTable tr td:nth-child(3) {padding-left:5px;}
+
 .anno_head_tr {height: 20px; text-align: center; color: #fff;}
 #upload_table div {float:left; margin-top: 5px;}
 #upload_table #showKind {float:right; margin: 5px 6px 0 0;}
