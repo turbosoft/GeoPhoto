@@ -21,6 +21,8 @@ import javax.mail.util.ByteArrayDataSource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import kr.co.turbosoft.image.util.KeyManager;
+
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -114,6 +116,13 @@ public class UserSendMailController {
 	   	Session session = Session.getDefaultInstance(props, auth);
         Message msg = new MimeMessage(session);
          
+        KeyManager km = new KeyManager();
+    	try {
+			emailAddress = km.decrypt(emailAddress);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         InternetAddress from = new InternetAddress() ;
         from = new InternetAddress(emailAddress);
         msg.setFrom(from);
@@ -141,6 +150,14 @@ public class UserSendMailController {
 	
 	private class PopupAuthenticator extends Authenticator {
         public PasswordAuthentication getPasswordAuthentication() {
+        	KeyManager km = new KeyManager();
+        	try {
+				emailPass = km.decrypt(emailPass);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	
         	String address = emailAddress;
         	String pass = emailPass;
             return new PasswordAuthentication(address, pass);
