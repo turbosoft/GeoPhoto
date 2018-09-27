@@ -14,6 +14,9 @@ String loginToken = request.getParameter("loginToken");
 String loginId = request.getParameter("loginId");
 String projectBoard = request.getParameter("projectBoard");
 String editUserYN = request.getParameter("editUserYN");
+
+String linkType = request.getParameter("linkType");	//project User id
+String urlData = request.getParameter("urlData");	//url data
 %>
 
 <script type="text/javascript">
@@ -24,6 +27,11 @@ var loginToken = '<%= loginToken %>';
 var loginId = '<%= loginId %>';
 var projectBoard = '<%= projectBoard %>';
 var editUserYN = '<%= editUserYN %>';
+
+var linkType = '<%= linkType %>';			//link type
+var urlData = '<%= urlData %>';			//url data
+var copyUserId = '';
+var copyUrlIdx = 0;
 
 var nowSelTab;
 var nowShareType;
@@ -51,6 +59,10 @@ var imageLatitude = 0;
 var imageLongitude  = 0;
 
 $(function() {
+	if(urlData != null && urlData != '' && linkType != null && linkType == 'CP4'){
+		getCopyUrlDecode();
+	}
+	
 	$("#exif_dialog .accordionButton:eq(1)").trigger('click');
 	
 	marginImgL = $('#image_main_area').css('left');
@@ -169,9 +181,20 @@ function imageWriteOnload(){
 }
 
 function getOneImageData(){
-	var Url			= baseRoot() + "cms/getImage/";
-	var param		= "one/" + loginToken + "/" + loginId + "/&nbsp/&nbsp/&nbsp/" +idx;
-	var callBack	= "?callback=?";
+	var Url = '';
+	var param = '';
+	var callBack = '';
+	if(urlData != null && urlData != '' && linkType != null && linkType == 'CP4'){
+		idx = copyUrlIdx;
+		loginId = copyUserId;
+		Url			= baseRoot() + "cms/getCopyDataUrl/";
+		param		= "IMAGE/" + linkType + "/" + file_url + "/" +idx;
+		callBack	= "?callback=?";
+	}else{
+		Url			= baseRoot() + "cms/getImage/";
+		param		= "one/" + loginToken + "/" + loginId + "/&nbsp/&nbsp/&nbsp/" +idx;
+		callBack	= "?callback=?";
+	}
 	
 	$.ajax({
 		type	: "get"
@@ -348,7 +371,9 @@ function imageWriteInit() {
 
 function changeImageNomal() {
 	var img = new Image();
-	img.src = imageBaseUrl() + upload_url + file_url;
+	var tmpImageFileName = '';
+	tmpImageFileName = file_url.substring(0, file_url.indexOf('.'))+ '_BASE_thumbnail.'+ file_url.substring(file_url.indexOf('.')+1);
+	img.src = imageBaseUrl() + upload_url + tmpImageFileName;
 	
 	img.onload = function() {
 		//이미지 Resize
@@ -370,7 +395,7 @@ function changeImageNomal() {
 			
 			var img_element = $('#image_write_canvas');
 			img_element.attr('style', 'width:'+ imgWidth +'px;height:'+ imgHeight +'px;background-repeat:no-repeat;left: 0px; top: 0px;position:absolute;');
-			img_element.attr('src', imageBaseUrl() + upload_url + file_url);
+			img_element.attr('src', imageBaseUrl() + upload_url + tmpImageFileName);
 			
 			img_element.appendTo('#image_write_canvas_div');
 			
@@ -393,7 +418,7 @@ function changeImageNomal() {
 			
 			var img_element = $('#image_write_canvas');
 			img_element.attr('style', 'width:'+ result_arr[2] +'px;height:'+ result_arr[3] +'px;background-repeat:no-repeat;left: '+ result_arr[0]+ 'px; top: '+ result_arr[1]+'px;background-size:'+ result_arr[2] +'px '+ result_arr[3] + 'px;position:absolute;');
-			img_element.attr('src', imageBaseUrl() + upload_url + file_url);
+			img_element.attr('src', imageBaseUrl() + upload_url + tmpImageFileName);
 			img_element.appendTo('image_write_canvas_div');
 			
 			//XML 로드
@@ -1398,9 +1423,14 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 						tmpTitle = dataReplaceFun(tmpTitle);
 						tmpContent = dataReplaceFun(tmpContent);
 						
+						var coplyUrlSave = '&nbsp';
+						if(urlData != null && urlData != '' && linkType != null && linkType == 'CP4'){
+							coplyUrlSave = 'Y';
+						}
+						
 						var Url			= baseRoot() + "cms/updateImage/";
 						var param		= loginToken + "/" + loginId + "/" + idx + "/" + tmpTitle + "/" + tmpContent + "/" + tmpShareType + "/" + tmpAddShareUser + "/" + 
-										tmpRemoveShareUser + "/" + tmp_xml_text + "/"+ tmpLat + "/" + tmpLong +"/"+ tmpEditYes + "/" + tmpEditNo;
+										tmpRemoveShareUser + "/" + tmp_xml_text + "/"+ tmpLat + "/" + tmpLong +"/"+ tmpEditYes + "/" + tmpEditNo +"/"+ coplyUrlSave;
 						var callBack	= "?callback=?";
 						
 						$.ajax({
@@ -2123,6 +2153,39 @@ function dataURItoBlob(dataURI) {
         ia[i] = byteString.charCodeAt(i);
     }
     return new Blob([ia], {type:mimeString});
+}
+
+//copy Url
+function getCopyUrlDecode(){
+	var Url			= baseRoot() + "cms/encrypt";
+	var param		= "/" + urlData + "/decrypt";
+	var callBack	= "?callback=?";
+	
+	$.ajax({
+		type	: "get"
+		, url	: Url + param + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(data) {
+			if(data.returnStr != null && data.returnStr != ''){
+				var  tmpStr = data.returnStr;
+				tmpStr = tmpStr.split("&");
+				$.each(tmpStr, function(idx, val){
+					if(val.indexOf('file_url') > -1){
+						file_url = val.split('=')[1];
+					}else if(val.indexOf('loginId') > -1){
+						copyUserId = val.split('=')[1];
+					}else if(val.indexOf('idx') > -1){
+						copyUrlIdx = val.split('=')[1];
+					}
+				});
+				projectBoard = 1;
+			}else{
+				jAlert(data.Message, 'Info');
+			}
+		}
+	});
 }
 
 // function markerNewGps(sType){
