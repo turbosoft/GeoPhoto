@@ -62,6 +62,7 @@ $(function() {
 	if(urlData != null && urlData != '' && linkType != null && linkType == 'CP4'){
 		getCopyUrlDecode();
 	}
+	getCopyUrl();
 	
 	$("#exif_dialog .accordionButton:eq(1)").trigger('click');
 	
@@ -1492,14 +1493,19 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 		var emailAdrs = $.trim($('#eml').val());
 		var emailurl = $('#sendMail_url').attr('checked') == 'checked'?'Y' :'N';
 		var emailCapture = $('#sendMail_capture').attr('checked') == 'checked' ? 'Y' :'N';
+		var linkData = $('#copyUrlText').val();
 		
 		if(emailAdrs == "" || (emailurl != 'Y' && emailCapture != 'Y')) {
 			jAlert("please, put E-mail adress in the box!!", 'Info');
 			return;
 		}
-		else{
+		else
+		{	
 			$('body').append('<div class="lodingOn" style="z-index:9000;"></div>');
-			var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url;
+// 			var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url;
+			var imgUrls = 'http://'+location.host + '/GeoPhoto/geoPhoto/image_url_viewer.do?urlData='+ linkData +'&linkType=CP2';
+			
+			
 			if(emailCapture == 'Y'){
 				getServer("", "emailCapture");
 			}else if(emailurl == 'Y'){
@@ -1530,7 +1536,9 @@ function saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort){
 	var emailAdrs = $.trim($('#eml').val());
 	var emailurl = $('#sendMail_url').attr('checked') == 'checked'?'Y' :'N';
 	var emailCapture = $('#sendMail_capture').attr('checked') == 'checked' ? 'Y' :'N';
-	var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url;
+// 	var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url;
+	var linkData = $('#copyUrlText').val();
+	var imgUrls = 'http://'+location.host + '/GeoPhoto/geoPhoto/image_url_viewer.do?urlData='+ linkData +'&linkType=CP2';
 
 	var obj_data_arr = new Array();
 	
@@ -2188,6 +2196,39 @@ function getCopyUrlDecode(){
 	});
 }
 
+// function copyFn(CopyType){
+// 	var copyUrlData = $('#copyUrlText').val();
+// 	var copyUrlStr = 'http://'+location.host + '/GeoPhoto/geoPhoto/image_url_viewer.do?urlData='+ copyUrlData +'&linkType='+CopyType;
+// 	$('#copyUrlAll').val(copyUrlStr);
+// 	$("#copyUrlAll").select();
+// 	document.execCommand('copy');
+// 	$('#copyUrlView').css('display','none');
+// 	jAlert('uri address copied.', 'Info');
+// }
+
+function getCopyUrl(){
+	$('#copyUrlText').val('');
+	var encrypText = 'file_url='+ file_url +'&loginId='+ loginId +'&idx='+ idx;
+	var Url			= baseRoot() + "cms/encrypt";
+	var param		= "/" + encrypText + "/encrypt";
+	var callBack	= "?callback=?";
+	
+	$.ajax({
+		type	: "get"
+		, url	: Url + param + callBack
+		, dataType	: "jsonp"
+		, async	: false
+		, cache	: false
+		, success: function(data) {
+			if(data.returnStr != null && data.returnStr != ''){
+				$('#copyUrlText').val(data.returnStr);
+			}else{
+				jAlert(data.Message, 'Info');
+			}
+		}
+	});
+}
+
 // function markerNewGps(sType){
 // 	if(sType == 'open'){
 // 		changeGps = false; 
@@ -2499,6 +2540,9 @@ function getCopyUrlDecode(){
 		<input type="hidden" id="imgData_idx" name="imgData_idx"/>
 	</form>
 </div>
+
+<input type="hidden" id="copyUrlText">
+<input type="text" id="copyUrlAll" style="position: absolute;left:30px; top: 30px; opacity:0;">
 </body>
 <style>
 .ui-tabs .ui-tabs-nav a
