@@ -25,5 +25,6 @@
     <mvc:view-controller path="/geoPhoto/image_write_page.do" view-name="image_write_page"/>
     <mvc:view-controller path="/geoPhoto/xml_view.do" view-name="sub/write/xml_view"/>
     <mvc:view-controller path="/geoPhoto/image_googlemap.do" view-name="sub/maps/image_googlemap"/>
+    <mvc:view-controller path="/geoPhoto/image_url_viewer.do" view-name="sub/viewer/image_url_viewer"/>
 	
 </beans>
