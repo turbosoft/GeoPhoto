@@ -54,8 +54,10 @@ var dMarkerLng = 0;		//default marker longitude
 var dMapZoom = 10;		//defalut map zoom
 var setNewMarkerLat = 0;	//new Marker latitude
 var setNewMarkerLng = 0;	//new Marker logitude
+var setNewDirection = 0;	//new Marker direction
+var setNewFocal = 0;		//new Marker focal
+
 $(function() {
-	$("#exif_dialog .accordionButton:eq(1)").trigger('click');
 	
 	if(linkView == 'Y'){
 		$('#image_view_group').parent().remove();	
@@ -207,22 +209,23 @@ function httpRequest(textUrl){
 			}else{
 				base_url = '<c:url value="/"/>';
 				upload_url = '/upload/';
-				$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
+// 				$('body').append('<button style="position:absolute; left:800px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 				$('#viewerColstBtn').css('display','block');
 				loadExif(null);
 			}
+			$("#exif_dialog .accordionButton:eq(1)").trigger('click');
 			//이미지 그리기
 			changeImageNomal();
 		}
 	}
 }
 function btnViewCheck(){
-	$('#makeImageBtn').remove();
+// 	$('#makeImageBtn').remove();
 	$('#viewerColstBtn').css('display','none');
 	$('#copyTypeEditor').remove();
 	
 	if(loginId != null && loginId != '' && loginId != 'null' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN')){
-		$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
+// 		$('body').append('<button style="position:absolute; left:800px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 		$('#viewerColstBtn').css('display','block');
 		$('#copyUrlView ul').append('<li id="copyTypeEditor" onclick="copyFn(\'CP4\');">Editor Url</li>');
 		$('#copyUrlView').css('height','90px');
@@ -235,7 +238,7 @@ function btnViewCheck(){
 		);
 	}else{
 		if(editUserCheck() == 1 ||  (loginId != null && loginId != '' && loginId != 'null' && projectUserId == loginId)){
-			$('body').append('<button style="position:absolute; left:10px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
+// 			$('body').append('<button style="position:absolute; left:800px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>');
 			$('#viewerColstBtn').css('display','block');
 			$('#copyUrlView ul').append('<li id="copyTypeEditor" onclick="copyFn(\'CP4\');">Editor Url</li>');
 			$('#copyUrlView').css('height','90px');
@@ -265,6 +268,17 @@ function getOneImageData(){
 				var response = data.Data;
 				if(response != null && response != ''){
 					response = response[0];
+					
+					$('#title_text').val(response.title);
+					$('#content_text').val(response.content);
+					var nowShareTypeText = response.sharetype == 0? "private":response.sharetype== 1? "public":"sharing with friends";
+					$('#share_text').val(nowShareTypeText);
+					if(response.dronetype != null && response.dronetype =='Y'){
+						$('#drone_text').val(response.dronetype);
+					}else{
+						$('#drone_text').val('N');
+					}
+					
 					loadExif(response);
 					
 					projectIdx = response.projectidx;
@@ -345,6 +359,8 @@ function getServer(rObj, tmpFileType){
 					getServerExif(rObj, tmpServerId, tmpServerPass, tmpServerPort);
 				}else if(tmpFileType == 'XML'){
 					loadXML2(tmpServerId, tmpServerPass, tmpServerPort);
+				}else if(tmpFileType == 'EXIFSAVE'){
+					saveExifFile(tmpServerId, tmpServerPass, tmpServerPort);
 				}
 			}
 		}
@@ -412,6 +428,7 @@ function addImageMoveList(){
 	var tmpCnt = 0;
 	nowViewList = new Array();
 	editContentArr = new Array();
+	editContentFileArr = new Array();
 	$('#img_move_list_long').empty();
 	$('#moveSelectDiv').empty();
 	
@@ -478,8 +495,8 @@ function addImageMoveList(){
 						}
 						
 						innerHTMLStr += '"'+" title='TITLE : "+ data[i].title +"\nCONTENT : "+ data[i].content +"\nWRITER : "+ data[i].id +"\nDATE : "+ data[i].u_date;
-						innerHTMLStr += " title=latitude : "+ data[i].latitude +"\nlongitude : "+ data[i].longitude;
-						innerHTMLStr += "' border='0'>";
+						innerHTMLStr += " \nlatitude : "+ data[i].latitude +"\nlongitude : "+ data[i].longitude;
+						innerHTMLStr += "' border='0' style='display: contents;width: 114px;height: 114px;'>";
 						var tmpMarginTop = '0';
 						
 						//이미지 자름
@@ -619,6 +636,9 @@ function imgDataSetting(obj){
 	tmpGroupHTML += "<img src='<c:url value='/images/geoImg/viewer/picdel_btn_viewer.png'/>' style='float:right; margin:8px 0 0 20px; width:47px; height:27px; display: none; cursor:pointer;' class='mv_setting_on' onclick='removeMoveList()'>";
 	tmpGroupHTML += "<img src='<c:url value='/images/geoImg/viewer/picmove_btn_viewer.png'/>' style='float:right; margin:8px 0 0 20px; width:47px; height:27px; display: none; cursor:pointer;' id='view_category' class='mv_setting_on' onclick='getMoveList()'>";
 	
+// 	tmpGroupHTML += "<div style='float: right;margin: 8px 0px 0px 20px;width: 80px;height: 27px;display: none;cursor: pointer;font-size: 12px;border-radius: 10px;background-color: #4f3639;text-align: center;line-height: 30px;font-weight: bold;' id='deSelectAll' class='mv_setting_on' onclick='selectAllList(\"N\")'>DESELECT ALL</div>";
+	tmpGroupHTML += "<div style='float: right;margin: 8px 0px 0px 20px;width: 100px;height: 27px;display: none;cursor: pointer;font-size: 12px;border-radius: 10px;background-color: #4f3639;text-align: center;line-height: 30px;font-weight: bold;' id='selectAll' class='mv_setting_on' onclick='selectAllList()'>SELECT ALL</div>";
+	
 	//좌표 저장 및 닫기
 	tmpGroupHTML += "<img src='<c:url value='/images/geoImg/viewer/close_btn_pop.png'/>' style='float:right; margin:8px 0 0 20px; width:30px; height:26px; display: none; cursor:pointer;' class='gps_setting_on' onclick='imageControllView(\"N\")'>";
 	tmpGroupHTML += "<div style='float: right;margin: 8px 0px 0px 20px;width: 120px;height: 26px;display: none;cursor: pointer;color: #0c9b95;font-size: 12px;background-color: #4f3639;border-radius: 3px;font-weight: bold;text-align: center;line-height: 26px;' class='gps_setting_on' onclick='newMarkerSave()'>Save coordinates</div>";
@@ -743,12 +763,45 @@ function newMarkerSave(){
 		, cache	: false
 		, success: function(response) {
 			if(response.Code == 100){
+				getServer("", "EXIFSAVE");
 				addImageMoveList();
 			}
 		}
 	});
 }
+
+function saveExifFile(tmpServerId, tmpServerPass, tmpServerPort) {
+	var encode_file_name = "";
+	var encode_file_name_arr = new Array();
+	
+	$.each(editContentFileArr, function (idx, val){
+		encode_file_name = encodeURIComponent(val);
+		encode_file_name_arr.push(encode_file_name);
+	});
+	encode_file_name = upload_url + file_url;
+	encode_file_name = encode_file_name.substring(1);
+	encode_file_name = encodeURIComponent(encode_file_name);
+	
+	var data_text = "";
+	data_text += "\<NONE\>\<LineSeparator\>";
+	data_text += setNewDirection + "\<LineSeparator\>";
+	data_text += setNewMarkerLng + "\<LineSeparator\>";
+	data_text += setNewMarkerLat + "\<LineSeparator\>";
+	data_text += setNewFocal + "\<LineSeparator\>";
+
+	$.ajax({
+		type: 'POST',
+		url: '<c:url value="/geoExif.do"/>',
+// 		data: 'file_name='+encode_file_name+'&type=save&data='+data_text,
+		data: 'file_name='+encode_file_name+'&type=saveArr&data='+data_text+'&changeFileArr='+ JSON.stringify(encode_file_name_arr) +'&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+		'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
+// 		success: function(data) { var response = data.trim(); jAlert('정상적으로 저장 되었습니다.', '정보'); }
+		success: function(data) { var response = data.trim(); jAlert('Saved successfully.', 'Info'); }
+	});
+}
+
 var editContentArr = new Array();	//이동할 컨텐츠
+var editContentFileArr = new Array(); //move content file name
 //img center Change
 function imgMapCenterChange(tmpArr){
 	var tpAr = tmpArr.split(",");
@@ -756,6 +809,7 @@ function imgMapCenterChange(tmpArr){
 	var tmpKind = tpAr[4];
 	var tmpId = tpAr[7];
 	var tmpProjectId = tpAr[8];
+	var tmepFileName = tpAr[2];
 	var tmpMoveIdx = 0;
 	
 	$.each(nowViewList, function(idx1, val1){
@@ -772,10 +826,12 @@ function imgMapCenterChange(tmpArr){
 		var tmp1 = $.inArray(tmpKind+"_"+nowSelectIdx, editContentArr);
 		if(tmp1 > -1 ){
 			editContentArr.splice(tmp1,1);
+			editContentFileArr.splice(tmp1,1);
 			$('#checkArea_'+tmpKind+"_"+nowSelectIdx).remove();
 		}else{
 			var tmpLeft = tmpMoveIdx*moveWidthNum;
 			editContentArr.push(tmpKind+"_"+nowSelectIdx);
+			editContentFileArr.push(tmepFileName);
 			var tmpDiv = '<div id="checkArea_'+ tmpKind+"_"+nowSelectIdx +'" class="checkAreaClass" style="position:absolute; width:112px; height:112px; background-image: url(../images/geoImg/viewer/select_photo_btn_pop.png); background-repeat:no-repeat;cursor:pointer; top:10px; left:'+ tmpLeft +'px;" ></div>';
 			$('#Pro_'+ tmpKind +'_'+nowSelectIdx).append(tmpDiv);
 		}
@@ -832,6 +888,7 @@ function imgMapCenterChangeGpsMode(tmpArr){
 	var tmpKind = tpAr[4];
 	var tmpId = tpAr[7];
 	var tmpProjectId = tpAr[8];
+	var tmpefilename = tpAr[2];
 	var tmpMoveIdx = 0;
 	var tempVideoCnt = 0;
 	var tmpSampleMarkerCnt = 0;
@@ -849,7 +906,7 @@ function imgMapCenterChangeGpsMode(tmpArr){
 		if(val1.datakind == "GeoPhoto" &&
 				val1.latitude != null && val1.latitude != '' && val1.latitude != undefined && 
 				val1.longitude != null && val1.longitude != '' && val1.longitude != undefined){
-			tmpSampleMarkerCnt += 5;
+			tmpSampleMarkerCnt += 4;
 		}
 	});
 	tmpMoveIdx = tmpMoveIdx-tempVideoCnt;
@@ -865,10 +922,12 @@ function imgMapCenterChangeGpsMode(tmpArr){
 		var tmp1 = $.inArray(tmpKind+"_"+nowSelectIdx, editContentArr);
 		if(tmp1 > -1 ){
 			editContentArr.splice(tmp1,1);
+			editContentFileArr.splice(tmp1,1);
 			$('#checkArea_'+tmpKind+"_"+nowSelectIdx).remove();
 		}else{
-			var tmpLeft = tmpMoveIdx*moveWidthNum;
+			var tmpLeft = (tmpMoveIdx*moveWidthNum);
 			editContentArr.push(tmpKind+"_"+nowSelectIdx);
+			editContentFileArr.push(tmpefilename);
 			if(tmpMoveIdx > 0 ){
 				tmpLeft += tmpSampleMarkerCnt;
 			}
@@ -1780,7 +1839,7 @@ function reloadMap(type) {
 	$('#googlemap').get(0).contentWindow.setCenter(arr[0], arr[1], 1);
 	if(type==2) {
 		if(imgDroneType != null && imgDroneType == 'Y'){
-			$('#googlemap').get(0).contentWindow.drawCircleOnMap(arr[0], arr[1], 100);
+			$('#googlemap').get(0).contentWindow.drawCircleOnMap(arr[0], arr[1], 100, 1);
 		}else{
 			$('#googlemap').get(0).contentWindow.setAngle(arr[2], arr[3]);
 		}
@@ -1828,13 +1887,31 @@ var init_map_left, init_map_top, init_map_width, init_map_height;
 // }
 //저작
 function imageWrite() {
-// 	jConfirm('뷰어를 닫고 저작을 수행하시겠습니까?', '정보', function(type){
-	jConfirm('Do you want to close the viewer and author?', 'Info', function(type){
-		if(type) {
-			imageViewClose();
-			openImageWrite();
+	var writeCheck = false;
+	if(loginId != null && loginId != '' && loginId != 'null' && ((loginId == user_id && loginType != 'WRITE') || loginType == 'ADMIN')){	
+		writeCheck = true;
+	}else if(editUserCheck() == 1 ||  (loginId != null && loginId != '' && loginId != 'null' && projectUserId == loginId)){
+		writeCheck = true;
+	}else if(projectBoard != 1){
+		writeCheck = true;
+	}
+	
+	if(writeCheck){
+//	 	jConfirm('뷰어를 닫고 저작을 수행하시겠습니까?', '정보', function(type){
+		jConfirm('Do you want to close the viewer and author?', 'Info', function(type){
+			if(type) {
+				//뷰어 닫기 수행
+				imageViewClose();
+				openImageWrite();
+			}
+		});
+	}else{
+		if(loginId != null && loginId != '' && loginId != 'null'){
+			jAlert('You do not have permission to author the content.', 'Info');		
+		}else{
+			jAlert('This service requires login.', 'Info');
 		}
-	});
+	}
 }
 //뷰어 닫기
 function imageViewClose(){
@@ -1887,6 +1964,7 @@ function copyFn(CopyType){
 	$('#copyUrlView').css('display','none');
 	jAlert('uri address copied.', 'Info');
 }
+
 function getCopyUrl(){
 	$('#copyUrlText').val('');
 	var encrypText = 'file_url='+ file_url +'&loginId='+ loginId +'&idx='+ idx;
@@ -1910,8 +1988,31 @@ function getCopyUrl(){
 	});
 }
 
+var selectAllType = 'N';
+//item select all
 function selectAllList(){
 	
+	if(imgEditMode == 1){
+		editContentArr = new Array();
+		editContentFileArr = new Array();
+		$('.checkAreaClass').remove();	
+		
+		if(selectAllType == 'N'){
+			$.each(nowViewList, function(idx, val){
+				var tmpLeft = idx*moveWidthNum;
+				editContentArr.push(val.datakind+"_"+val.idx);
+				editContentFileArr.push(val.filename);
+				var tmpDiv = '<div id="checkArea_'+ val.datakind+"_"+val.idx +'" class="checkAreaClass" style="position:absolute; width:112px; height:112px; background-image: url(../images/geoImg/viewer/select_photo_btn_pop.png); background-repeat:no-repeat;cursor:pointer; top:10px; left:'+ tmpLeft +'px;" ></div>';
+				$('#Pro_'+ val.datakind+"_"+val.idx).append(tmpDiv);
+				
+			});
+			selectAllType = 'Y';
+			$('#selectAll').text('DESELECT ALL');
+		}else{
+			selectAllType = 'N';
+			$('#selectAll').text('SELECT ALL');
+		}
+	}
 }
 
 rgb2hex = function(rgb) {
@@ -1936,7 +2037,7 @@ css3color = function(color, opacity) {
 <!---------------------------------------------------- 메인 영역 시작 ------------------------------------------------>
 
 <!-- 이미지 영역 -->
-<div id='image_main_area' style='position:absolute; left:320px; top:15px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
+<div id='image_main_area' style='position:absolute; left:0px; top:15px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
 	<div id="image_viewer_canvas_div" style="width:780px; height: 545px; left:0px; top:0px;position:absolute;"><img id='image_viewer_canvas'></img></div>
 	<div class="viewerMoreL" style="display: none;"></div>
 	<div class="viewerMoreR" style="display: none;"></div>
@@ -1969,12 +2070,12 @@ css3color = function(color, opacity) {
 <!-- </div> -->
 
 <!-- EXIF 영역 -->
-<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:10px; top:288px;' alt="이미지정보"></div>
+<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:800px; top:288px;' alt="이미지정보"></div>
 <div id='image_exif_area' style='position:absolute; left:10px; top:310px; width:300px; height:245px; display:block; /*border:1px solid #999999;*/ '>
 </div>
 
 <!-- 지도 영역 -->
-<div id='image_map_area' style='position:absolute; left:10px; top:15px; width:300px; height:260px; display:block; background-color:#999;'>
+<div id='image_map_area' style='position:absolute; left:800px; top:15px; width:300px; height:260px; display:block; background-color:#999;'>
 	<iframe id='googlemap' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
 <%-- 	<div id='resize_map_btn' onclick='resizeMap();' style='position:absolute; left:0px; top:0px; width:30px; height:30px; cursor:pointer; background-image:url(<c:url value='/images/geoImg/icon_map_max.jpg'/>);'> --%>
 <!-- 	</div> -->
@@ -2095,10 +2196,40 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- EXIF 삽입 다이얼로그 객체 -->
-<div id='exif_dialog' style='position:absolute; left:10px; top:310px; width:300px; height:200px; border:1px solid #999999; display:block; font-size:13px;'>
-	<div class='accordionButton col_black'>&nbsp;EXIF Normal Info</div>
+<div id='exif_dialog' style='position:absolute; left:800px; top:310px; width:300px; height:200px; border:1px solid #999999; display:block; font-size:13px;'>
+	<div class='accordionButton col_black'>&nbsp;Data Info</div>
 	<div class='accordionContent' style='height:157px; overflow-y:scroll;'>
 		<table id='normal_exif_table'>
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Title</label></td><td width='150'><input id='title_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Content</label></td><td width='150'><textarea id='content_text' name='text' style='font-size:12px;width: 144px;height: 50px;' readonly></textarea></td></tr>
+<!-- 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Content</label></td><td width='150'><input id='content_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Sharing settings</label></td><td width='150'><input id='share_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Drone Type</label></td><td width='150'><input id='drone_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
+			
+<!-- 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Make</label></td><td width='150'><input id='make_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Model</label></td><td><input id='model_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Date Time</label></td><td><input id='date_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Flash</label></td><td><input id='flash_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Shutter Speed</label></td><td><input id='shutter_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Aperture</label></td><td><input id='aperture_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Max Aperture</label></td><td><input id='m_aperture_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Focal Length</label></td><td><input id='focal_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Digital Zoom</label></td><td><input id='zoom_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>White Balance</label></td><td><input id='white_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Brightness</label></td><td><input id='bright_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>User Comment</label></td><td><input id='comment_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+		</table>
+	</div>
+	
+	<div class='accordionButton col_black'>&nbsp;EXIF GPS Info</div>
+	<div class='accordionContent' style='height:155px; overflow-y:scroll;'>
+		<table id='gps_exif_table' style="margin-top: 5px;">
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label>GPS Direction</label></td><td><input id='gps_direction_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label>Longitude</label></td><td><input id='lon_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label>Latitude</label></td><td><input id='lat_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			
 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Make</label></td><td width='150'><input id='make_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
 			<tr><td width='15'><td><label>Model</label></td><td><input id='model_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
 			<tr><td width='15'><td><label>Date Time</label></td><td><input id='date_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
@@ -2113,21 +2244,10 @@ css3color = function(color, opacity) {
 			<tr><td width='15'><td><label>User Comment</label></td><td><input id='comment_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
 		</table>
 	</div>
-	
-	<div class='accordionButton col_black'>&nbsp;EXIF GPS Info</div>
-	<div class='accordionContent' style='height:155px; overflow-y:scroll;'>
-		<table id='gps_exif_table' style="margin-top: 5px;">
-			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label>GPS Direction</label></td><td><input id='gps_direction_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label>Longitude</label></td><td><input id='lon_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label>Latitude</label></td><td><input id='lat_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-		</table>
-	</div>
 </div>
 
 <!-- <div style="width:1110px; height: 30px;"> -->
-	<div id="copyUrlBtn" style="width: 70px;height: 20px;background-color: #25323c;float: right;border-radius:5px;text-align: center;position: absolute;top: 540px;left: 1030px;cursor: pointer;font-size: 13px; color: #ffffff;">copy URI</div>
+	<div id="copyUrlBtn" style="width: 70px;height: 20px;background-color: #25323c;float: right;border-radius:5px;text-align: center;position: absolute;top: 540px;left: 710px;cursor: pointer;font-size: 13px; color: #ffffff;">copy URI</div>
 <!-- </div> -->
 <!-- <div id="copyUrlView" class="contextMenu" style="display: block;position: absolute;width: 250px;height: 100px;background-color: bisque;left: 860px;top: 556px;border-radius: 10px;"> -->
 <!-- 	<ul> -->
@@ -2136,7 +2256,7 @@ css3color = function(color, opacity) {
 <!-- 		<li id="copyTypeProject" style="width:250px;">Photo + Map + Layer Url</li> -->
 <!-- 	</ul> -->
 <!-- </div> -->
-<div id="copyUrlView" class="contextMenu" style="display: block;position: absolute;width: 205px;height: 80px;background-color: rgb(228, 228, 228);left: 896px;top: 560px;border-radius: 5px;cursor: pointer;font-size: 13px;z-index:999;">
+<div id="copyUrlView" class="contextMenu" style="display: block;position: absolute;width: 205px;height: 80px;background-color: rgb(228, 228, 228);left: 576px;top: 560px;border-radius: 5px;cursor: pointer;font-size: 13px;z-index:999;">
 	<ul style="margin-left: -10px;">
 		<li id="copyTypePhoto" onclick="copyFn('CP1');" class="copyUrlViewLi">Photo URI</li>
 		<li id="copyTypeMap" onclick="copyFn('CP2');" class="copyUrlViewLi">Photo + Map URI</li>
@@ -2146,6 +2266,7 @@ css3color = function(color, opacity) {
 <input type="hidden" id="copyUrlText">
 <input type="text" id="copyUrlAll" style="position: absolute;left:30px; top: 30px; opacity:0;">
 
+<button style="position:absolute; left:800px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>
 </body>
 
 </html>

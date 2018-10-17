@@ -223,6 +223,16 @@ function getOneImageData(){
 				var response = data.Data;
 				if(response != null && response != ''){
 					response = response[0];
+					$('#title_text').val(response.title);
+					$('#content_text').val(response.content);
+					var nowShareTypeText = response.sharetype == 0? "private":response.sharetype== 1? "public":"sharing with friends";
+					$('#share_text').val(nowShareTypeText);
+					if(response.dronetype != null && response.dronetype =='Y'){
+						$('#drone_text').val(response.dronetype);
+					}else{
+						$('#drone_text').val('N');
+					}
+					
 					if(linkType != null){
 						if(linkType != 'CP1'){
 							loadExif(response);
@@ -1315,6 +1325,7 @@ function exifSetting(data, rLon, rlat) {
 	var direction_str;
 	if(line_data_buf_arr[1].indexOf('\(')!=-1 && line_data_buf_arr[1].indexOf('\)')!=-1) direction_str = line_data_buf_arr[1].substring(line_data_buf_arr[1].indexOf('\(')+1, line_data_buf_arr[1].indexOf('\)'));
 	else direction_str = line_data_buf_arr[1];
+	
 	$('#gps_direction_text').val(direction_str);
 	
 	//GPS Longitude
@@ -1391,6 +1402,10 @@ var init_map_left, init_map_top, init_map_width, init_map_height;
 // 	else {}
 // }
 
+//저작
+function imageWrite() {
+	jAlert('This service requires login.', 'Info');
+}
 
 //뷰어 닫기
 function imageViewClose(){
@@ -1493,7 +1508,7 @@ css3color = function(color, opacity) {
 <!---------------------------------------------------- 메인 영역 시작 ------------------------------------------------>
 
 <!-- 이미지 영역 -->
-<div id='image_main_area' style='position:absolute; left:320px; top:15px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
+<div id='image_main_area' style='position:absolute; left:0px; top:15px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
 	<div id="image_viewer_canvas_div" style="width:780px; height: 545px; left:0px; top:0px;position:absolute;"><img id='image_viewer_canvas'></img></div>
 	<div class="viewerMoreL" style="display: none;"></div>
 	<div class="viewerMoreR" style="display: none;"></div>
@@ -1514,12 +1529,12 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- EXIF 영역 -->
-<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:10px; top:288px;' alt="이미지정보"></div>
+<div id="ex_tit"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:800px; top:288px;' alt="이미지정보"></div>
 <div id='image_exif_area' style='position:absolute; left:10px; top:310px; width:300px; height:245px; display:block; /*border:1px solid #999999;*/ '>
 </div>
 
 <!-- 지도 영역 -->
-<div id='image_map_area' style='position:absolute; left:10px; top:15px; width:300px; height:260px; display:block; background-color:#999;'>
+<div id='image_map_area' style='position:absolute; left:800px; top:15px; width:300px; height:260px; display:block; background-color:#999;'>
 	<iframe id='googlemap' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
 </div>
 
@@ -1633,10 +1648,40 @@ css3color = function(color, opacity) {
 </div>
 
 <!-- EXIF 삽입 다이얼로그 객체 -->
-<div id='exif_dialog' style='position:absolute; left:10px; top:310px; width:300px; height:200px; border:1px solid #999999; display:block; font-size:13px;'>
-	<div class='accordionButton col_black'>&nbsp;EXIF Normal Info</div>
+<div id='exif_dialog' style='position:absolute; left:800px; top:310px; width:300px; height:200px; border:1px solid #999999; display:block; font-size:13px;'>
+	<div class='accordionButton col_black'>&nbsp;Data Info</div>
 	<div class='accordionContent' style='height:157px; overflow-y:scroll;'>
 		<table id='normal_exif_table'>
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Title</label></td><td width='150'><input id='title_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Content</label></td><td width='150'><textarea id='content_text' name='text' style='font-size:12px;width: 144px;height: 50px;' readonly></textarea></td></tr>
+<!-- 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Content</label></td><td width='150'><input id='content_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Sharing settings</label></td><td width='150'><input id='share_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Drone Type</label></td><td width='150'><input id='drone_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
+			
+<!-- 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Make</label></td><td width='150'><input id='make_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Model</label></td><td><input id='model_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Date Time</label></td><td><input id='date_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Flash</label></td><td><input id='flash_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Shutter Speed</label></td><td><input id='shutter_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Aperture</label></td><td><input id='aperture_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Max Aperture</label></td><td><input id='m_aperture_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Focal Length</label></td><td><input id='focal_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Digital Zoom</label></td><td><input id='zoom_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>White Balance</label></td><td><input id='white_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>Brightness</label></td><td><input id='bright_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+<!-- 			<tr><td width='15'><td><label>User Comment</label></td><td><input id='comment_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr> -->
+		</table>
+	</div>
+	
+	<div class='accordionButton col_black'>&nbsp;EXIF GPS Info</div>
+	<div class='accordionContent' style='height:155px; overflow-y:scroll;'>
+		<table id='gps_exif_table' style="margin-top: 5px;">
+			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label>GPS Direction</label></td><td><input id='gps_direction_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label>Longitude</label></td><td><input id='lon_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			<tr><td width='15'></td><td><label>Latitude</label></td><td><input id='lat_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
+			
 			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Make</label></td><td width='150'><input id='make_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
 			<tr><td width='15'><td><label>Model</label></td><td><input id='model_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
 			<tr><td width='15'><td><label>Date Time</label></td><td><input id='date_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
@@ -1651,23 +1696,12 @@ css3color = function(color, opacity) {
 			<tr><td width='15'><td><label>User Comment</label></td><td><input id='comment_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
 		</table>
 	</div>
-	
-	<div class='accordionButton col_black'>&nbsp;EXIF GPS Info</div>
-	<div class='accordionContent' style='height:155px; overflow-y:scroll;'>
-		<table id='gps_exif_table' style="margin-top: 5px;">
-			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label>GPS Direction</label></td><td><input id='gps_direction_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label>Longitude</label></td><td><input id='lon_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-			<tr><td width='15'></td><td><label>Latitude</label></td><td><input id='lat_text' name='text' type='text' style='font-size:12px;' disabled/></td></tr>
-		</table>
-	</div>
 </div>
 
 <!-- <div style="width:1110px; height: 30px;"> -->
-	<div id="copyUrlBtn" style="width: 70px;height: 20px;background-color: #25323c;float: right;border-radius:5px;text-align: center;position: absolute;top: 540px;left: 1030px;cursor: pointer;font-size: 13px;color: #ffffff;">copy URI</div>
+	<div id="copyUrlBtn" style="width: 70px;height: 20px;background-color: #25323c;float: right;border-radius:5px;text-align: center;position: absolute;top: 540px;left: 710px;cursor: pointer;font-size: 13px;color: #ffffff;">copy URI</div>
 <!-- </div> -->
-<div id="copyUrlView" class="contextMenu" style="display: block;position: absolute;width: 205px;height: 80px;background-color: rgb(228, 228, 228);left: 896px;top: 560px;border-radius: 5px;cursor: pointer;font-size: 13px;">
+<div id="copyUrlView" class="contextMenu" style="display: block;position: absolute;width: 205px;height: 80px;background-color: rgb(228, 228, 228);left: 576px;top: 560px;border-radius: 5px;cursor: pointer;font-size: 13px;">
 	<ul style="margin-left: -10px;">
 		<li id="copyTypePhoto" onclick="copyFn('CP1');" class="copyUrlViewLi">Photo URI</li>
 		<li id="copyTypeMap" onclick="copyFn('CP2');" class="copyUrlViewLi">Photo + Map URI</li>
@@ -1677,6 +1711,7 @@ css3color = function(color, opacity) {
 <input type="hidden" id="copyUrlText">
 <input type="text" id="copyUrlAll" style="position: absolute;left:30px; top: 30px; opacity:0;">
 
+<button style="position:absolute; left:800px; top:520px; width:300px; height:35px; display:block; cursor: pointer;" onclick="imageWrite();" id="makeImageBtn">Edit Annotaion</button>
 </body>
 
 </html>
