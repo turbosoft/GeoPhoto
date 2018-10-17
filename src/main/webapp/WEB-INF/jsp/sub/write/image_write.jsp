@@ -215,6 +215,10 @@ function getOneImageData(){
 					
 					$('#title_area').val(response.title);
 					$('#content_area').val(response.content);
+					if(imgDroneType == 'Y'){
+						$('#droneTypeChk').attr('checked',true);
+					}
+					
 // 					var nowShareTypeText = nowShareType == 0? '비공개':nowShareType== 1? '전체공개':'특정인 공개';
 					var nowShareTypeText = nowShareType == 0? "private":nowShareType== 1? "public":"sharing with friends";
 					
@@ -307,6 +311,8 @@ function getServer(rObj, tmpFileType){
 					saveImageWrite(tmpFileType, tmpServerId, tmpServerPass, tmpServerPort);
 				}else if(tmpFileType == 'emailCapture'){
 					saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort);
+				}else if(tmpFileType == 'EXIFSAVE'){
+					saveExifFile(tmpServerId, tmpServerPass, tmpServerPort);
 				}
 			}
 		}
@@ -316,7 +322,6 @@ function getServer(rObj, tmpFileType){
 function getServerExif(rObj, tmpServerId, tmpServerPass, tmpServerPort){
 	if(rObj != null && rObj != ''){
 		imgDroneType = rObj.dronetype;
-		
 		var encode_file_name = encodeURIComponent('GeoPhoto/'+ rObj.filename);
 		$.ajax({
 			type: 'POST',
@@ -883,7 +888,7 @@ function createIcon(img_src) {
 
 function inputGeometry() {
 	compHide();
-	$('#geometry_line_color').attr('disabled', true); $('#geometry_bg_color').attr('disabled', true); $('#geometry_line_color').val('#959595'); $('#geometry_line_color').css('background-color', '#999999'); $('#geometry_bg_color').val('#FF0000'); $('#geometry_bg_color').css('background-color', '#FF0000');
+	$('#geometry_line_color').attr('disabled', true); $('#geometry_bg_color').attr('disabled', true); $('#geometry_line_color').val('#FF0000'); $('#geometry_line_color').css('background-color', '#FF0000'); $('#geometry_bg_color').val('#FF0000'); $('#geometry_bg_color').css('background-color', '#FF0000');
 	document.getElementById('geometry_dialog').style.display='block';
 }
 
@@ -923,6 +928,7 @@ function inputGeometryShape(type) {
 			//좌표점 계산
 			var left_str = $('#image_write_canvas_div').css('left'); var top_str = $('#image_write_canvas_div').css('top'); var left = parseInt(left_str.replace('px','')); var top = parseInt(top_str.replace('px',''));
 			geometry_point_arr_1.push(e.pageX - (this.offsetLeft + left)-marginImgL); geometry_point_arr_2.push(e.pageY - (this.offsetTop + top)-marginImgT);
+			createGeometry(type);
 		});
 		canvas_element.mousemove(function(e) {
 			if(geometry_click_move_val) {
@@ -961,6 +967,7 @@ function inputGeometryShape(type) {
 			//좌표점 계산
 			var left_str = $('#image_write_canvas_div').css('left'); var top_str = $('#image_write_canvas_div').css('top'); var left = parseInt(left_str.replace('px','')); var top = parseInt(top_str.replace('px',''));
 			geometry_point_arr_1.push(e.pageX - (this.offsetLeft + left)-marginImgL); geometry_point_arr_2.push(e.pageY - (this.offsetTop + top)-marginImgT);
+			createGeometry(type);
 		});
 		canvas_element.mousemove(function(e) {
 			if(geometry_click_move_val) {
@@ -988,28 +995,39 @@ function inputGeometryShape(type) {
 		canvas_element.click(function(e) {
 			//좌표점 계산
 			var left_str = $('#image_write_canvas_div').css('left'); var top_str = $('#image_write_canvas_div').css('top'); var left = parseInt(left_str.replace('px','')); var top = parseInt(top_str.replace('px','')); var x = e.pageX - (this.offsetLeft + left)-marginImgL; var y = e.pageY - (this.offsetTop + top) - marginImgT;
+			var xyBool = false;
+			for(var i = 0; i<geometry_point_arr_1.length; i++){
+				if(x >= (geometry_point_arr_1[i]-5) && x <= (geometry_point_arr_1[i]+5) 
+						&& y >= (geometry_point_arr_2[i]-5) && y <= (geometry_point_arr_2[i]+5)){
+					xyBool = true;
+				}
+			}
 			
-			//클릭 좌표점에 원과 숫자 그리기
-			var context = document.getElementById('geometry_draw_canvas').getContext("2d"); context.strokeStyle = '#f00'; context.beginPath(); context.arc(x, y, 5, 0, 2*Math.PI, true); context.stroke();
-			if(geometry_point_num>=10) context.fillText(geometry_point_num, x-7, y-6); else context.fillText(geometry_point_num, x-3, y-6);
-			geometry_point_num++;
-			if(geometry_point_before_x == 0 && geometry_point_before_y == 0) { geometry_point_before_x = x; geometry_point_before_y = y; }
-			else { context.moveTo(geometry_point_before_x, geometry_point_before_y); context.lineTo(x, y); geometry_point_before_x = x; geometry_point_before_y = y; context.stroke(); }
-			context.closePath();
-			geometry_point_arr_1.push(x);
-			geometry_point_arr_2.push(y);
+			if(xyBool){
+				createGeometry(type);
+			}else{
+				//클릭 좌표점에 원과 숫자 그리기
+				var context = document.getElementById('geometry_draw_canvas').getContext("2d"); context.strokeStyle = '#f00'; context.beginPath(); context.arc(x, y, 5, 0, 2*Math.PI, true); context.stroke();
+				if(geometry_point_num>=10) context.fillText(geometry_point_num, x-7, y-6); else context.fillText(geometry_point_num, x-3, y-6);
+				geometry_point_num++;
+				if(geometry_point_before_x == 0 && geometry_point_before_y == 0) { geometry_point_before_x = x; geometry_point_before_y = y; }
+				else { context.moveTo(geometry_point_before_x, geometry_point_before_y); context.lineTo(x, y); geometry_point_before_x = x; geometry_point_before_y = y; context.stroke(); }
+				context.closePath();
+				geometry_point_arr_1.push(x);
+				geometry_point_arr_2.push(y);
+			}
 		});
 	}
 	canvas_element.appendTo('#image_write_canvas_div');
 	
 	//그리기 완료 및 그리기 취소 버튼
-	var html_text = '<button class="geometry_complete_button" onclick="createGeometry('+type+');" style="left:0px; top:0px;">Draw complete</button>';
-	html_text += '<button class="geometry_cancel_button" onclick="cancelGeometry();" style="left:10px; top:0px;">Undo drawing</button>';
-	$('#image_main_area').append(html_text);
-	$('.geometry_complete_button').button(); $('.geometry_cancel_button').button();
-	$('.geometry_complete_button').width(115); $('.geometry_cancel_button').width(115);
-	$('.geometry_complete_button').height(30); $('.geometry_cancel_button').height(30);
-	$('.geometry_complete_button').css('fontSize', 12); $('.geometry_cancel_button').css('fontSize', 12);
+// 	var html_text = '<button class="geometry_complete_button" onclick="createGeometry('+type+');" style="left:0px; top:0px;">Draw complete</button>';
+// 	html_text += '<button class="geometry_cancel_button" onclick="cancelGeometry();" style="left:10px; top:0px;">Undo drawing</button>';
+// 	$('#image_main_area').append(html_text);
+// 	$('.geometry_complete_button').button(); $('.geometry_cancel_button').button();
+// 	$('.geometry_complete_button').width(115); $('.geometry_cancel_button').width(115);
+// 	$('.geometry_complete_button').height(30); $('.geometry_cancel_button').height(30);
+// 	$('.geometry_complete_button').css('fontSize', 12); $('.geometry_cancel_button').css('fontSize', 12);
 }
 
 function createGeometry(type) {
@@ -1182,7 +1200,17 @@ function loadExif(rObj) {
 }
 
 function saveExif() {
-	var encode_file_name = encodeURIComponent(upload_url + file_url);
+	getServer("", "EXIFSAVE");
+}
+
+function saveExifFile(tmpServerId, tmpServerPass, tmpServerPort) {
+// 	var encode_file_name = encodeURIComponent(upload_url + file_url);
+// 	var encode_file_name = '';
+// 	encode_file_name = file_url.substring(0, file_url.indexOf('.'))+ '_BASE_thumbnail.'+ file_url.substring(file_url.indexOf('.')+1);
+// 	encode_file_name = encodeURIComponent(imageBaseUrl() + upload_url + encode_file_name);
+	var encode_file_name = upload_url + file_url;
+	encode_file_name = encode_file_name.substring(1);
+	encode_file_name = encodeURIComponent(encode_file_name);
 	
 	var data_text = "";
 	if($('#comment_text').val()!='Not Found.') data_text += $('#comment_text').val() + "\<LineSeparator\>";
@@ -1192,18 +1220,20 @@ function saveExif() {
 	if($('#lon_text').val()!='Not Found.') data_text += $('#lon_text').val() + "\<LineSeparator\>";
 	else data_text += "\<NONE\>\<LineSeparator\>";
 	if($('#lat_text').val()!='Not Found.') data_text += $('#lat_text').val() + "\<LineSeparator\>";
-	else data_text += "\<NONE\>";
+// 	else data_text += "\<NONE\>";
 
-// 	else data_text += "\<NONE\>\<LineSeparator\>";
+	else data_text += "\<NONE\>\<LineSeparator\>";
 // 	if($('#alt_text').val()!='Not Found.') data_text += $('#alt_text').val() + "\<LineSeparator\>";
 // 	else data_text += "\<NONE\>\<LineSeparator\>";
-// 	if($('#focal_text').val()!='Not Found.') data_text += $('#focal_text').val() + "\<LineSeparator\>";
-// 	else data_text += "\<NONE\>";
-	
+	if($('#focal_text').val()!='Not Found.') data_text += $('#focal_text').val() + "\<LineSeparator\>";
+	else data_text += "\<NONE\>";
+
 	$.ajax({
 		type: 'POST',
-		url: base_url + '/geoExif.do',
-		data: 'file_name='+encode_file_name+'&type=save&data='+data_text,
+		url: '<c:url value="/geoExif.do"/>',
+// 		data: 'file_name='+encode_file_name+'&type=save&data='+data_text,
+		data: 'file_name='+encode_file_name+'&type=save&data='+data_text+'&serverType='+b_serverType+'&serverUrl='+b_serverUrl+
+		'&serverPath='+b_serverPath+'&serverPort='+tmpServerPort+'&serverViewPort='+ b_serverViewPort +'&serverId='+tmpServerId+'&serverPass='+tmpServerPass,
 // 		success: function(data) { var response = data.trim(); jAlert('정상적으로 저장 되었습니다.', '정보'); }
 		success: function(data) { var response = data.trim(); jAlert('Saved successfully.', 'Info'); }
 	});
@@ -1408,10 +1438,10 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 						
 						var tmpLat  = '&nbsp';
 						var tmpLong  = '&nbsp';
-						if(changeGps){
+// 						if(changeGps){
 							tmpLat = $('#lat_text').val();
 							tmpLong = $('#lon_text').val();
-						}
+// 						}
 										
 						if(tmpAddShareUser == null || tmpAddShareUser.length <= 0){ tmpAddShareUser = '&nbsp'; }
 						if(tmpRemoveShareUser == null || tmpRemoveShareUser.length <= 0){ tmpRemoveShareUser = '&nbsp'; }
@@ -1428,10 +1458,14 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 						if(urlData != null && urlData != '' && linkType != null && linkType == 'CP4'){
 							coplyUrlSave = 'Y';
 						}
+						var tmpImgDroneType = 'N';
+						if($('#droneTypeChk').attr('checked')){
+							tmpImgDroneType = 'Y';
+						}
 						
 						var Url			= baseRoot() + "cms/updateImage/";
 						var param		= loginToken + "/" + loginId + "/" + idx + "/" + tmpTitle + "/" + tmpContent + "/" + tmpShareType + "/" + tmpAddShareUser + "/" + 
-										tmpRemoveShareUser + "/" + tmp_xml_text + "/"+ tmpLat + "/" + tmpLong +"/"+ tmpEditYes + "/" + tmpEditNo +"/"+ coplyUrlSave;
+										tmpRemoveShareUser + "/" + tmp_xml_text + "/"+ tmpLat + "/" + tmpLong +"/"+ tmpEditYes + "/" + tmpEditNo +"/"+ coplyUrlSave +"/" + tmpImgDroneType;
 						var callBack	= "?callback=?";
 						
 						$.ajax({
@@ -1449,7 +1483,7 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 									//exif 저장
 					 				var comment_text = $('#comment_text').val();
 					 				$('#comment_text').val(comment_text+xml_text);
-// 					 				saveExif();
+					 				saveExif();
 					 				$('#comment_text').val(comment_text);
 					 				
 					 				$('#shareKindLabel').text();
@@ -1462,7 +1496,7 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 						//exif 저장
 		 				var comment_text = $('#comment_text').val();
 		 				$('#comment_text').val(comment_text+xml_text);
-// 		 				saveExif();
+		 				saveExif();
 		 				$('#comment_text').val(comment_text);
 					}
 				}
@@ -2020,7 +2054,7 @@ function reloadMap(type) {
 	$('#googlemap').get(0).contentWindow.setCenter(arr[0], arr[1], 2);
 	if(type==2) {
 		if(imgDroneType != null && imgDroneType == 'Y'){
-			$('#googlemap').get(0).contentWindow.drawCircleOnMap(arr[0], arr[1], 100);
+			$('#googlemap').get(0).contentWindow.drawCircleOnMap(arr[0], arr[1], 100, 1);
 		}else{
 			$('#googlemap').get(0).contentWindow.setAngle(arr[2], arr[3]);
 		}
@@ -2403,15 +2437,15 @@ function getCopyUrl(){
 				<tr>
 					<td><label style="font-size:12px;">Shape Style : </label>
 					<input type='radio' name='geo_shape' value='circle'><label style="font-size:12px;">Circle</label>
-					<input type='radio' name='geo_shape' value='rect'><label style="font-size:12px;">Rect</label>
-					<input type='radio' name='geo_shape' value='point' checked><label style="font-size:12px;">Point</label></td>
+					<input type='radio' name='geo_shape' value='rect' checked><label style="font-size:12px;">Rect</label>
+					<input type='radio' name='geo_shape' value='point'><label style="font-size:12px;">Point</label></td>
 					<td width='20'></td>
 					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">Confirm</button></td>
 				</tr>
 				<tr><td><hr/></td><td width='20'></td></tr>
 				<tr>
 					<td><label style="font-size:12px;">Line Color : </label>
-					<input id="geometry_line_color" type="text" class="iColorPicker" value="#959595" style="width:50px;"/>
+					<input id="geometry_line_color" type="text" class="iColorPicker" value="#FF0000" style="width:50px;"/>
 					&nbsp;&nbsp;&nbsp;
 					<label style="font-size:12px;">MouseOver Color : </label>
 					<input id="geometry_bg_color" type="text" class="iColorPicker" value="#FF0000" style="width:50px;"/></td>
@@ -2467,6 +2501,8 @@ function getCopyUrl(){
 						<div><input type="radio" value="0" name="shareRadio">private</div>
 						<div><input type="radio" value="1" name="shareRadio">public</div>
 						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">sharing with friends</div>
+						
+						<div style="float: right;">Drone Type <input type="checkbox" id="droneTypeChk"></div>
 					</td>
 				</tr>
 				<tr class='tr_line'><td colspan='2'><hr/></td></tr>
