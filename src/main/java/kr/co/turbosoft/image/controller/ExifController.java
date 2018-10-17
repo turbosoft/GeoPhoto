@@ -4,10 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +32,7 @@ public class ExifController {
 		
 		String serverTypeStr = request.getParameter("serverType");
 		String serverUrlSrt = request.getParameter("serverUrl");
+		String serverPortStr = request.getParameter("serverPort");
 		String serverViewPortStr = request.getParameter("serverViewPort");
 		String serverPathStr = request.getParameter("serverPath");
 		String serverIdStr = request.getParameter("serverId");
@@ -39,20 +44,32 @@ public class ExifController {
 		}
 		String fileSavePathStr = request.getSession().getServletContext().getRealPath("/");
 		fileSavePathStr = fileSavePathStr.substring(0, fileSavePathStr.lastIndexOf("GeoPhoto")) + "GeoCMS"+ 
-				fileSavePathStr.substring(fileSavePathStr.lastIndexOf("GeoPhoto")+8) +
-				File.separator + file_path;
+//				fileSavePathStr.substring(fileSavePathStr.lastIndexOf("GeoPhoto")+8) +
+				File.separator + serverPathStr;
+//				+ File.separator + file_path;
 		
 		System.out.println("file_full_url = "+file_full_url);
 		
 		ExifRW exifRW = new ExifRW();
 		String result = "";
 		
-		exifRW.exifSettingCon(fileSavePathStr, serverUrlSrt, serverIdStr, serverPassStr, serverPathStr);
+		exifRW.exifSettingCon(fileSavePathStr, serverUrlSrt, serverPortStr, serverIdStr, serverPassStr, serverPathStr);
 		if(type.equals("init") || type.equals("load")) {
 			result = exifRW.read(file_full_url, type, file_path, file_name);
 			System.out.println(result);
+		}else if(type.equals("save")){
+			String data = request.getParameter("data");
+			String[] split_data = exifRW.parseData(data);
+			exifRW.write(file_full_url, type, file_path, file_name, split_data, null);
+		}else if(type.equals("saveArr")){
+			String data = request.getParameter("data");
+			String[] split_data = exifRW.parseData(data);
+			String changeFileArrStr = request.getParameter("changeFileArr");
+//			String changeFileStrArr[] = changeFileArrStr.split(",");
+			ObjectMapper mapper = new ObjectMapper();
+			List<String> changeFileArr = mapper.readValue(changeFileArrStr, new TypeReference<List<String>>(){});
+			exifRW.write(file_full_url, type, file_path, file_name, split_data, changeFileArr);
 		}
-		
 		//setContentType	
 		response.setContentType("text/html;charset=utf-8");
 		PrintWriter out = response.getWriter();
