@@ -39,6 +39,7 @@ var circle;
 var imgDMarkerLat = 0;		//default marker latitude
 var imgDMarkerLng = 0;		//default marker longitude
 var imgDMapZoom = 10;		//defalut map zoom
+var imgCoordinate = false;	//coordinate boolean
 
 function init() {
 	if(map == null || map == undefined){
@@ -81,11 +82,12 @@ function setCenter(lat_str, lng_str, type) {
 		map.setZoom(imgDMapZoom);
 	}
 	
-	var marker_image = "<c:url value='/images/geoImg/maps/photo_marker.png'/>";
+// 	var marker_image = "<c:url value='/images/geoImg/maps/photo_marker.png'/>";
+	var marker_image = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
 
 	if(marker == null || marker == undefined) {
 		var drag = false;
-// 		if(map_type==2) drag = true;
+		if(map_type==2) drag = true;
 		marker = new google.maps.Marker({
 			position: marker_latlng,
 			map: map,
@@ -93,22 +95,32 @@ function setCenter(lat_str, lng_str, type) {
 			icon: marker_image,
 			draggable: drag
 		});
-// 		if(map_type==2){
-// 			google.maps.event.addListener(marker, 'dragend', function() {
-// 				dragEventEmpty();
-// 			});
-// 		}
+		if(map_type==2){
+			google.maps.event.addListener(marker, 'dragend', function() {
+				dragEventEmpty();
+			});
+		}
 	}
 	else {
 		marker.setPosition(marker_latlng);
 	}
 	
 	map.setCenter(marker_latlng);
+	
+	if(!(type == 2 && $('#map_canvas').width() > 330)){
+		bounds = new google.maps.LatLngBounds();
+		bounds.extend(marker_latlng);
+		map.fitBounds(bounds);
+	}
 }
+var bounds = new google.maps.LatLngBounds();
+
 //촬영 각도와 거리를 계산하여 지도에 표현
 function setAngle(direction_str, focal_str) {
 	var direction = parseInt(direction_str);
 	var focal = parseFloat(focal_str);
+	parent.setNewDirection = direction_str;
+	parent.setNewFocal = focal_str; 
 	
 	fov = getFOV(focal);
 	view_value = getViewLength(0.3); //km 단위
@@ -226,7 +238,7 @@ function createViewMarker(point) {
 	
 	if(view_marker==null || marker == undefined) {
 		var drag = false;
-// 		if(map_type==2) drag = true;
+		if(map_type==2 || imgCoordinate) drag = true;
 		view_marker = new google.maps.Marker({
 			position: point,
 			map: map,
@@ -238,21 +250,32 @@ function createViewMarker(point) {
 	else {
 		view_marker.setPosition(point);
 	}
-	if(map_type==2) {
-// 		google.maps.event.addListener(view_marker, 'dragend', function() {
-// 			dragEvent(1);
-// 		});
-// 		google.maps.event.addListener(marker, 'dragend', function() {
-// 			dragEvent(2);
-// 		});
+	if(map_type==2 || imgCoordinate) {
+		google.maps.event.addListener(view_marker, 'dragend', function() {
+			dragEvent(1);
+		});
+		google.maps.event.addListener(marker, 'dragend', function() {
+			dragEvent(2);
+		});
+	}
+
+	if(!imgCoordinate){
+		bounds.extend(point);
+		map.fitBounds(bounds);
 	}
 }
 //마커 드래그 이벤트
 function dragEvent(type) {
 	draw_direction.setPath([marker.getPosition(), view_marker.getPosition()]);
-	if(type==2) { marker_latlng = new google.maps.LatLng(marker.getPosition().lat(), marker.getPosition().lng()); }
+	if(type==2 || imgCoordinate) {marker_latlng = new google.maps.LatLng(marker.getPosition().lat(), marker.getPosition().lng());}
 	var km = draw_direction.inKm();
 	var degree = draw_direction.Bearing();
+	parent.setNewDirection = degree;
+	parent.setNewFocal = 3.626 / (2 * Math.tan(Math.PI * fov / 360));
+// 	double fov = (2 * Math.atan(diagonalLength / (2 * focalLength))) * 180 / Math.PI;
+// 	var fov = (2 * Math.atan(3.626 / (2 * focal_length))) * 180 / Math.PI;
+// 	 double focal = 3.626 / (2 * Math.tan(Math.PI * fov / 360));
+	
 	createViewPolygon(km, degree, fov);
 	parent.setExifData(marker.getPosition().lat(), marker.getPosition().lng(), parseInt(degree));
 }
@@ -260,13 +283,16 @@ function dragEvent(type) {
 //좌표없는 마커 드래그 이벤트
 function dragEventEmpty() {
 	parent.setExifData(marker.getPosition().lat(), marker.getPosition().lng(), 0);
+	if(circle!=null){
+		drawCircleOnMap(marker.getPosition().lat(), marker.getPosition().lng(), 100, 2);
+	}
 }
 
 /**
  * 반경 그리기
  * @param : xy 좌표, 반경사이즈
  */
-function drawCircleOnMap(lat_str, lng_str, radius){ //반경중앙좌표, 반경(단위: m)
+function drawCircleOnMap(lat_str, lng_str, radius, rType){ //반경중앙좌표, 반경(단위: m)
  	var lat = parseFloat(lat_str);
 	var lng = parseFloat(lng_str);
 	
@@ -282,8 +308,10 @@ function drawCircleOnMap(lat_str, lng_str, radius){ //반경중앙좌표, 반경
     });
     
     circle.setMap(map);// 반경을 추가할 map에 set
-//     bounds.union(circle.getBounds());
-//     map.fitBounds(bounds);
+    if(rType == 1){
+    	bounds.union(circle.getBounds());
+        map.fitBounds(bounds);
+    }
 }
 
 /* ---------------------------- 구글맵 확장 기능 --------------------------------- */
@@ -339,6 +367,9 @@ Number.prototype.toDeg = function() {
 
 //촬영 지점 설정
 function graySetCenter() {
+	imgCoordinate = true;
+	bounds = new google.maps.LatLngBounds();
+	
 	if(map == null || map == undefined){
 		//set map option
 		var myOptions = { mapTypeId: google.maps.MapTypeId.ROADMAP };
@@ -355,15 +386,20 @@ function graySetCenter() {
 	marker_latlng = new google.maps.LatLng(imgDMarkerLat, imgDMarkerLng);
 	map.setZoom(imgDMapZoom);
 	
-	var marker_image = "<c:url value='/images/geoImg/maps/photo_marker.png'/>";
+// 	var marker_image = "<c:url value='/images/geoImg/maps/photo_marker.png'/>";
+	var marker_image = "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
 
- 	marker = new google.maps.Marker({
-		position: marker_latlng,
-		map: map,
-		title: "Center",
-		icon: marker_image,
-		draggable: true
-	});
+ 	if(marker == null || marker == undefined){
+ 		marker = new google.maps.Marker({
+ 			position: marker_latlng,
+ 			map: map,
+ 			title: "Center",
+ 			icon: marker_image,
+ 			draggable: true
+ 		});
+ 	}else{
+ 		marker.setPosition(marker_latlng);
+ 	}
 		
 	map.setCenter(marker_latlng);
 	
@@ -380,7 +416,11 @@ function graySetCenter() {
 		var latitude = event.latLng.lat();
 	    var longitude = event.latLng.lng();
 	    marker.setPosition(event.latLng);
+	    marker_latlng = new google.maps.LatLng(latitude, longitude);
+	    setAngle(100, 5);
     });
+	//앵글 추가
+	setAngle(100, 5);
 	
 	$('.imgModeCls2').css('display','block');
 	
@@ -402,12 +442,15 @@ function onPlaceChanged() {
       map.panTo(place.geometry.location);
       map.setZoom(15);
       marker.setPosition(place.geometry.location);
+      marker_latlng = new google.maps.LatLng(place.geometry.location);
+      setAngle(100, 5);
     }else {
       document.getElementById('searchDefaultPlace').placeholder = 'Enter a city';
     }
 }
 
 function grayMarkerSet(setType){
+	imgCoordinate = false;
 	if(setType == 'ok'){
 // 		$('.imgModeCls2').css('display','none');
 		parent.setNewMarkerLat = marker.getPosition().lat();
