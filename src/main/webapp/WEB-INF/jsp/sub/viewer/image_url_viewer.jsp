@@ -66,6 +66,8 @@ $(function() {
 	if(linkType != 'CP1'){
 		$("#exif_dialog .accordionButton:eq(1)").trigger('click');
 		$('#image_map_area').maxZIndex({inc:1});
+	}else{
+		$('#makeImageBtn').remove();
 	}
 	
 	$('html').mousemove(function(e) {
