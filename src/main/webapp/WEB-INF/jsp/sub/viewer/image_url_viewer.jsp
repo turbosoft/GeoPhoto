@@ -1354,7 +1354,7 @@ function reloadMap(type) {
 	$('#googlemap').get(0).contentWindow.setCenter(arr[0], arr[1], 1);
 	if(type==2) {
 		if(imgDroneType != null && imgDroneType == 'Y'){
-			$('#googlemap').get(0).contentWindow.drawCircleOnMap(arr[0], arr[1], 100);
+			$('#googlemap').get(0).contentWindow.drawCircleOnMap(arr[0], arr[1], 100, 1);
 		}else{
 			$('#googlemap').get(0).contentWindow.setAngle(arr[2], arr[3]);
 		}
