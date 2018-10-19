@@ -43,10 +43,9 @@ public class ExifController {
 			file_full_url = "http://"+ serverUrlSrt +":"+ serverViewPortStr +"/shares/"+serverPathStr +"/"+ file_path;
 		}
 		String fileSavePathStr = request.getSession().getServletContext().getRealPath("/");
-		fileSavePathStr = fileSavePathStr.substring(0, fileSavePathStr.lastIndexOf("GeoPhoto")) + "GeoCMS"+ 
-//				fileSavePathStr.substring(fileSavePathStr.lastIndexOf("GeoPhoto")+8) +
-				File.separator + serverPathStr;
-//				+ File.separator + file_path;
+		String fileSavePathStr1 = fileSavePathStr.substring(0, fileSavePathStr.lastIndexOf("GeoPhoto"));
+		String fileSavePathStr2 = fileSavePathStr.substring(fileSavePathStr.lastIndexOf("GeoPhoto")+8);
+		fileSavePathStr = fileSavePathStr1 + "GeoCMS"+ fileSavePathStr2 + serverPathStr;
 		
 		System.out.println("file_full_url = "+file_full_url);
 		
