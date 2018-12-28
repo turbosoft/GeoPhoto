@@ -14,29 +14,232 @@ String loginToken = request.getParameter("loginToken");
 String loginId = request.getParameter("loginId");
 String projectBoard = request.getParameter("projectBoard");
 String editUserYN = request.getParameter("editUserYN");
-
 String linkType = request.getParameter("linkType");	//project User id
 String urlData = request.getParameter("urlData");	//url data
 %>
+<style type="text/css">
+.menuIcon:hover{
+background-color: rgb(45, 120, 197);
+}
 
+.selectExifTabTitle{
+	color:blue;
+	border-top: 1px solid #d1d1d1;
+	border-bottom: none;
+/* 	border-left: 1px solid #d1d1d1; */
+	border-right: 1px solid #d1d1d1;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.noSlectExifTabTitle{
+	color:#555555;
+	background-color : #fafafa;
+	border-top: none;
+	border-bottom: 1px solid #ebebeb;
+	border-left: none;
+	border-right: 1px solid #ebebeb;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.selectExifTabChild{
+	display:block;
+	font-weight: bold;
+	font-size:13px;
+}
+
+.noSelectExifTabChild{
+	display:none;
+}
+
+/* 20181122 강대훈 작업 */
+
+/* 버튼 스타일 */
+.smallWhiteBtn {
+	border: 1px solid;
+	border-color : #b3b3b3;
+	border-radius : 3px;
+	font-size: 12px;
+	padding: 3px 15px; 
+	background-color : white;
+	color: #656565;
+	cursor: pointer;
+	text-align: center;
+	height: 30px;
+}
+
+.smallBlueBtn {
+	border: 1px solid;
+	border-color : #297acc;
+	border-radius : 3px;
+	font-size: 12px;
+	padding: 3px 15px; 
+	background-color : #297acc;
+	color: white;
+	cursor: pointer;
+	text-align: center;
+	height: 30px;
+}
+
+.smallGreyBtn {
+	border: 1px solid;
+	border-color : #6e778a;
+	border-radius : 3px;
+	font-size: 12px;
+	padding: 3px 15px; 
+	background-color : #6e778a;
+	color: white;
+	cursor: pointer;
+	text-align: center;
+	height: 30px;
+}
+
+.smallWhiteActiveBtn {
+	border: 1px solid;
+	border-color : #b3b3b3;
+	border-radius : 3px;
+	font-size: 12px;
+	padding: 3px 15px; 
+	background-color : white;
+	color: #297acc;
+	cursor: pointer;
+	text-align: center;
+	height: 30px;
+}
+/* 버튼 스타일 끝 */
+
+/* 뷰어 스타일 */
+
+.activeControlArea {
+	background-color: #1e2b41;
+	height : 200px;
+}
+
+.imgMoveBtn {
+	width: 35px;
+	height: 110px;
+	background-color: #394458;
+	float: left;
+	color : #9ca2ac;
+	font-size: 20pt;
+	font-weight: bolder;
+	margin-top: 10px;
+	cursor: pointer;
+}
+
+.imgMoveBtnImg {
+	margin-top: 40px;
+}
+
+.imageSlideBar {
+	width: 90%;
+	height: 100%;
+	float: left;
+}
+
+.imgMoveArea {
+	width:90%; 
+	height:75%; 
+	display:block; 
+	overflow-y:hidden;
+	margin-left : 75px;
+}
+
+.rightArea {
+	float: left; 
+	width: 27.5%; 
+	height: 100%;
+	background-color: white;
+	color: #333333;
+}
+
+.infoTabs {
+	height: 30px;
+/* 	width: 120px; */
+	width: 33%;
+/* 	float: left;  */
+	font-size: 13px; 
+	text-align: center;
+}
+
+.moveAreaBar{
+	width: 1%;
+	height: 100%;
+	background-color: #f5f5f5;
+	float: left;
+	cursor: e-resize;
+	border-color: #b3b3b3;
+	border-width : 0px 1px 0px 1px;
+	border-style: solid;
+}
+
+.titleLabel {
+	float:left;
+	font-size: 10pt;
+	color : white;
+}
+
+.normalTextInput {
+	border: #d1d1d1 1px solid;
+	color : #656565;
+	font-size: 9pt;
+	width: 100%;
+}
+
+.tableLabel {
+	color : #333333;
+	font-size: 9pt;
+}
+
+.editorSideBar tr{
+/* 	border-bottom: 1px solid; */
+/* 	border-color: #131b2a; */
+}
+
+.editor_side_btn {
+	cursor : pointer;
+	margin : auto;
+	margin-top: 5px;
+}
+
+.menuIcon {
+	padding-top: 5px;
+	cursor: pointer;
+}
+
+.menuIconText {
+	font-size: 8pt;
+	color: white;
+	text-align: center;
+	margin-top: 10px;
+}
+
+.btn_td {
+	height: 80px;
+	width: 100%;
+}
+
+.writer_btn_class {
+	height: 60px;
+	background-color: white;
+}
+/* 20181122 강대훈 작업 끝*/
+</style>
 <script type="text/javascript">
-
 /* init_start ----- 초기 설정 ------------------------------------------------------------ */
 var idx = '<%= idx %>';
 var loginToken = '<%= loginToken %>';
 var loginId = '<%= loginId %>';
 var projectBoard = '<%= projectBoard %>';
 var editUserYN = '<%= editUserYN %>';
-
 var linkType = '<%= linkType %>';			//link type
 var urlData = '<%= urlData %>';			//url data
 var copyUserId = '';
 var copyUrlIdx = 0;
-
 var nowSelTab;
 var nowShareType;
 var oldShareUserLen = 0;
-
 var file_url = '<%= file_url %>';
 var base_url = '';
 var upload_url = '';
@@ -57,20 +260,21 @@ var dMapZoom = 10;		//default map zoom
 var changeGps = false;	//marker gps change boolean
 var imageLatitude = 0;
 var imageLongitude  = 0;
-
 $(function() {
+	if(linkType == 'CP4'){
+		$('#image_view_group').parent().remove();	
+	}
+	
 	if(urlData != null && urlData != '' && linkType != null && linkType == 'CP4'){
 		getCopyUrlDecode();
 	}
 	getCopyUrl();
 	
-	$("#exif_dialog .accordionButton:eq(1)").trigger('click');
-	
 	marginImgL = $('#image_main_area').css('left');
 	marginImgL = parseInt(marginImgL.replace('px','')) + 2;
 	marginImgT = $('#image_main_area').css('top');
 	marginImgT = parseInt(marginImgT.replace('px','')) + 2;
-
+	
 	$('html').mousemove(function(e) {
 		var container = $('#image_main_area');
 		if(container.has(e.target).length == 0){
@@ -130,7 +334,13 @@ $(function() {
 		if(imageSelectMode == 1){
 			imageSelectMode = 0;
 		}
+		if(bubbleTextArea == 1){
+			createBubble();
+		}else if(bubbleTextArea == 2){
+			replaceBubble(bubbleTextAreaId);
+		}
 		
+		event.preventDefault();
 		if($('.ui-button').css('display') != 'inline-block'){
 			imageMoveMode = 0;
 		}
@@ -146,11 +356,11 @@ $(function() {
 	$('#image_map_area').maxZIndex({inc:1});
 	
 	//저장 버튼 설정
-	$('.save_dialog').dialog({
-		autoOpen: false,
-		width: 'auto',
-		modal: true
-	});
+// 	$('.save_dialog').dialog({
+// 		autoOpen: false,
+// 		width: 'auto',
+// 		modal: true
+// 	});
 	
 	$('.e_dialog').dialog({
 		autoOpen: false,
@@ -159,15 +369,14 @@ $(function() {
 	});
 	
 });
-
 function imageWriteOnload(){
 	if(projectBoard == 1){
 		base_url = 'http://'+ location.host + '/GeoCMS';
 		upload_url = '/GeoPhoto/';
 		if(editUserYN != 1){
 			//ui 
-			$('#showInfoDiv').css('display','block');
-			$('.menuIcon').css('width','14%');
+// 			$('#showInfoDiv').css('display','block');
+// 			$('.menuIcon').css('width','14%');
 			$('.menuIconData').css('display', 'block');
 		}
 		getServer("", "");
@@ -180,7 +389,6 @@ function imageWriteOnload(){
 		loadExif(null);
 	}
 }
-
 function getOneImageData(){
 	var Url = '';
 	var param = '';
@@ -207,7 +415,6 @@ function getOneImageData(){
 			if(data.Code == 100){
 				var response = data.Data;
 				var tmpShareList = data.shareList;
-
 				if(response != null && response != ''){
 					response = response[0];
 					nowShareType = response.sharetype;
@@ -217,12 +424,19 @@ function getOneImageData(){
 					$('#content_area').val(response.content);
 					if(imgDroneType == 'Y'){
 						$('#droneTypeChk').attr('checked',true);
+					}else{
+						imgDroneType = 'N';
 					}
 					
 // 					var nowShareTypeText = nowShareType == 0? '비공개':nowShareType== 1? '전체공개':'특정인 공개';
 					var nowShareTypeText = nowShareType == 0? "private":nowShareType== 1? "public":"sharing with friends";
 					
 					$('#shareKindLabel').text(nowShareTypeText);
+					
+					$('#title_text').val(response.title);
+					$('#content_text').val(response.content);
+					$('#share_text').val(nowShareTypeText);
+					$('#drone_text').val(imgDroneType);
 					
 					$("input[name=shareRadio][value=" + nowShareType + "]").attr("checked", true);
 					
@@ -233,12 +447,11 @@ function getOneImageData(){
 					loadExif(response);
 				}
 			}else{
-				jAlert(data.Message, 'Info');
+// 				jAlert(data.Message, 'Info');
 			}
 		}
 	});
 }
-
 //초기 설정 데이터 불러오기
 function getBasePhoto() {
 	var Url			= baseRoot() + "cms/getbase";
@@ -260,12 +473,11 @@ function getBasePhoto() {
 					$('#googlemap').get(0).contentWindow.setDefaultData(dMarkerLat, dMarkerLng, dMapZoom);
 				}
 			}else{
-				jAlert(data.Message, 'Info');
+// 				jAlert(data.Message, 'Info');
 			}
 		}
 	});
 }
-
 //get server
 function getServer(rObj, tmpFileType){
 	var Url			= baseRoot() + "cms/selectServerList/";
@@ -298,7 +510,7 @@ function getServer(rObj, tmpFileType){
 				
 			}else if(data.Code != '200'){
 				b_serverPath = "upload";
-				jAlert(data.Message, 'Info');
+// 				jAlert(data.Message, 'Info');
 			}else{
 				b_serverPath = "upload";
 			}
@@ -318,7 +530,6 @@ function getServer(rObj, tmpFileType){
 		}
 	});
 }
-
 function getServerExif(rObj, tmpServerId, tmpServerPass, tmpServerPort){
 	if(rObj != null && rObj != ''){
 		imgDroneType = rObj.dronetype;
@@ -349,12 +560,10 @@ function getServerExif(rObj, tmpServerId, tmpServerPass, tmpServerPort){
 		});
 	}
 }
-
 function dataChangeClick(){
 	compHide();
 	$('#data_dialog').css('display','block');
 }
-
 function imgGetShareUser(){
 	contentViewDialog = jQuery.FrameDialog.create({
 		url: base_url+'/geoCMS/share.do?shareIdx='+ idx +'&shareKind=GeoPhoto',
@@ -366,15 +575,12 @@ function imgGetShareUser(){
 	contentViewDialog.dialog('widget').find('.ui-dialog-titlebar').remove();
 	contentViewDialog.dialog('open');
 }
-
 /* init_start ----- 사진 리사이즈 및 EXIF 불러오기 설정 ------------------------------------- */
-
 //on load function
 function imageWriteInit() {
 	//이미지 그리기
 	changeImageNomal();
 }
-
 function changeImageNomal() {
 	var img = new Image();
 	var tmpImageFileName = '';
@@ -429,11 +635,9 @@ function changeImageNomal() {
 			
 			//XML 로드
 			loadXML();
-
 		}
 	};
 }
-
 function toDataUrl() {
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', imageBaseUrl() + upload_url + file_url, false);
@@ -443,13 +647,11 @@ function toDataUrl() {
 	};
 	xhr.send();
 }
-
 function selectImageNow(){
 	imageSelectMode = 1;
 	nowX = event.pageX;
 	nowY = event.pageY;
 }
-
 function resizeImage(canvas_width, canvas_height, img_width, img_height, margin) {
 	var min; var max; var ratio;
 	if(img_width > img_height) { min = img_height; max = img_width; ratio = min / canvas_height; }
@@ -461,7 +663,6 @@ function resizeImage(canvas_width, canvas_height, img_width, img_height, margin)
 	result_arr.push(x); result_arr.push(y); result_arr.push(resize_width); result_arr.push(resize_height);
 	return result_arr;
 }
-
 function resizeImageNomal(canvas_width, canvas_height, img_width, img_height, margin) {
 	var min; var max; var ratio;
 	if(img_width>img_height) { min = img_height; max = img_width; ratio = (canvas_width-margin) / max; }
@@ -473,185 +674,25 @@ function resizeImageNomal(canvas_width, canvas_height, img_width, img_height, ma
 	return result_arr;
 }
 
-/* caption_start ----------------------------------- 자막 삽입 버튼 설정 ------------------------------------- */
-function inputCaption(id, text) {
-	compHide();
-	$('#caption_font_color').attr('disabled', true);
-	$('#caption_bg_color').attr('disabled', true);
-	
-	if(id==0 & text=="") {
-		//caption dialog 내부 객체 초기화
-		$('#caption_font_select').val('Normal'); $('#caption_font_color').val('#000000'); $('#caption_font_color').css('background-color', '#000000'); $('#caption_bg_color').val('#FFFFFF'); $('#caption_bg_color').css('background-color', '#FFFFFF'); $('input[name=caption_bg_checkbok]').attr('checked', true); $('#icp_caption_bg_color').removeAttr('onclick'); $('#caption_check').html('<input type="checkbox" id="caption_bold" style="display:none;"/><img src="<c:url value="/images/geoImg/write/bold_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_italic" style="display:none;" /><img src="<c:url value="/images/geoImg/write/italic_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_underline" style="display:none;" /><img src="<c:url value="/images/geoImg/write/underLine_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="caption_link" style="display:none;"/><img src="<c:url value="/images/geoImg/write/hyperLink_off.png"/>" '+icon_css+' onclick="captionCheck(this);">'); $('#caption_button').html('<button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="createCaption();">input</button>'); $('#caption_text').val('');
-	}
-	else {
-		//caption dialog 내부 객체 설정
-		var font_size = $('#f'+id).css('font-size');
-		
-		if(font_size == '14px') $('#caption_font_select').val('H3');
-		else if(font_size == '18px') $('#caption_font_select').val('H2');
-		else if(font_size == '22px') $('#caption_font_select').val('H1');
-		else $('#caption_font_select').val('Normal');
-		
-		var font_color = rgb2hex($('#f'+id).css('color')); 
-		$('#caption_font_color').val(font_color); 
-		$('#caption_font_color').css('background-color', font_color);
-		
-		var bg_color_value = $('#p'+id).css('backgroundColor'); 
-		var bg_color = '';
-
-		if(bg_color_value!='rgba(0, 0, 0, 0)') { bg_color = rgb2hex($('#p'+id).css('backgroundColor')); $('input[name=caption_bg_checkbok]').attr('checked', false); }
-		else { bg_color = '#FFFFFF'; $('input[name=caption_bg_checkbok]').attr('checked', true); }
-		
-		$('#caption_bg_color').val(bg_color); 
-		$('#caption_bg_color').css('background-color', bg_color);
-		
-		var check_html = ""; 
-		var html_text = $('#'+id).html();
-		var img_kind = 'off';
-		check_html += '<input type="checkbox" id="caption_bold" style="display:none;" ';
-		if(html_text.indexOf('<b id') != -1){
-			check_html += ' checked="checked" ';
-			img_kind = 'on';
-		}
-		check_html += ' /><img src="<c:url value="/images/geoImg/write/bold_'+img_kind+'.png"/>" '+icon_css+' onclick="captionCheck(this);">';
-		
-		img_kind = 'off';
-		check_html += '<input type="checkbox" id="caption_italic" style="display:none;"';
-		if(html_text.indexOf('<i id') != -1){
-			check_html += ' checked="checked" ';
-			img_kind = 'on';
-		}
-		check_html += ' /><img src="<c:url value="/images/geoImg/write/italic_'+img_kind+'.png"/>" '+icon_css+' onclick="captionCheck(this);">';
-		
-		img_kind = 'off';
-		check_html += '<input type="checkbox" id="caption_underline"  style="display:none;"';
-		if(html_text.indexOf('<u id') != -1){
-			check_html += ' checked="checked" ';
-			img_kind = 'on';
-		}
-		check_html += ' /><img src="<c:url value="/images/geoImg/write/underLine_'+img_kind+'.png"/>" '+icon_css+' onclick="captionCheck(this);">';
-		
-		img_kind = 'off';
-		check_html += '<input type="checkbox" id="caption_link" style="display:none;"';
-		if(html_text.indexOf('<a href') != -1){
-			check_html += ' checked="checked" ';
-			img_kind = 'on';
-		}
-		check_html += ' /><img src="<c:url value="/images/geoImg/write/hyperLink_'+img_kind+'.png"/>" '+icon_css+' onclick="captionCheck(this);">';
-		
-		$('#caption_check').html(check_html); 
-		$('#caption_text').val($('#p'+id).html()); 
-		$('#caption_button').html('<button id="caption_replace_btn" class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;">Modified</button>');
-		$('#caption_replace_btn').click(function() { replaceCaption(id); });
-	}
-	
-	document.getElementById('caption_dialog').style.display='block';
-}
-
-function checkCaption() {
-	if(!$('input[name=caption_bg_checkbok]').attr('checked')) { $('#icp_caption_bg_color').bind('click', function() { iColorShow('caption_bg_color','icp_caption_bg_color'); }); }
-	else { $('#icp_caption_bg_color').unbind('click'); }
-}
-
-var auto_caption_str;
-var auto_caption_num = 0;
-
-function createCaption() {
-	auto_caption_str = "c" + auto_caption_num;
-	
-	var font_size = $('#caption_font_select').val(); var font_color = $('#caption_font_color').val(); var bg_color = $('#caption_bg_color').val(); var bg_check = $('input[name=caption_bg_checkbok]').prop('checked'); var bold_check = $('#caption_bold').prop('checked'); var italic_check = $('#caption_italic').prop('checked'); var underline_check = $('#caption_underline').prop('checked'); var link_check = $('#caption_link').prop('checked'); var text = $('#caption_text').val();
-	if(bg_check==true) bg_color = '';
-	var html_text;
-	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+auto_caption_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+auto_caption_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+auto_caption_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
-	else html_text = '<font id="f'+auto_caption_str+'" style="color:'+font_color+';"><pre id="p'+auto_caption_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	//bold, italic, underline, hyperlink 설정
-
-	if(bold_check==true) html_text = '<b id="b'+auto_caption_str+'">'+html_text+'</b>';
-	if(italic_check==true) html_text = '<i id="i'+auto_caption_str+'">'+html_text+'</i>';
-	if(underline_check==true) html_text = '<u id="u'+auto_caption_str+'">'+html_text+'</u>';
-	if(link_check==true) {
-		if(html_text.indexOf('http://')== -1) html_text = '<a href="http://'+text+'" id="h'+auto_caption_str+'" target="_blank">'+html_text+'</a>';
-		else html_text = '<a href="'+text+'" id="h'+auto_caption_str+'" target="_blank">'+html_text+'</a>';
-	}
-	
-	var div_element = $(document.createElement('div'));
-	var left_str = $('#image_write_canvas_div').css('left');
-	var top_str = $('#image_write_canvas_div').css('top');
- 	var left_int = parseInt(left_str.replace('px',''))*-1;
- 	var top_int = parseInt(top_str.replace('px',''))*-1;
-	div_element.attr('id', auto_caption_str); div_element.attr('style', 'position:absolute; left:'+ left_int +'px; top:'+ top_int+'px; display:block;'); div_element.html(html_text); div_element.draggable(); div_element.dblclick(function() { inputCaption(div_element.attr('id'), text); }); 
-	div_element.appendTo('#image_write_canvas_div');
-	
-	$('#'+div_element.attr('id')).contextMenu('context1', {
-		bindings: {
-			'context_modify': function(t) { inputCaption(t.id, text); },
-// 			'context_delete': function(t) { jConfirm('정말 삭제하시겠습니까?', '정보', function(type){ if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
-			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
-		}
-	});
-	
-	auto_caption_num++;
-	
-	compHide();
-	
-	var data_arr = new Array();
-	data_arr.push(auto_caption_str); data_arr.push("Caption"); data_arr.push(text);
-	insertTableObject(data_arr);
-}
-
-function replaceCaption(id) {
-	var font_size = $('#caption_font_select').val();
-	var font_color = $('#caption_font_color').val();
-	var bg_color = $('#caption_bg_color').val();
-	var bg_check = $('input[name=caption_bg_checkbok]').prop('checked');
-	var bold_check = $('#caption_bold').prop('checked');
-	var italic_check = $('#caption_italic').prop('checked');
-	var underline_check = $('#caption_underline').prop('checked');
-	var link_check = $('#caption_link').prop('checked');
-	var text = $('#caption_text').val();
-	
-	if(bg_check==true) bg_color = ''; // 빨간색 넣으면 바로 변경되어 보여줌
-	
-	var html_text;
-	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+id+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+id+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+id+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
-	else html_text = '<font id="f'+id+'" style="color:'+font_color+';"><pre id="p'+id+'" style="background:'+bg_color+';">'+text+'</pre></font>';
-	
-	//bold, italic, underline, hyperlink 설정
-	if(bold_check==true) html_text = '<b id="b'+id+'">'+html_text+'</b>';
-	if(italic_check==true) html_text = '<i id="i'+id+'">'+html_text+'</i>';
-	if(underline_check==true) html_text = '<u id="u'+id+'">'+html_text+'</u>';
-	if(link_check==true) {
-		if(html_text.indexOf('http://')== -1) html_text = '<a href="http://'+text+'" id="h'+id+'" target="_blank">'+html_text+'</a>';
-		else html_text = '<a href="'+text+'" id="h'+id+'" target="_blank">'+html_text+'</a>';
-	}
-	
-	$('#a'+id).remove(); $('#u'+id).remove(); $('#i'+id).remove(); $('#b'+id).remove(); $('#f'+id).remove(); $('#p'+id).remove();
-	$('#'+id).html(html_text);
-	
-	compHide();
-	
-	var data_arr = new Array();
-	data_arr.push(id); data_arr.push("Caption"); data_arr.push(text);
-	replaceTableObject(data_arr);
-}
-
+/* bubble_start ----------------------------------- 말풍선 삽입 버튼 설정 ------------------------------------- */
+var bubbleTextArea = 0;
+var bubbleTextAreaId = 0;
 /* bubble_start ----------------------------------- 말풍선 삽입 버튼 설정 ------------------------------------- */
 function inputBubble(id, text) {
-	compHide();
-	
 	$('#bubble_font_color').attr('disabled', true);
 	$('#bubble_bg_color').attr('disabled', true);
 	
 	if(id==0 & text=="") {
 		//bubble dialog 내부 객체 초기화
 		$('#bubble_font_select').val('Normal'); $('#bubble_font_color').val('#000000'); $('#bubble_font_color').css('background-color', '#000000'); $('#bubble_bg_color').val('#FFFFFF'); $('#bubble_bg_color').css('background-color', '#FFFFFF'); $('input[name=bubble_bg_checkbok]').attr('checked', true); $('#icp_bubble_bg_color').removeAttr('onclick'); $('#bubble_check').html('<input type="checkbox" id="bubble_bold" style="display:none;"/><img src="<c:url value="/images/geoImg/write/bold_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_italic" style="display:none;" /><img src="<c:url value="/images/geoImg/write/italic_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_underline" style="display:none;" /><img src="<c:url value="/images/geoImg/write/underLine_off.png"/>" '+icon_css+' onclick="captionCheck(this);"><input type="checkbox" id="bubble_link" style="display:none;"/><img src="<c:url value="/images/geoImg/write/hyperLink_off.png"/>" '+icon_css+' onclick="captionCheck(this);">'); $('#bubble_button').html('<button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="createBubble();">input</button>'); $('#bubble_text').val('');
-	}
+		$('body').append('<textarea id="bubble_text" style="font-size:12px;border:solid 2px #777;position: absolute;left: 160px;top: 30px;width: 150px;height:50px;text-align:left;"></textarea>');
+		$("#bubble_text").resizable({
+		    maxWidth: 700,
+		    minHeight: 50,
+		    minWidth: 150
+		});
+		bubbleTextArea = 1;
+	}	
 	else {
 		//caption dialog 내부 객체 설정
 		var font_size = $('#f'+id).css('font-size');
@@ -701,11 +742,20 @@ function inputBubble(id, text) {
 		check_html += ' /><img src="<c:url value="/images/geoImg/write/hyperLink_'+img_kind+'.png"/>" '+icon_css+' onclick="captionCheck(this);">';
 		
 		$('#bubble_check').html(check_html);
-		$('#bubble_text').val($('#p'+id).html()); 
-		$('#bubble_button').html('<button id="bubble_replace_btn" class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;">Modified</button>');
-		$('#bubble_replace_btn').click(function() { replaceBubble(id); });
+		var tmpMinHeight = $('#'+id).height();
+		var tmpMinWidth = $('#'+id).width();
+		$('body').append('<textarea id="bubble_text" style="font-size:12px;border:solid 2px #777;position: absolute;left: '+ $('#p'+id).offset().left + 'px;top: '+ $('#p'+id).offset().top + 'px;width: '+ tmpMinWidth + 'px; height:'+ tmpMinHeight +'px;"></textarea>');
+		$("#bubble_text").resizable({
+		    maxWidth: 700,
+		    minHeight: 50,
+		    minWidth: 150
+		});
+		$('#bubble_text').val($('#p'+id).html());
+		
+		bubbleTextAreaId = id;
+		bubbleTextArea = 2;
 	}
-	
+	compHide();
 	document.getElementById('bubble_dialog').style.display='block';
 }
 
@@ -718,32 +768,53 @@ var auto_bubble_str;
 var auto_bubble_num = 0;
 function createBubble() {
 	auto_bubble_str = "b" + auto_bubble_num;
-	var font_size = $('#bubble_font_select').val(); var font_color = $('#bubble_font_color').val(); var bg_color = $('#bubble_bg_color').val(); var bg_check = $('input[name=bubble_bg_checkbok]').prop('checked'); var bold_check = $('#bubble_bold').prop('checked'); var italic_check = $('#bubble_italic').prop('checked'); var underline_check = $('#bubble_underline').prop('checked'); var link_check = $('#bubble_link').prop('checked'); var text = $('#bubble_text').val();
+	var font_size = $('#bubble_font_select').val(); var font_color = $('#bubble_font_color').val(); var bg_color = $('#bubble_bg_color').val(); var bg_check = $('input[name=bubble_bg_checkbok]').attr('checked'); var bold_check = $('#bubble_bold').attr('checked'); var italic_check = $('#bubble_italic').attr('checked'); var underline_check = $('#bubble_underline').attr('checked'); var link_check = $('#bubble_link').attr('checked'); var text = $('#bubble_text').val();
 	if(bg_check==true) bg_color = '';
 	var html_text;
+	
+	var tmpTextUri ='';
+	var tmpTextStr = '';
+	tmpTextStr = text;
+	if(text.indexOf('<href=') > -1 && text.indexOf('</href>') > -1){
+		tmpTextStr = text.substring(text.lastIndexOf('\">')+1);
+		tmpTextStr = tmpTextStr.substring(0, tmpTextStr.lastIndexOf('</href>'));
+		tmpTextUri = text.substring(text.indexOf('href=')+6);
+		tmpTextUri = tmpTextUri.substring(0, tmpTextUri.lastIndexOf('\">'));
+	}
 	//폰트, 색상 설정
-	if(font_size=='H3') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H2') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:18px;background:'+bg_color+';">'+text+'</pre></font>';
-	else if(font_size=='H1') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:22px;background:'+bg_color+';">'+text+'</pre></font>';
-	else html_text = '<font id="f'+auto_bubble_str+'" style="color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';">'+text+'</pre></font>';
+	if(font_size=='H3') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:14px;background:'+bg_color+';text-align:left;">'+tmpTextStr+'</pre></font>';
+	else if(font_size=='H2') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:18px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:18px;background:'+bg_color+';text-align:left;">'+tmpTextStr+'</pre></font>';
+	else if(font_size=='H1') html_text = '<font id="f'+auto_bubble_str+'" style="font-size:22px; color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="font-size:22px;background:'+bg_color+';text-align:left;">'+tmpTextStr+'</pre></font>';
+	else html_text = '<font id="f'+auto_bubble_str+'" style="color:'+font_color+';"><pre id="p'+auto_bubble_str+'" style="background:'+bg_color+';text-align:left;">'+text+'</pre></font>';
 	//bold, italic, underline, hyperlink 설정
 	if(bold_check==true) html_text = '<b id="b'+auto_bubble_str+'">'+html_text+'</b>';
 	if(italic_check==true) html_text = '<i id="i'+auto_bubble_str+'">'+html_text+'</i>';
 	if(underline_check==true) html_text = '<u id="u'+auto_bubble_str+'">'+html_text+'</u>';
 	if(link_check==true) {
-		if(html_text.indexOf('http://')== -1) html_text = '<a href="http://'+text+'" id="h'+auto_bubble_str+'" target="_blank">'+html_text+'</a>';
-		else html_text = '<a href="'+text+'" id="h'+auto_bubble_str+'" target="_blank">'+html_text+'</a>';
+		if(text.indexOf('<href=') > -1 && text.indexOf('</href>') > -1){
+			 html_text = '<a href="http://'+tmpTextUri+'" id="h'+auto_bubble_str+'" target="_blank">'+html_text+'</a>';
+		}else{
+			if(html_text.indexOf('http://')== -1) html_text = '<a href="http://'+tmpTextStr+'" id="h'+auto_bubble_str+'" target="_blank">'+html_text+'</a>';
+			else html_text = '<a href="'+tmpTextStr+'" id="h'+auto_bubble_str+'" target="_blank">'+html_text+'</a>';
+		}
+	}
+	var div_element = $(document.createElement('div'));
+	div_element.attr('id', auto_bubble_str); 
+	div_element.attr('style', 'position:absolute; left:160px; top:30px; display:block;');
+	div_element.html(html_text); 
+
+	compHide();
+	div_element.draggable(); //div_element.dblclick(function() { inputBubble(div_element.attr('id'), text); });
+	if(bubbleTextArea == 1){
+		bubbleTextArea = 0;
+		$('#bubble_text').remove();
+	}
+	if(text == null || text == 'null' || text == '' || text == undefined){
+		return;
 	}
 	
-	var div_element = $(document.createElement('div'));
-	var left_str = $('#image_write_canvas_div').css('left');
-	var top_str = $('#image_write_canvas_div').css('top');
- 	var left_int = parseInt(left_str.replace('px',''))*-1;
- 	var top_int = parseInt(top_str.replace('px',''))*-1;
-	div_element.attr('id', auto_bubble_str);
-	div_element.attr('style', 'position:absolute; left:'+ left_int +'px; top:'+ top_int + 'px; display:block;'); div_element.html(html_text); div_element.draggable(); div_element.dblclick(function() { inputBubble(div_element.attr('id'), text); }); 
 	div_element.appendTo('#image_write_canvas_div');
-
+	auto_bubble_num++;
 	$('#'+div_element.attr('id')).contextMenu('context1', {
 		bindings: {
 			'context_modify': function(t) { inputBubble(t.id, text); },
@@ -751,10 +822,6 @@ function createBubble() {
 			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ 	if(type) { $('#'+t.id).remove(); removeTableObject(t.id); } }); }
 		}
 	});
-	
-	auto_bubble_num++;
-
-	compHide();
 	
 	var data_arr = new Array();
 	data_arr.push(auto_bubble_str); data_arr.push("Bubble"); data_arr.push(text);
@@ -772,8 +839,18 @@ function replaceBubble(id) {
 	var link_check = $('#bubble_link').prop('checked');
 	var text = $('#bubble_text').val();
 	
-	if(bg_check==true) bg_color = '';
+	if(text == null || text == 'null' || text == '' || text == undefined){
+		compHide();
+		$('#'+id).remove();
+		if(bubbleTextArea == 2){
+			bubbleTextArea = 0;
+			$('#bubble_text').remove();
+		}
+		removeTableObject(id);
+		return;
+	}
 	
+	if(bg_check==true) bg_color = '';
 	var html_text;
 	//폰트, 색상 설정
 	if(font_size=='H3') html_text = '<font id="f'+id+'" style="font-size:14px; color:'+font_color+';"><pre id="p'+id+'" style="font-size:14px;background:'+bg_color+';">'+text+'</pre></font>';
@@ -788,12 +865,14 @@ function replaceBubble(id) {
 		if(html_text.indexOf('http://')== -1) html_text = '<a href="http://'+text+'" id="h'+id+'" target="_blank">'+html_text+'</a>';
 		else html_text = '<a href="'+text+'" id="h'+id+'" target="_blank">'+html_text+'</a>';
 	}
-	
 	$('#a'+id).remove(); $('#u'+id).remove(); $('#i'+id).remove(); $('#b'+id).remove(); $('#f'+id).remove(); $('#p'+id).remove();
 	$('#'+id).html(html_text);
 	
 	compHide();
-	
+	if(bubbleTextArea == 2){
+		bubbleTextArea = 0;
+		$('#bubble_text').remove();
+	}
 	var data_arr = new Array();
 	data_arr.push(id); data_arr.push("Bubble"); data_arr.push(text);
 	replaceTableObject(data_arr);
@@ -801,10 +880,14 @@ function replaceBubble(id) {
 
 /* icon_start ----------------------------------- 아이콘 & 이미지 삽입 버튼 설정 ------------------------------------- */
 function inputIcon() {
+	bubbleTextArea = 0;
 	compHide();
 	
 	for(var i=1; i<131; i++) {
 		$('#icon_img'+i).attr('src', '<c:url value="/images/geoImg/icon/black/d'+i+'.png"/>');
+		$('#icon_img'+i).css('height', '30px');
+		$('#icon_img'+i).css('width', '30px');
+		
 		$('#icon_img'+i).unbind('mouseover');
 		$('#icon_img'+i).bind('mouseover', function() {
 			var buf = this.id.split('icon_img');
@@ -835,7 +918,6 @@ function tabImage(num) {
 	}
 	else {}
 }
-
 //text icon change
 function captionCheck(obj){
 	if(obj.src.indexOf('off') > -1){
@@ -846,7 +928,6 @@ function captionCheck(obj){
 		$(obj).prev().attr('checked', false);
 	}
 }
-
 var auto_icon_str;
 var auto_icon_num = 0;
 function createIcon(img_src) {
@@ -882,23 +963,19 @@ function createIcon(img_src) {
 	data_arr.push(auto_icon_str); data_arr.push("Image"); data_arr.push(img_src);
 	insertTableObject(data_arr);
 }
-
-
 /* geo_start ----------------------------------- 지오매트리 삽입 버튼 설정 ------------------------------------- */
-
 function inputGeometry() {
+	bubbleTextArea = 0;
 	compHide();
 	$('#geometry_line_color').attr('disabled', true); $('#geometry_bg_color').attr('disabled', true); $('#geometry_line_color').val('#FF0000'); $('#geometry_line_color').css('background-color', '#FF0000'); $('#geometry_bg_color').val('#FF0000'); $('#geometry_bg_color').css('background-color', '#FF0000');
 	document.getElementById('geometry_dialog').style.display='block';
 }
-
 function setGeometry() {
 	var geo_type = $("input[name='geo_shape']:checked").val();
 	if(geo_type=='circle') { inputGeometryShape(1); }
 	else if(geo_type=='rect') { inputGeometryShape(2); }
 	else { inputGeometryShape(3); }
 }
-
 //Geometry Common Value
 var auto_geometry_str; var auto_geometry_num = 0; var geometry_point_arr_1 = new Array(); var geometry_point_arr_2 = new Array();
 var geometry_total_arr_1 = new Array(); var geometry_total_arr_2 = new Array();
@@ -907,7 +984,6 @@ var geometry_total_arr_buf_1 = new Array(); var geometry_total_arr_buf_2 = new A
 var geometry_click_move_val = false; var geometry_click_move_point_x = 0; var geometry_click_move_point_y = 0;
 //Geometry Point Value
 var geometry_point_before_x = 0; var geometry_point_before_y = 0; var geometry_point_num = 1;
-
 function inputGeometryShape(type) {
 	compHide();
 	imageMoveMode = 1;
@@ -1029,7 +1105,6 @@ function inputGeometryShape(type) {
 // 	$('.geometry_complete_button').height(30); $('.geometry_cancel_button').height(30);
 // 	$('.geometry_complete_button').css('fontSize', 12); $('.geometry_cancel_button').css('fontSize', 12);
 }
-
 function createGeometry(type) {
 	auto_geometry_str = "g" + auto_geometry_num;
 	
@@ -1079,7 +1154,6 @@ function createGeometry(type) {
 			'context_delete': function(t) { jConfirm('Are you sure you want to delete?', 'Info', function(type){ if(type) $('#'+t.id).remove(); removeTableObject(t.id); }); }
 		}
 	});
-
 	//canvas 객체에 Geometry 그리기
 	var canvas = $('#'+auto_geometry_str);
 	var context = canvas[0].getContext("2d");
@@ -1185,7 +1259,6 @@ function mouseeventGeometry(id, over, type) {
 		context.stroke();
 	}
 }
-
 function cancelGeometry() {
 	//데이터 초기화
 	$('.geometry_complete_button').remove(); $('.geometry_cancel_button').remove(); $('#geometry_draw_canvas').remove();
@@ -1193,16 +1266,13 @@ function cancelGeometry() {
 	geometry_click_move_val = false; geometry_click_move_point_x = 0; geometry_click_move_point_y = 0; geometry_point_before_x = 0; geometry_point_before_y = 0; geometry_point_num = 1;
 	imageMoveMode = 0;
 }
-
 /* exif_start ----------------------------------- EXIF 설정 ------------------------------------- */
 function loadExif(rObj) {
 	getServer(rObj, 'EXIF');
 }
-
 function saveExif() {
 	getServer("", "EXIFSAVE");
 }
-
 function saveExifFile(tmpServerId, tmpServerPass, tmpServerPort) {
 // 	var encode_file_name = encodeURIComponent(upload_url + file_url);
 // 	var encode_file_name = '';
@@ -1221,13 +1291,11 @@ function saveExifFile(tmpServerId, tmpServerPass, tmpServerPort) {
 	else data_text += "\<NONE\>\<LineSeparator\>";
 	if($('#lat_text').val()!='Not Found.') data_text += $('#lat_text').val() + "\<LineSeparator\>";
 // 	else data_text += "\<NONE\>";
-
 	else data_text += "\<NONE\>\<LineSeparator\>";
 // 	if($('#alt_text').val()!='Not Found.') data_text += $('#alt_text').val() + "\<LineSeparator\>";
 // 	else data_text += "\<NONE\>\<LineSeparator\>";
 	if($('#focal_text').val()!='Not Found.') data_text += $('#focal_text').val() + "\<LineSeparator\>";
 	else data_text += "\<NONE\>";
-
 	$.ajax({
 		type: 'POST',
 		url: '<c:url value="/geoExif.do"/>',
@@ -1238,7 +1306,6 @@ function saveExifFile(tmpServerId, tmpServerPass, tmpServerPort) {
 		success: function(data) { var response = data.trim(); jAlert('Saved successfully.', 'Info'); }
 	});
 }
-
 function exifSetting(data, rLon, rlat) {
 	var line_buf_arr = data.split("\<LineSeparator\>");
 	var line_data_buf_arr;
@@ -1312,13 +1379,11 @@ function exifSetting(data, rLon, rlat) {
 	//맵설정
 	reloadMap(2);
 }
-
 /* save_start ----------------------------------- 저장 버튼 및 불러오기 설정 ------------------------------------- */
 //저장 버튼 다이얼로그 오픈
-function saveSetting() {
-	$('#save_dialog').dialog('open');
-}
-
+// function saveSetting() {
+// 	$('#save_dialog').dialog('open');
+// }
 //저장 실행
 function saveImageWrite1(type) {
 	if(type == "1" || type == "2"){
@@ -1328,10 +1393,9 @@ function saveImageWrite1(type) {
 	}
 	
 }
-
 //저장 실행
 function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
-	$('#save_dialog').dialog('close');
+// 	$('#save_dialog').dialog('close');
 	
 	var obj_data_arr = new Array();
 	var html_text = '';
@@ -1341,7 +1405,6 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 		var obj = $('#image_write_canvas_div').children().eq(i);
 		var id = obj.attr('id');
 		if(id=='' || id == undefined) { obj = obj.children().eq(0); id = obj.attr('id'); }
-
 		if(id!='image_write_canvas') {
 			if(id.indexOf("c")!=-1) {
 				var obj_font = $('#f'+id);
@@ -1373,7 +1436,6 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 	}
 	var xml_text = makeXMLStr(obj_data_arr);
 	var encode_xml_text = encodeURIComponent(xml_text); // xml text encoding
-
 	var encode_file_name = upload_url + file_url;
 	encode_file_name = encode_file_name.substring(1, encode_file_name.lastIndexOf(".")+1) +"xml" ;
 	encode_file_name = encodeURIComponent(encode_file_name);
@@ -1559,7 +1621,6 @@ function saveImageWrite(type, tmpServerId, tmpServerPass, tmpServerPort) {
 					}
 				});				
 			}
-
 		}
 		
 	}
@@ -1573,7 +1634,6 @@ function saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort){
 // 	var imgUrls = "http://"+location.host + '/GeoPhoto/geoPhoto/image_viewer.do?file_url='+file_url;
 	var linkData = $('#copyUrlText').val();
 	var imgUrls = 'http://'+location.host + '/GeoPhoto/geoPhoto/image_url_viewer.do?urlData='+ linkData +'&linkType=CP2';
-
 	var obj_data_arr = new Array();
 	
 	var objCount = $('#image_write_canvas_div').children().size(); // 오브젝트 몇개인지파악(그림까지 포함이니 +1)
@@ -1581,7 +1641,6 @@ function saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort){
 		var obj = $('#image_write_canvas_div').children().eq(i);
 		var id = obj.attr('id');
 		if(id=='' || id == undefined) { obj = obj.children().eq(0); id = obj.attr('id'); }
-
 		if(id!='image_write_canvas') {
 			if(id.indexOf("c")!=-1) {
 				var obj_font = $('#f'+id);
@@ -1646,11 +1705,9 @@ function saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort){
 					
 					var imageU = canvas.toDataURL("image/png");
 					$('#image_write_canvas').attr('src', imageBaseUrl() + upload_url + file_url);
-
 					$('#image_main_area').prepend('<img src="'+ imageU +'" id="image_write_copy" style="position:absolute; top:50px; width:'+ (copyWidth/2)+'px; height:'+ (copyHeight/2)+'px; "></div>');
 					
 					element = $("#image_write_copy"); // global variable
-
 					html2canvas(element, {
 						useCORS: true,
 					   	onrendered: function (canvas) {
@@ -1665,7 +1722,6 @@ function saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort){
 			        
 			          var imgDataOrignU = data.split("/")[2];
 			          $('#imgDataOrign').val(imgDataOrignU);
-
 			          var iframe = $('<iframe name="postiframe" id="postiframe" style="display: none"></iframe>');
 			          $("body").append(iframe);
 			          
@@ -1694,7 +1750,6 @@ function saveImageWrite2(tmpServerId, tmpServerPass, tmpServerPort){
 		}
 	});	
 }
-
 function clearEdialog(){
 	$('#eml').val('');
 	$('#imgData').val('');
@@ -1707,7 +1762,6 @@ function clearEdialog(){
 	$('#sendMail_url').attr('checked',false);
 	$('#sendMail_capture').attr('checked',false);
 }
-
 function makeXMLStr(obj_data_arr) {
 	var xml_text = '<?xml version="1.0" encoding="utf-8"?>';
 	xml_text += "<GeoCMS>";
@@ -1848,7 +1902,6 @@ function autoCreateText(id, font_size, font_color, bg_color, bold, italic, under
 			img_kind = 'on'; 
 		}
 		check_html += ' /><img src="<c:url value="/images/geoImg/write/link_'+img_kind+'.png"/>" '+icon_css+' onclick="captionCheck(this);">';
-
 		$('#caption_check').html(check_html);
 		$('#caption_text').val(text);
 		
@@ -1901,14 +1954,20 @@ function autoCreateText(id, font_size, font_color, bg_color, bold, italic, under
 		
 		$('#bubble_check').html(check_html);
 		text = text.replace(/@line@/g, "\r\n");
+		$('body').append('<textarea id="bubble_text" style="font-size:12px;border:solid 2px #777;position: absolute;left: 160px;top: 30px;width: 150px;height:50px;text-align:left;"></textarea>');
+		$("#bubble_text").resizable({
+		    maxWidth: 700,
+		    minHeight: 50,
+		    minWidth: 150
+		});
 		$('#bubble_text').val(text);
 		
 		createBubble();
+		$('#bubble_text').remove();
 		var obj = $('#'+auto_bubble_str);
 		obj.attr('style', 'position:absolute; left:'+left+'px; top:'+top+'px; display:block;');
 	}
 }
-
 function loadXML() {
 	getServer("", 'XML');
 	
@@ -1973,7 +2032,6 @@ function loadXML() {
 // 		}
 // 	});
 }
-
 function loadXML2(tmpServerId, tmpServerPass, tmpServerPort) {
 	var file_arr = file_url.split(".");   		// ["/upload/20141201_140526", "jpg"]
 	var xml_file_name = file_arr[0] + '.xml';  		// "/upload/20141201_140526.xml"
@@ -2016,7 +2074,6 @@ function loadXML2(tmpServerId, tmpServerPass, tmpServerPort) {
 					else if(buf=='rect') type = 2;
 					else if(buf=='point') type = 3;
 					else {}
-					
 					var top = $(this).find('top').text();
 					var left = $(this).find('left').text();
 					var x_str = $(this).find('xstr').text();
@@ -2039,7 +2096,6 @@ function loadXML2(tmpServerId, tmpServerPass, tmpServerPort) {
 		}
 	});
 }
-
 /* exit_start ----------------------------------- 종료 버튼 설정 ------------------------------------- */
 function closeImageWrite() {
 // 	jConfirm('저작을 종료하시겠습니까?', '정보', function(type){
@@ -2047,7 +2103,6 @@ function closeImageWrite() {
 		if(type) { top.window.opener = top; top.window.open('','_parent',''); top.window.close(); }
 	});
 }
-
 /* map_start ----------------------------------- 맵 버튼 설정 ------------------------------------- */
 function reloadMap(type) {
 	var arr = readMapData();
@@ -2060,7 +2115,6 @@ function reloadMap(type) {
 		}
 	}
 }
-
 readMapData = function() {
 	var direction_str = $('#gps_direction_text').val();
 	var lon_text = $('#lon_text').val();
@@ -2077,22 +2131,23 @@ readMapData = function() {
 	buf_arr.push(focal_str);
 	return buf_arr;
 };
-
 function setExifData(lat_str, lng_str, direction) {
 	$('#lat_text').val(lat_str);
 	$('#lon_text').val(lng_str);
 	$('#gps_direction_text').val(direction);
 }
-
 /* ------------------- 공통 기능 ----------------- */
 //컴포넌트 숨기기
 function compHide() {
-	document.getElementById('caption_dialog').style.display='none';
 	document.getElementById('bubble_dialog').style.display='none';
 	document.getElementById('icon_dialog').style.display='none';
 	document.getElementById('geometry_dialog').style.display='none';
 	document.getElementById('data_dialog').style.display='none';
 	cancelGeometry();
+	
+	if(bubbleTextArea == 0){
+		$('#bubble_text').remove();
+	}
 }
 //맵 크기 조절
 var resize_map_state = 1;
@@ -2153,7 +2208,6 @@ function replaceTableObject(data_arr) {
 function removeTableObject(id) {
 	$('#obj_tr'+id).remove();
 }
-
 /* util_start ----------------------------------- Util ------------------------------------- */
 rgb2hex = function(rgb) 
 		  {
@@ -2175,11 +2229,9 @@ css3color = function(color, opacity) {
 	if(color.length==3) { var c1, c2, c3; c1 = color.substring(0, 1); c2 = color.substring(1, 2); c3 = color.substring(2, 3); color = c1 + c1 + c2 + c2 + c3 + c3; }
 	return 'rgba('+hex_to_decimal(color.substr(0,2))+','+hex_to_decimal(color.substr(2,2))+','+hex_to_decimal(color.substr(4,2))+','+opacity+')';
 };
-
 function sendMail() {
 	$('#e_dialog').dialog('open');
 }
-
 function dataURItoBlob(dataURI) {
     // convert base64/URLEncoded data component to raw binary data held in a string
     var byteString;
@@ -2196,7 +2248,6 @@ function dataURItoBlob(dataURI) {
     }
     return new Blob([ia], {type:mimeString});
 }
-
 //copy Url
 function getCopyUrlDecode(){
 	var Url			= baseRoot() + "cms/encrypt";
@@ -2229,7 +2280,6 @@ function getCopyUrlDecode(){
 		}
 	});
 }
-
 // function copyFn(CopyType){
 // 	var copyUrlData = $('#copyUrlText').val();
 // 	var copyUrlStr = 'http://'+location.host + '/GeoPhoto/geoPhoto/image_url_viewer.do?urlData='+ copyUrlData +'&linkType='+CopyType;
@@ -2239,7 +2289,6 @@ function getCopyUrlDecode(){
 // 	$('#copyUrlView').css('display','none');
 // 	jAlert('uri address copied.', 'Info');
 // }
-
 function getCopyUrl(){
 	$('#copyUrlText').val('');
 	var encrypText = 'file_url='+ file_url +'&loginId='+ loginId +'&idx='+ idx;
@@ -2262,7 +2311,6 @@ function getCopyUrl(){
 		}
 	});
 }
-
 // function markerNewGps(sType){
 // 	if(sType == 'open'){
 // 		changeGps = false; 
@@ -2281,38 +2329,102 @@ function getCopyUrl(){
 // 	$('#googlemap').get(0).contentWindow.defaultMarkerSet(sType);
 // }
 
+function exifViewFunction(sType){
+	if(sType == 'on'){
+		$('#exifViewOn').css('display','none');
+		$('#exifViewOff').css('display','block');
+		$('#image_exif_area').css('display','block');
+		$('#image_exif_area').maxZIndex({inc:1});
+// 		$('#image_map_area').css('top','220px');
+// 		$('#image_map_area').css('height','51%');
+	}else{
+		$('#exifViewOn').css('display','block');
+		$('#exifViewOff').css('display','none');
+		$('#image_exif_area').css('display','none');
+// 		$('#image_map_area').css('top','10px');
+// 		$('#image_map_area').css('height','94%');
+// 		$('#exifViewOn').maxZIndex({inc:1});
+	}
+}
+
+//right image infomation view type change
+function fnViewTabs(tempTabId){
+	$('.selectExifTabTitle').addClass('noSlectExifTabTitle');
+	$('.selectExifTabTitle').removeClass("selectExifTabTitle");
+	$('.selectExifTabChild').addClass('noSelectExifTabChild');
+	$('.selectExifTabChild').removeClass("selectExifTabChild");
+	
+	$('#tabs_'+tempTabId).removeClass('noSlectExifTabTitle');
+	$('#tabs_'+tempTabId).addClass('selectExifTabTitle');
+	
+	$('#tabsChild_'+tempTabId).removeClass("noSelectExifTabChild");
+	$('#tabsChild_'+tempTabId).addClass("selectExifTabChild");
+	
+}
+
+function closeBubbleConfirm(){
+	bubbleTextArea = 0;
+	compHide();
+}
 </script>
 </head>
-<body onload="imageWriteOnload();" style="overflow: hidden;">
+<body onload="imageWriteOnload();" style="overflow: hidden; margin: 0px;">
 
 <!------------------------------------------------------ 화면 영역 ----------------------------------------------------------->
 <!-- 저작 버튼 영역 -->
-<div class='image_write_function col_gray3' id="writer_menubar" style='position:absolute; left:10px; top:2px; width:1125px; height:65px; display:block;'>	
-	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/caption_btn.png'/>" onclick='inputCaption(0,"");' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
-	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/speech_btn.png'/>" onclick='inputBubble(0,"");' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
-	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/image_btn.png'/>" onclick='inputIcon();' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
-	<div style="width: 18%; float: left;" class="menuIcon"><img src="<c:url value='/images/geoImg/write/geo_btn.png'/>" onclick='inputGeometry();' style="cursor: pointer; width: 150px; height: 40px; margin-top: 10px; margin-left:3%;"></div>
-	<div style="width: 18%; float: left; display: none;" class="menuIcon menuIconData"><img src="<c:url value='/images/geoImg/write/data_btn.png'/>" onclick='dataChangeClick();' style="cursor: pointer; width: 30px; height: 40px; margin-top: 10px; margin-left:25%;"></div>
-	<input type="button" onclick='closeImageWrite();' class='close_btn' value="Close" style="margin:17px 15px 17px 5px";>
-	<input type="button" onclick='saveSetting();' class='save_btn' value="Export">
-	<input type="button" onclick='saveImageWrite1(2);' class='save_btn' value="Save">
+<div id="writerBtnViewOff" class="editorSideBar" style="height: 545px; width : 60px; font-size: 10px; background-color: #1e2b41; position: fixed; left: 0px; top: 0px;">
+	<div align="center" style="width:100%;height:30px; border-bottom: 1px solid #293B5A;color: #ffffff;text-align: center;font-weight: bold;font-size: 12px;">
+		<div class="menuIconText">EDITOR</div>
+	</div>
+	<div class="menuIcon" onclick='inputBubble(0,"");'>
+		<div class="btn_td" align="center">
+			<div style="margin-top: 10px;"><img class="editor_side_btn" src="<c:url value='/images/geoImg/write/editor_speech_bubble_icon.png'/>"></div>
+			<div class="menuIconText">
+				Speech<br>Bubble
+			</div>
+		</div>
+	</div>
+	<div class="menuIcon" onclick='inputIcon();'>
+		<div class="btn_td" align="center">
+			<div style="margin-top: 10px;"><img class="editor_side_btn" src="<c:url value='/images/geoImg/write/editor_image_icon.png'/>"></div>
+			<div class="menuIconText">
+				Image
+			</div>
+		</div>
+	</div>
+	<div class="menuIcon" onclick='inputGeometry();'>
+		<div class="btn_td" align="center">
+			<div style="margin-top: 10px;"><img class="editor_side_btn" src="<c:url value='/images/geoImg/write/editor_geometry_icon.png'/>" ></div>
+			<div class="menuIconText">
+				Geometry
+			</div>
+		</div>
+	</div>
+	<div class="menuIcon" onclick='dataChangeClick();'>
+		<div class="btn_td" align="center">
+			<div style="margin-top: 10px;"><img class="editor_side_btn" src="<c:url value='/images/geoImg/write/editor_data_icon.png'/>" ></div>
+			<div class="menuIconText">
+				Data
+			</div>
+		</div>
+	</div>
 </div>
 
 <!-- 저작 영역 -->
-<div id='image_main_area' style='position:absolute; left:10px; top:70px; width:780px; height:545px; display:block; border:1px solid #999999; overflow: hidden;'>
-	<div id="image_write_canvas_div" style="width:780px; height: 545px; left:0px; top:0px;position:absolute;background: #ffffff;"><img id='image_write_canvas'></img></div>
+<div id='image_main_area' style='position:absolute; left:60px; top:0px; width:780px; height:545px; display:block; border-right:1px solid #ebebeb; overflow: hidden;background-color: #000000;'>
+	<div id="image_write_canvas_div" style="width:780px; height: 545px; left:0px; top:0px;position:absolute;"><img id='image_write_canvas'></img></div>
 	<div class="viewerMoreL" style="display: none;"></div>
 	<div class="viewerMoreR" style="display: none;"></div>
 </div>
 
 <!-- 탭 , 공유 우저 영역 -->
-<div id="showInfoDiv" style="position:absolute; left:805px; top:13px; color:white; display: none; font-size:13px;">
-	<div style="margin-top: 5px;"> Sharing settings : <label id="shareKindLabel"></label></div>
-</div>
+<!-- <div id="showInfoDiv" style="position:absolute; left:805px; top:13px; color:white; display: none; font-size:13px;"> -->
+<!-- 	<div style="margin-top: 5px;"> Sharing settings : <label id="shareKindLabel"></label></div> -->
+<!-- </div> -->
 
 <!-- 객체추가리스트 -->
-<div id="ioa_title" style='position:absolute; left:800px; top:73px; width:330px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="객체추가리스트"></div>
-<div id='image_object_area' style='position:absolute; left:800px; top:92px; width:330px; height:225px; display:block; border:1px solid #999999; overflow-y:scroll;'>
+<div id="ioa_title" style='display:none; position:absolute; left:800px; top:73px; width:330px; height:245px;'><img src="<c:url value='/images/geoImg/title_02.jpg'/>" alt="객체추가리스트"></div>
+<div id='image_object_area' style='display:none; position:absolute; left:0px; top:560px; width:330px; height:225px;border:1px solid #999999; overflow-y:scroll;'>
 	<table id='object_table'>
 		<tr style='font-size:12px; height:20px;' class='col_black'>
 			<td width=50 class='anno_head_tr'>ID</td>
@@ -2323,16 +2435,74 @@ function getCopyUrl(){
 </div>
 
 <!-- 저작 설정 영역 -->
-<div id='image_sub_area' style='position:absolute; left:10px; top:623px; width:780px; height:195px; display:block; border:1px solid #999999;'>
-</div>
+<!-- <div id='image_sub_area' style='position:absolute; left:10px; top:623px; width:780px; height:195px; display:block; border:1px solid #999999;'> -->
+<!-- </div> -->
 
-<!-- EXIF 영역 -->
-<div id="ex_title"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:800px; top:325px;' alt="이미지정보"></div>
-<div id='image_exif_area' style='position:absolute; left:800px; top:345px; width:330px; height:185px; display:block; /*border:1px solid #999999;*/'>
-</div>
+<!-- EXIF 삽입 다이얼로그 객체 -->
+<!-- <div id='exif_dialog' style='position:absolute; left:800px; top:310px; width:300px; height:200px; border:1px solid #999999; display:block; font-size:13px;'> -->
+	<div style="position:absolute; left:841px; top:0px; width:292px; display:block; font-size:13px; height: 30px; border-bottom : 1px solid #ebebeb;">
+		<label style="padding: 5px 10px;line-height: 30px;font-size: 13px;">Image Infomation</label>
+		<button id="exifViewOff" class="smallWhiteBtn" onclick="exifViewFunction('off');" style="display:none; float: right;height:20px; margin: 5px 10px;" align="center">HIDE</button>
+		<button id="exifViewOn" class="smallWhiteActiveBtn" onclick="exifViewFunction('on');" style="display:block;height:20px;float: right;margin: 5px 10px;" align="center">SHOW</button>
+	</div>
+	<div id='image_exif_area' style='width: 292px; background: #ffffff;position: absolute;top: 31px;border-bottom: 1px solid rgb(235, 235, 235);left: 841px;z-index:2;'>
+		<!-- EXIF 삽입 다이얼로그 객체 -->
+		<table style="width: 100%;">
+			<tr>
+				<td id="tabs_1" onclick="fnViewTabs(1);" class="infoTabs selectExifTabTitle">
+					<label style="padding: 5px;display: inline-block;">Data Info</label>
+				</td>
+				<td id="tabs_2" onclick="fnViewTabs(2);" class="infoTabs noSlectExifTabTitle" style="width:40%;">
+					<label style="padding: 5px;display: inline-block;">EXIF GPS Info</label>
+				</td>
+				<td style="padding: 0px; width:27%;border-bottom: 1px solid #ebebeb;">
+					<div id="tabs_3"></div>
+				</td>
+			</tr>
+		</table>
+		<div id="tabsChild_1" style='height: 195px;' class="selectExifTabChild">
+			<table id='normal_exif_table' style="margin-top: 10px;">
+				<tr><td width='15'></td><td width='80'><label class="tableLabel">Title</label></td><td width='160'><input class="normalTextInput" id='title_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'></td><td width='80'><label class="tableLabel">Content</label></td><td width='160'><textarea class="normalTextInput" id='content_text' name='text' style='font-size:12px;width: 98%;height: 50px;' readonly></textarea></td></tr>
+				<tr><td width='15'></td><td width='80'><label class="tableLabel">Sharing settings</label></td><td width='160'><input class="normalTextInput" id='share_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'></td><td width='80'><label class="tableLabel">Drone Type</label></td><td width='160'><input class="normalTextInput" id='drone_text' name='text' type='text' readonly/></td></tr>
+			</table>
+		</div>
+		<div id="tabsChild_2" style='height: 235px; overflow-y:scroll;' class="noSelectExifTabChild">
+			<table id='gps_exif_table' style="margin-top: 10px;">
+				<tr><td width='15'></td><td width='80'><label class="tableLabel">Speed</label></td><td width='160'><input class="normalTextInput" id='speed_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'></td><td><label class="tableLabel">Altitude</label></td><td><input class="normalTextInput" id='alt_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'></td><td><label class="tableLabel">GPS Direction</label></td><td><input class="normalTextInput" id='gps_direction_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'></td><td><label class="tableLabel">Longitude</label></td><td><input class="normalTextInput" id='lon_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'></td><td><label class="tableLabel">Latitude</label></td><td><input class="normalTextInput" id='lat_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'></td><td width='80'><label class="tableLabel">Make</label></td><td width='160'><input class="normalTextInput" id='make_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Model</label></td><td><input class="normalTextInput" id='model_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Date Time</label></td><td><input class="normalTextInput" id='date_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Flash</label></td><td><input class="normalTextInput" id='flash_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Shutter Speed</label></td><td><input class="normalTextInput" id='shutter_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Aperture</label></td><td><input class="normalTextInput" id='aperture_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Max Aperture</label></td><td><input class="normalTextInput" id='m_aperture_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Focal Length</label></td><td><input class="normalTextInput" id='focal_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Digital Zoom</label></td><td><input class="normalTextInput" id='zoom_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">White Balance</label></td><td><input class="normalTextInput" id='white_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">Brightness</label></td><td><input class="normalTextInput" id='bright_text' name='text' type='text' readonly/></td></tr>
+				<tr><td width='15'><td><label class="tableLabel">User Comment</label></td><td><input class="normalTextInput" id='comment_text' name='text' type='text' readonly/></td></tr>
+			</table>
+		</div>
+	</div>
+<!-- </div> -->
 
 <!-- 지도 영역 -->
-<div id="ima_title"><img src="<c:url value='/images/geoImg/write/title_04.gif'/>" style='position:absolute; left:802px; top:557px;' alt="지도"></div>
+<div id='image_map_area' style='position: absolute;left: 841px;top: 31px;width: 292px;height: 514px;display: block;z-index: 1;'>
+	<iframe id='googlemap' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
+</div>
+<!-- EXIF 영역 -->
+<%-- <div id="ex_title"><img src="<c:url value='/images/geoImg/title_03.gif'/>" style='position:absolute; left:800px; top:325px;' alt="이미지정보"></div> --%>
+<!-- <div id='image_exif_area' style='position:absolute; left:800px; top:345px; width:330px; height:185px; display:block; /*border:1px solid #999999;*/'> -->
+<!-- </div> -->
+
+<!-- 지도 영역 -->
+<%-- <div id="ima_title"><img src="<c:url value='/images/geoImg/write/title_04.gif'/>" style='position:absolute; left:802px; top:557px;' alt="지도"></div> --%>
 
 <!-- <div class="imgModeCls1" onclick="markerNewGps('open');" style='position:absolute;left: 872px;top: 555px;font-size: 14px;background-color: #066ab0;color: #ffffff;line-height: 18px; -->
 <!-- 	height: 23px;width: 80px;text-align: center;border-radius: 3px;'>gps setting</div> -->
@@ -2341,12 +2511,6 @@ function getCopyUrl(){
 <!-- <div class="imgModeCls2" id="morkerModeCancel" onclick="markerNewGps('cancel');" style="display: none;height: 23px;width: 50px;position: absolute;left: 1082px;top: 555px;z-index: 9; -->
 <!-- 		background-color: rgb(68, 68, 68);text-align: center;cursor: pointer;font-size: 14px;color: rgb(255, 255, 255);border-radius: 3px; line-height: 20px;">Cancel</div> -->
 	
-<div id='image_map_area' style='position:absolute; left:800px; top:580px; width:330px; height:240px; display:block;'>
-	<iframe id='googlemap' src='<c:url value="/geoPhoto/image_googlemap.do"/>' style='width:100%; height:100%; margin:1px; border:none;'></iframe>
-	<div id='resize_map_btn' onclick='resizeMap();' style='position:absolute; left:0px; top:0px; width:30px; height:30px; cursor:pointer; background-image:url(<c:url value="/images/geoImg/icon_map_max.jpg"/>)'>
-	</div>
-</div>
-
 
 
 <!----------------------------------------------------- 서브 영역 ------------------------------------------------------------->
@@ -2372,138 +2536,92 @@ function getCopyUrl(){
 	</div>
 </div>
 
-<!-- Bubble 삽입 다이얼로그 객체 -->
-<div id='bubble_dialog' style='position:absolute; left:120px; top:630px; width:560px; height:180px; border:1px solid #999999; display:none;'>
+<!----------------------------------------------------- 서브 영역 ------------------------------------------------------------->
+
+<!-- 말풍선 삽입 다이얼로그 객체 -->
+<div id='bubble_dialog' style='display:none; position: absolute;left: 60px;top: 465px; background-color: rgb(229, 229, 229);width: 778px; border: 1px solid #ebebeb;'>
 	<div style='display:table; width:100%; height:100%;'>
-		<div align="center" style='display:table-cell; vertical-align:middle;'>
-			<table border='0' style="width:520px;">
-				<tr><td width=65><label style="font-size:12px;">Font Size : </label></td>
-				<td><select id="bubble_font_select" style="font-size:12px;"><option>Normal<option>H3<option>H2<option>H1</select></td>
-				<td><label style="font-size:12px;">Font Color : </label></td>
-				<td><input id="bubble_font_color" type="text" class="iColorPicker" value="#FFFFFF" style="width:50px;"/></td>
-				<td><label style="font-size:12px;">BG Color : </label></td>
-				<td><input id="bubble_bg_color" type="text" class="iColorPicker" value="#000000" style="width:50px;"/></td>
-				<td id='bubble_checkbox_td'><input type="checkbox" name="bubble_bg_checkbok" onclick="checkBubble();"/><label style=" font-size:12px;">Transparency</label></td></tr>
-				<tr><td colspan='7' id='bubble_check'></td></tr>
-				<tr class='lineTr'><td colspan='7'><hr/></td></tr>
-				<tr><td colspan='5'><textarea id="bubble_text" rows="3" style="width:90%; font-size:12px; border:solid 2px #777;"></textarea></td>
-				<td colspan='2' align='center' id='bubble_button'></td></tr>
+		<div align="left" style='display:table-cell; vertical-align:middle;'>
+			<table border='0' style="width: 100%;">
+				<tr>
+					<td width=65 style="padding-left: 20px;"><label style="font-size:12px;font-weight: bold;">Font Size  </label></td>
+					<td><select id="bubble_font_select" style="font-size:12px;width: 100px;"><option>Normal<option>H3<option>H2<option>H1</select></td>
+					<td><label style="font-size:12px;margin-left: 15px;font-weight: bold;">Font Color  </label></td>
+					<td><input id="bubble_font_color" type="text" class="iColorPicker" value="#FFFFFF" style="width: 100px;background-color: rgb(0, 0, 0); margin-left: 5px;text-align: center;"/></td>
+					<td><label style="font-size:12px;margin-left: 15px;font-weight: bold;">BG Color  </label></td>
+					<td><input id="bubble_bg_color" type="text" class="iColorPicker" value="#000000" style="width: 100px;background-color: rgb(255, 255, 255);margin-left: 5px; text-align: center;"/></td>
+					<td id='bubble_checkbox_td'><input type="checkbox" name="bubble_bg_checkbok" style="margin-left: 20px;font-weight: bold;" onclick="checkBubble();"/><label style=" font-size:12px;">Transparency</label></td>
+					<td rowspan="3" style="width: 30px;background-color: #ffffff;margin-left: 50px;font-size: 20px;text-align: center; cursor: pointer;" onclick="closeBubbleConfirm();">x</td>
+				</tr>
+				<tr style="height: 1px;border-bottom: 1px solid #999999;"><td colspan='7'></td></tr>
+				<tr><td colspan='7' id='bubble_check' style="padding: 5px 20px;"></td></tr>
 			</table>
 		</div>
 	</div>
 </div>
 
-<!-- 아미지 삽입 다이얼로그 객체 -->
-<div id='icon_dialog' style='position:absolute; left:150px; top:645px; width:500px; height:175px; border:1px solid #999999; display:none;'>
-	<div style='position:absolute; left:5px; top:-15px;'>
-		<button class="ui-state-default" style="width:80px; height:30px; font-size:12px;" onclick="tabImage(1);">Icon</button>
-		<button class="ui-state-default" style="width:80px; height:30px; font-size:12px;" onclick="tabImage(2);">Image</button>
-	</div>
-	<div id='icon_div1' style='position:absolute; left:15px; top:20px; width:465px; height:150px; background-color:#999; border:1px solid #999999; overflow-y:scroll; display:block;'>
+<!-- 이미지 삽입 다이얼로그 객체 -->
+<div id='icon_dialog' style='display:none; position: absolute;left: 61px;top: 465px;background-color: rgb(229, 229, 229);width: 778px;'>
+	<div id='icon_div1' style='position:absolute; width:750px; height:80px; background-color: rgb(229, 229, 229);overflow-x:auto;'>
 		<table id='icon_table1' border="0">
-			<tr><td><img id='icon_img1' src=''></td><td><img id='icon_img2' src=''></td><td><img id='icon_img3' src=''></td><td><img id='icon_img4' src=''></td><td><img id='icon_img5' src=''></td><td><img id='icon_img6' src=''></td><td><img id='icon_img7' src=''></td><td><img id='icon_img8' src=''></td><td><img id='icon_img9' src=''></td><td><img id='icon_img10' src=''></td></tr>
-			<tr><td><img id='icon_img11' src=''></td><td><img id='icon_img12' src=''></td><td><img id='icon_img13' src=''></td><td><img id='icon_img14' src=''></td><td><img id='icon_img15' src=''></td><td><img id='icon_img16' src=''></td><td><img id='icon_img17' src=''></td><td><img id='icon_img18' src=''></td><td><img id='icon_img19' src=''></td><td><img id='icon_img20' src=''></td></tr>
-			<tr><td><img id='icon_img21' src=''></td><td><img id='icon_img22' src=''></td><td><img id='icon_img23' src=''></td><td><img id='icon_img24' src=''></td><td><img id='icon_img25' src=''></td><td><img id='icon_img26' src=''></td><td><img id='icon_img27' src=''></td><td><img id='icon_img28' src=''></td><td><img id='icon_img29' src=''></td><td><img id='icon_img30' src=''></td></tr>
-			<tr><td><img id='icon_img31' src=''></td><td><img id='icon_img32' src=''></td><td><img id='icon_img33' src=''></td><td><img id='icon_img34' src=''></td><td><img id='icon_img35' src=''></td><td><img id='icon_img36' src=''></td><td><img id='icon_img37' src=''></td><td><img id='icon_img38' src=''></td><td><img id='icon_img39' src=''></td><td><img id='icon_img40' src=''></td></tr>
-			<tr><td><img id='icon_img41' src=''></td><td><img id='icon_img42' src=''></td><td><img id='icon_img43' src=''></td><td><img id='icon_img44' src=''></td><td><img id='icon_img45' src=''></td><td><img id='icon_img46' src=''></td><td><img id='icon_img47' src=''></td><td><img id='icon_img48' src=''></td><td><img id='icon_img49' src=''></td><td><img id='icon_img50' src=''></td></tr>
-			<tr><td><img id='icon_img51' src=''></td><td><img id='icon_img52' src=''></td><td><img id='icon_img53' src=''></td><td><img id='icon_img54' src=''></td><td><img id='icon_img55' src=''></td><td><img id='icon_img56' src=''></td><td><img id='icon_img57' src=''></td><td><img id='icon_img58' src=''></td><td><img id='icon_img59' src=''></td><td><img id='icon_img60' src=''></td></tr>
-			<tr><td><img id='icon_img61' src=''></td><td><img id='icon_img62' src=''></td><td><img id='icon_img63' src=''></td><td><img id='icon_img64' src=''></td><td><img id='icon_img65' src=''></td><td><img id='icon_img66' src=''></td><td><img id='icon_img67' src=''></td><td><img id='icon_img68' src=''></td><td><img id='icon_img69' src=''></td><td><img id='icon_img70' src=''></td></tr>
-			<tr><td><img id='icon_img71' src=''></td><td><img id='icon_img72' src=''></td><td><img id='icon_img73' src=''></td><td><img id='icon_img74' src=''></td><td><img id='icon_img75' src=''></td><td><img id='icon_img76' src=''></td><td><img id='icon_img77' src=''></td><td><img id='icon_img78' src=''></td><td><img id='icon_img79' src=''></td><td><img id='icon_img80' src=''></td></tr>
-			<tr><td><img id='icon_img81' src=''></td><td><img id='icon_img82' src=''></td><td><img id='icon_img83' src=''></td><td><img id='icon_img84' src=''></td><td><img id='icon_img85' src=''></td><td><img id='icon_img86' src=''></td><td><img id='icon_img87' src=''></td><td><img id='icon_img88' src=''></td><td><img id='icon_img89' src=''></td><td><img id='icon_img90' src=''></td></tr>
-			<tr><td><img id='icon_img91' src=''></td><td><img id='icon_img92' src=''></td><td><img id='icon_img93' src=''></td><td><img id='icon_img94' src=''></td><td><img id='icon_img95' src=''></td><td><img id='icon_img96' src=''></td><td><img id='icon_img97' src=''></td><td><img id='icon_img98' src=''></td><td><img id='icon_img99' src=''></td><td><img id='icon_img100' src=''></td></tr>
-			<tr><td><img id='icon_img101' src=''></td><td><img id='icon_img102' src=''></td><td><img id='icon_img103' src=''></td><td><img id='icon_img104' src=''></td><td><img id='icon_img105' src=''></td><td><img id='icon_img106' src=''></td><td><img id='icon_img107' src=''></td><td><img id='icon_img108' src=''></td><td><img id='icon_img109' src=''></td><td><img id='icon_img110' src=''></td></tr>
-			<tr><td><img id='icon_img111' src=''></td><td><img id='icon_img112' src=''></td><td><img id='icon_img113' src=''></td><td><img id='icon_img114' src=''></td><td><img id='icon_img115' src=''></td><td><img id='icon_img116' src=''></td><td><img id='icon_img117' src=''></td><td><img id='icon_img118' src=''></td><td><img id='icon_img119' src=''></td><td><img id='icon_img120' src=''></td></tr>
-			<tr><td><img id='icon_img121' src=''></td><td><img id='icon_img122' src=''></td><td><img id='icon_img123' src=''></td><td><img id='icon_img124' src=''></td><td><img id='icon_img125' src=''></td><td><img id='icon_img126' src=''></td><td><img id='icon_img127' src=''></td><td><img id='icon_img128' src=''></td><td><img id='icon_img129' src=''></td><td><img id='icon_img130' src=''></td></tr>
-		</table>
-	</div>
-
-	<div id='icon_div2' style='position:absolute; left:15px; top:20px; width:465px; height:150px; background-color:#999; border:1px solid #999999; overflow-y:scroll; display:none;'>
-		<table id='icon_table2' border="1">
 			<tr>
-				<td>이미지 검색 바 위치</td>
+				<td><img id='icon_img1' src=''></td><td><img id='icon_img2' src=''></td><td><img id='icon_img3' src=''></td><td><img id='icon_img4' src=''></td><td><img id='icon_img5' src=''></td><td><img id='icon_img6' src=''></td><td><img id='icon_img7' src=''></td><td><img id='icon_img8' src=''></td><td><img id='icon_img9' src=''></td><td><img id='icon_img10' src=''></td><td><img id='icon_img11' src=''></td><td><img id='icon_img12' src=''></td><td><img id='icon_img13' src=''></td><td><img id='icon_img14' src=''></td><td><img id='icon_img15' src=''></td><td><img id='icon_img16' src=''></td><td><img id='icon_img17' src=''></td><td><img id='icon_img18' src=''></td><td><img id='icon_img19' src=''></td><td><img id='icon_img20' src=''></td>
+				<td><img id='icon_img21' src=''></td><td><img id='icon_img22' src=''></td><td><img id='icon_img23' src=''></td><td><img id='icon_img24' src=''></td><td><img id='icon_img25' src=''></td><td><img id='icon_img26' src=''></td><td><img id='icon_img27' src=''></td><td><img id='icon_img28' src=''></td><td><img id='icon_img29' src=''></td><td><img id='icon_img30' src=''></td><td><img id='icon_img31' src=''></td><td><img id='icon_img32' src=''></td><td><img id='icon_img33' src=''></td><td><img id='icon_img34' src=''></td><td><img id='icon_img35' src=''></td><td><img id='icon_img36' src=''></td><td><img id='icon_img37' src=''></td><td><img id='icon_img38' src=''></td><td><img id='icon_img39' src=''></td><td><img id='icon_img40' src=''></td>
+				<td><img id='icon_img41' src=''></td><td><img id='icon_img42' src=''></td><td><img id='icon_img43' src=''></td><td><img id='icon_img44' src=''></td><td><img id='icon_img45' src=''></td><td><img id='icon_img46' src=''></td><td><img id='icon_img47' src=''></td><td><img id='icon_img48' src=''></td><td><img id='icon_img49' src=''></td><td><img id='icon_img50' src=''></td><td><img id='icon_img51' src=''></td><td><img id='icon_img52' src=''></td><td><img id='icon_img53' src=''></td><td><img id='icon_img54' src=''></td><td><img id='icon_img55' src=''></td><td><img id='icon_img56' src=''></td><td><img id='icon_img57' src=''></td><td><img id='icon_img58' src=''></td><td><img id='icon_img59' src=''></td><td><img id='icon_img60' src=''></td>
+				<td><img id='icon_img61' src=''></td><td><img id='icon_img62' src=''></td><td><img id='icon_img63' src=''></td><td><img id='icon_img64' src=''></td><td><img id='icon_img65' src=''></td><td><img id='icon_img66' src=''></td><td><img id='icon_img67' src=''></td><td><img id='icon_img68' src=''></td><td><img id='icon_img69' src=''></td><td><img id='icon_img70' src=''></td><td><img id='icon_img71' src=''></td><td><img id='icon_img72' src=''></td><td><img id='icon_img73' src=''></td><td><img id='icon_img74' src=''></td><td><img id='icon_img75' src=''></td>
 			</tr>
 			<tr>
-				<td>이미지 검색 결과 위치</td>
+				<td><img id='icon_img76' src=''></td><td><img id='icon_img77' src=''></td><td><img id='icon_img78' src=''></td><td><img id='icon_img79' src=''></td><td><img id='icon_img80' src=''></td>
+				<td><img id='icon_img81' src=''></td><td><img id='icon_img82' src=''></td><td><img id='icon_img83' src=''></td><td><img id='icon_img84' src=''></td><td><img id='icon_img85' src=''></td><td><img id='icon_img86' src=''></td><td><img id='icon_img87' src=''></td><td><img id='icon_img88' src=''></td><td><img id='icon_img89' src=''></td><td><img id='icon_img90' src=''></td><td><img id='icon_img91' src=''></td><td><img id='icon_img92' src=''></td><td><img id='icon_img93' src=''></td><td><img id='icon_img94' src=''></td><td><img id='icon_img95' src=''></td><td><img id='icon_img96' src=''></td><td><img id='icon_img97' src=''></td><td><img id='icon_img98' src=''></td><td><img id='icon_img99' src=''></td><td><img id='icon_img100' src=''></td>
+				<td><img id='icon_img101' src=''></td><td><img id='icon_img102' src=''></td><td><img id='icon_img103' src=''></td><td><img id='icon_img104' src=''></td><td><img id='icon_img105' src=''></td><td><img id='icon_img106' src=''></td><td><img id='icon_img107' src=''></td><td><img id='icon_img108' src=''></td><td><img id='icon_img109' src=''></td><td><img id='icon_img110' src=''></td><td><img id='icon_img111' src=''></td><td><img id='icon_img112' src=''></td><td><img id='icon_img113' src=''></td><td><img id='icon_img114' src=''></td><td><img id='icon_img115' src=''></td><td><img id='icon_img116' src=''></td><td><img id='icon_img117' src=''></td><td><img id='icon_img118' src=''></td><td><img id='icon_img119' src=''></td><td><img id='icon_img120' src=''></td>
+				<td><img id='icon_img121' src=''></td><td><img id='icon_img122' src=''></td><td><img id='icon_img123' src=''></td><td><img id='icon_img124' src=''></td><td><img id='icon_img125' src=''></td><td><img id='icon_img126' src=''></td><td><img id='icon_img127' src=''></td><td><img id='icon_img128' src=''></td><td><img id='icon_img129' src=''></td><td><img id='icon_img130' src=''></td>
 			</tr>
 		</table>
 	</div>
+	<div style="width: 30px;background-color: #ffffff;font-size: 20px;text-align: center;cursor: pointer;position: absolute;left: 751px;top: 0px;height: 80px;line-height: 80px;" onclick="closeBubbleConfirm();">x</div>
 </div>
 
 <!-- Geometry 삽입 다이얼로그 객체 -->
-<div id='geometry_dialog' style='position:absolute; left:150px; top:650px; width:500px; height:140px; border:1px solid #999999; display:none;'>
+<div id='geometry_dialog' style='display:none; position: absolute;left: 61px;top: 508px;background-color: rgb(229, 229, 229);width: 778px; border: 1px solid #ebebeb;'>
 	<div style='display:table; width:100%; height:100%;'>
 		<div align="center" style='display:table-cell; vertical-align:middle;'>
-			<table id='geometry_table' border="0" style="width: 460px;">
+			<table id='geometry_table' border="0" style="width: 100%;">
 				<tr>
-					<td><label style="font-size:12px;">Shape Style : </label>
-					<input type='radio' name='geo_shape' value='circle'><label style="font-size:12px;">Circle</label>
-					<input type='radio' name='geo_shape' value='rect' checked><label style="font-size:12px;">Rect</label>
-					<input type='radio' name='geo_shape' value='point'><label style="font-size:12px;">Point</label></td>
-					<td width='20'></td>
-					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">Confirm</button></td>
-				</tr>
-				<tr><td><hr/></td><td width='20'></td></tr>
-				<tr>
-					<td><label style="font-size:12px;">Line Color : </label>
-					<input id="geometry_line_color" type="text" class="iColorPicker" value="#FF0000" style="width:50px;"/>
+					<td style="padding:5px 15px;"><label style="font-size:12px;">Line Color  </label>
+					<input id="geometry_line_color" type="text" class="iColorPicker" value="#999999" style="width:80px; margin-left: 8px;"/>
 					&nbsp;&nbsp;&nbsp;
-					<label style="font-size:12px;">MouseOver Color : </label>
-					<input id="geometry_bg_color" type="text" class="iColorPicker" value="#FF0000" style="width:50px;"/></td>
-					<td width='20'></td>
+					<label style="font-size:12px;">MouseOver Color  </label>
+					<input id="geometry_bg_color" type="text" class="iColorPicker" value="#FF0000" style="width:80px; margin-left: 8px;"/></td>
+					
+					<td><label style="font-size:12px;">Shape Style  </label>
+					<input type='radio' name='geo_shape' value='circle' onclick="setGeometry();"><label style="font-size:12px;">Circle</label>
+					<input type='radio' name='geo_shape' value='rect' onclick="setGeometry();"><label style="font-size:12px;">Rect</label>
+					<input type='radio' name='geo_shape' value='point' onclick="setGeometry();"><label style="font-size:12px;">Point</label></td>
+					
+					<td style="width: 30px;background-color: #ffffff;margin-left: 50px;font-size: 20px;text-align: center; cursor: pointer;" onclick="closeBubbleConfirm();">x</td>
+<!-- 					<td rowspan='3'><button class="ui-state-default ui-corner-all" style="width:80px; height:30px; font-size:12px;" onclick="setGeometry();">Confirm</button></td> -->
 				</tr>
 			</table>
 		</div>
 	</div>
 </div>
 
-<!-- EXIF 삽입 다이얼로그 객체 -->
-<div id='exif_dialog' style='position:absolute; left:800px; top:345px; width:330px; height:204px; border:1px solid #999999; display:block; font-size:13px;'>
-	<div class='accordionButton col_black'>&nbsp;EXIF</div>
-	<div class='accordionContent' style='height:164px; overflow-y:scroll;'>
-		<table id='normal_exif_table'>
-			<tr><td width='15'><td width='100'><label style='font-size:12px;'>Make</label></td><td width='150'><input id='make_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Model</label></td><td><input id='model_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Date Time</label></td><td><input id='date_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Flash</label></td><td><input id='flash_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Shutter Speed</label></td><td><input id='shutter_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Aperture</label></td><td><input id='aperture_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Max Aperture</label></td><td><input id='m_aperture_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Focal Length</label></td><td><input id='focal_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Digital Zoom</label></td><td><input id='zoom_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>White Balance</label></td><td><input id='white_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>Brightness</label></td><td><input id='bright_text' name='text' type='text' style='font-size:12px;' readonly/></td></tr>
-			<tr><td width='15'><td><label style='font-size:12px;'>User Comment</label></td><td><input id='comment_text' name='text' type='text' style='font-size:12px;'/></td></tr>
-		</table>
-	</div>
-	
-	<div class='accordionButton col_black'>&nbsp;EXIF-GPS</div>
-	<div class='accordionContent' style='height:162px; overflow-y:scroll;'>
-		<table id='gps_exif_table' style="margin-top:7px;">
-			<tr><td width='15'></td><td width='100'><label style='font-size:12px;'>Speed</label></td><td width='150'><input id='speed_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
-			<tr><td width='15'></td><td><label style='font-size:12px;'>Altitude</label></td><td><input id='alt_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
-			<tr><td width='15'></td><td><label style='font-size:12px;'>GPS Direction</label></td><td><input id='gps_direction_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
-			<tr><td width='15'></td><td><label style='font-size:12px;'>Longitude</label></td><td><input id='lon_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
-			<tr><td width='15'></td><td><label style='font-size:12px;'>Latitude</label></td><td><input id='lat_text' name='text' type='text' style='font-size:12px;' disabled /></td></tr>
-		</table>
-	</div>
-	
-</div>
-
-<div id='data_dialog' style='position:absolute; left:150px; top:638px; width:500px; height:165px; border:1px solid #999999; display:none; font-size:13px;'>
+<div id='data_dialog' style='display:none; font-size:13px; position: absolute;left: 61px;top: 378px;background-color: rgb(229, 229, 229);width: 778px; border: 1px solid #ebebeb;'>
 	<div style='display:table; width:100%; height:100%;'>
 		<div align="center" style='display:table-cell; vertical-align:middle;'>
-			<table id="upload_table" border='0'>
+			<table id="upload_table" border='0' style="width:100%;">
 				<tr>
-					<td colspan="2" width="450">
+					<td colspan="2">
 <!-- 						<div><input type="radio" value="0" name="shareRadio">비공개</div> -->
 <!-- 						<div><input type="radio" value="1" name="shareRadio">전체공개</div> -->
-<!-- 						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">특정인 공개</div> -->
+<!-- 						<div><input type="radio" value="2" name="shareRadio" onclick="videoGetShareUser();">특정인 공개</div> -->
 						<div><input type="radio" value="0" name="shareRadio">private</div>
 						<div><input type="radio" value="1" name="shareRadio">public</div>
-						<div><input type="radio" value="2" name="shareRadio" onclick="imgGetShareUser();">sharing with friends</div>
+						<div><input type="radio" value="2" name="shareRadio" onclick="videoGetShareUser();">sharing with friends</div>
 						
 						<div style="float: right;">Drone Type <input type="checkbox" id="droneTypeChk"></div>
 					</td>
+					<td rowspan="5" style="width: 30px;background-color: #ffffff;margin-left: 50px;font-size: 20px;text-align: center; cursor: pointer;" onclick="closeBubbleConfirm();">x</td>
 				</tr>
 				<tr class='tr_line'><td colspan='2'><hr/></td></tr>
 				<tr>
@@ -2523,6 +2641,7 @@ function getCopyUrl(){
 		</div>
 	</div>
 </div>
+<!----------------------------------------------------- 서브 영역 ------------------------------------------------------------->
 
 <input type="hidden" id="shareAdd"/>
 <input type="hidden" id="shareRemove"/>
@@ -2550,10 +2669,17 @@ function getCopyUrl(){
 </div>
 
 <!-- 저장 버튼 다이얼로그 객체 -->
-<div id='save_dialog' class='save_dialog' title='Export AREA'>
-<!-- 	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(2);'>export to XML</button><br/><br/> -->
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(3);'>view XML</button><br/><br/>
-	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='sendMail()'>send EMAIL</button>
+<!-- <div id='save_dialog' class='save_dialog' title='Export AREA'> -->
+<!-- <!-- 	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(2);'>export to XML</button><br/><br/> --> -->
+<!-- 	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='saveImageWrite1(3);'>view XML</button><br/><br/> -->
+<!-- 	<button class='ui-state-default ui-corner-all' style='width:300px; height:40px; font-size:11px;' onclick='sendMail()'>send EMAIL</button> -->
+<!-- </div> -->
+
+<!-- 편집기 버튼 영역 -->
+<div style="width:100%; position: absolute;top:550px;" align="center" class="writer_btn_class">
+	<button class='smallBlueBtn' style='margin-top:15px;' onclick='saveImageWrite1(2);'>Save</button>
+	<button class='smallGreyBtn' style='margin-top:15px;margin-left:5px;' onclick='saveImageWrite1(3);'>view XML</button>
+	<button class='smallWhiteBtn' style='margin-top:15px;margin-left:5px;margin-right: 10px;' onclick='sendMail()'>send EMAIL</button>
 </div>
 
 <!-- 이메일공유 다이얼로그 객체 -->
