@@ -9,7 +9,8 @@ function iColorShow(id,id2){
 	var tmpId = id.split('_')[0];
 //	var iColTop = $('#'+ tmpId+ '_dialog').offset().top + eICP.top + $("#"+id).outerHeight();
 	var iColTop = $('#'+ tmpId+ '_dialog').offset().top;
-	var iColLeft = eICP.left + ($('#iColorPicker').width()/3*2) + 15;
+//	var iColLeft = eICP.left + ($('#iColorPicker').width()/3*2) + 15;
+	var iColLeft = eICP.left + ($('#iColorPicker').width()/3*2) -95;
 	
 	jQuery("#iColorPicker").css({'top':iColTop+"px",'left':iColLeft+"px",'position':'absolute'}).fadeIn("fast");
 	jQuery("#iColorPickerBg").css({'position':'fixed','top':0,'left':0,'width':'100%','height':'100%'}).fadeIn("fast");
